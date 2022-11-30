@@ -1,7 +1,14 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
-export class UsersEntity {
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -21,19 +28,19 @@ export class UsersEntity {
   phone: string;
 
   @Column()
-  role: Role;
+  role: UserRoles;
 
-  @CreateDateColumn({name: 'created_at'})
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: string;
 
-  @UpdateDateColumn({name: 'updated_at'})
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: string;
 
-  @DeleteDateColumn({name: 'deleted_at'})
-  deletedAt: string
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: string;
 }
 
-enum Role {
+export enum UserRoles {
   admin,
   preSale,
   financial,
