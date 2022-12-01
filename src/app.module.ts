@@ -13,7 +13,7 @@ import { UserModule } from './app/user/user.module';
       database: process.env.DB_DATABASE,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      entities: [__dirname + '/**/*.entity{.js, .ts}'],
+      entities: [__dirname + '/**/*.entity.js'],
       synchronize: true,
     }),
     UserModule,

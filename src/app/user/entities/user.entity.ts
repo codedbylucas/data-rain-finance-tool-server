@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class UserEntity {
+export class UsersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -28,7 +28,7 @@ export class UserEntity {
   phone: string;
 
   @Column()
-  role: UserRoles;
+  role: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: string;
@@ -38,10 +38,4 @@ export class UserEntity {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: string;
-}
-
-export enum UserRoles {
-  admin,
-  preSale,
-  financial,
 }
