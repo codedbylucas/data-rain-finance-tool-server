@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
+@Index(['email'], { unique: true })
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

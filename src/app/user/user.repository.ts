@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
@@ -12,9 +12,15 @@ export class UserRepository {
   ) {}
 
   async createUser(data: CreateUserDto): Promise<UserEntity> {
-    const createdUser: UserEntity = this.userRepository.create(data);
-    const savedUser: UserEntity = await this.userRepository.save(createdUser);
+    try {
+      const createdUser: UserEntity = this.userRepository.create(data);
+      const savedUser: UserEntity = await this.userRepository.save(createdUser);
 
-    return savedUser;
+      return savedUser;
+    } catch (error) {
+      throw new BadRequestException(
+        'Error creating user, email already registered',
+      );
+    }
   }
 }
