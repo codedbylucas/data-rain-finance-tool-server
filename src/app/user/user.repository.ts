@@ -12,15 +12,15 @@ export class UserRepository {
   ) {}
 
   async createUser(data: CreateUserDto): Promise<UserEntity> {
-    try {
-      const createdUser: UserEntity = this.userRepository.create(data);
-      const savedUser: UserEntity = await this.userRepository.save(createdUser);
+    const createdUser: UserEntity = this.userRepository.create(data);
+    const savedUser: UserEntity = await this.userRepository.save(createdUser);
+    return savedUser;
+  }
 
-      return savedUser;
-    } catch (error) {
-      throw new BadRequestException(
-        'Error creating User, email already registered',
-      );
-    }
+  async findUserByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    return user
   }
 }
