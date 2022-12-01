@@ -11,9 +11,13 @@ export class UserService {
     if (!this.verifyRole(data.role)) {
       throw new BadRequestException(`Role '${data.role}' is invalid'`);
     }
+    if (data.password !== data.confirmPassword) {
+      throw new BadRequestException(
+        `Password is different from confirm password`,
+      );
+    }
 
     const createdUser = await this.userRepository.createUser(data);
-
     return createdUser;
   }
 

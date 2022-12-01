@@ -19,7 +19,7 @@ export class UserRepository {
       return savedUser;
     } catch (error) {
       throw new BadRequestException(
-        'Error creating user, email already registered',
+        'Error creating User, email already registered',
       );
     }
   }
