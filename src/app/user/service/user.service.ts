@@ -11,8 +11,8 @@ export class UserService {
   async createUser(
     data: CreateUserDto,
   ): Promise<Either<BadRequestException, UserEntity>> {
-    const user = await this.userRepository.findUserByEmail(data.email);
-    if (user) {
+    const userOrNull = await this.userRepository.findUserByEmail(data.email);
+    if (userOrNull) {
       return left(new BadRequestException(`User email already exists`));
     }
     if (!this.verifyRole(data.role)) {

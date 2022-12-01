@@ -12,10 +12,10 @@ export class UserController {
   async createUser(
     @Body() dto: CreateUserDto,
   ): Promise<Either<BadRequestException, UserEntity>> {
-    const user = await this.userService.createUser(dto);
-    if (user.isLeft()) {
-      throw user.value;
+    const userOrError = await this.userService.createUser(dto);
+    if (userOrError.isLeft()) {
+      throw userOrError.value;
     }
-    return rigth(user.value);
+    return rigth(userOrError.value);
   }
 }
