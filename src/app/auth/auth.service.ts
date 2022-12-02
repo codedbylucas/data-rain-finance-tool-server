@@ -3,12 +3,15 @@ import { Either, left, rigth } from 'src/app/shared/either/either';
 import { UserEntity } from 'src/app/user/entities/user.entity';
 import { UserRepository } from 'src/app/user/repositories/user.repository';
 import { BcryptService } from './criptography/bcrypt/bcrypt.service';
+import { JwtAdapter } from './criptography/jwt/jwt.adapter';
+import { LoginResponse } from './criptography/types/login-response';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly bcryptService: BcryptService,
+    private readonly jwtAdapter: JwtAdapter,
   ) {}
 
   async validateUser(
@@ -20,7 +23,7 @@ export class AuthService {
       return left(new UnauthorizedException('Invalid email and/or password!'));
     }
 
-    const isPasswordValid = this.bcryptService.compare(
+    const isPasswordValid = await this.bcryptService.compare(
       password,
       userOrNull.password,
     );
@@ -32,5 +35,14 @@ export class AuthService {
     return rigth(userOrNull);
   }
 
-  async login(user: UserEntity) {}
+  async login(user: UserEntity): Promise<LoginResponse> {
+    const userIdEncrypted = await this.jwtAdapter.encrypt(
+      user.id,
+      process.env.JWT_SECRET,
+    );
+
+    return {
+      token: userIdEncrypted,
+    };
+  }
 }

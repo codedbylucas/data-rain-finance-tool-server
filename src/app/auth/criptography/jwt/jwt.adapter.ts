@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import jwt from 'jsonwebtoken';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class JwtAdapter {
+  constructor(private readonly jwtService: JwtService) {}
   async encrypt(value: string, secret: string): Promise<string> {
-    const accessToken = await jwt.sign({ id: value }, secret);
+    const accessToken = await this.jwtService.sign({ userId: value });
     return accessToken;
   }
 }
