@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Either, left, rigth } from 'src/app/shared/either/either';
 import { UserEntity } from 'src/app/user/entities/user.entity';
-import { UserRepository } from 'src/app/user/user.repository';
+import { UserRepository } from 'src/app/user/repositories/user.repository';
 
 @Injectable()
 export class AuthService {

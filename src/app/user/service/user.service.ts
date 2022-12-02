@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Either, left, rigth } from 'src/app/shared/either/either';
 import { UserEntity } from '../entities/user.entity';
 import { UserCreatedResponse } from '../types/user-created-response.type';
-import { UserRepository } from '../user.repository';
+import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
