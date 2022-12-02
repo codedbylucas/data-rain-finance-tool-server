@@ -29,11 +29,13 @@ export class UserService {
         new BadRequestException(`Password is different from confirm password`),
       );
     }
+    let formattedPhone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
 
     const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
     const data = {
       ...dto,
       password: ecryptedPassword,
+      phone: formattedPhone,
     };
 
     await this.userRepository.createUser(data);
