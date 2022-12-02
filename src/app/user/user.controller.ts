@@ -1,13 +1,17 @@
-import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
-import { Either, rigth } from '../shared/either/either';
+import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UserService } from './service/user.service';
 import { UserCreatedResponse } from './types/user-created-response.type';
 
-@Controller('users')
+@Controller('user')
+@ApiTags('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({
+    summary: 'User is created',
+  })
   @Post()
   async createUser(
     @Body() dto: CreateUserDto,
@@ -18,6 +22,4 @@ export class UserController {
     }
     return userOrError.value;
   }
-
-  
 }
