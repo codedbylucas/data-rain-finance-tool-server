@@ -1,14 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Either, left, rigth } from 'src/app/shared/either/either';
+import { BcryptService } from 'src/auth/criptography/bcrypt/bcrypt.service';
 import { UserEntity } from '../entities/user.entity';
-import { UserCreatedResponse } from '../types/user-created-response.type';
 import { UserRepository } from '../repositories/user.repository';
+import { UserCreatedResponse } from '../types/user-created-response.type';
 import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly bcryptService: BcryptService,
+  ) {}
 
   async createUser(
     dto: CreateUserDto,
@@ -27,9 +30,10 @@ export class UserService {
       );
     }
 
+    const ecryptedPassword = await this.bcryptService.hash(dto.password, 12);
     const data = {
       ...dto,
-      password: await bcrypt.hash(dto.password, 12),
+      password: ecryptedPassword,
     };
 
     await this.userRepository.createUser(data);
