@@ -10,6 +10,7 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UserService } from './service/user.service';
+import { FindUserResponse } from './types/find-user-response';
 import { UserCreatedResponse } from './types/user-created-response.type';
 
 @Controller('user')
@@ -32,7 +33,9 @@ export class UserController {
   }
 
   @Get(':id')
-  async findUserById(@Param('id', new ParseUUIDPipe()) id: string) {
+  async findUserById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BadRequestException | FindUserResponse> {
     const userOrError = await this.userService.findUserById(id);
     if (userOrError.isLeft()) {
       throw userOrError.value;
