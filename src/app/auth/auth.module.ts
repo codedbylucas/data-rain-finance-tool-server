@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/app/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { BcryptService } from './criptography/bcrypt/bcrypt.service';
+import { BcryptAdapter } from './criptography/bcrypt/bcrypt.adapter';
 import { JwtAdapter } from './criptography/jwt/jwt.adapter';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
@@ -22,6 +22,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, BcryptService, JwtAdapter, JwtStrategy],
+  providers: [AuthService, BcryptAdapter, JwtAdapter, JwtStrategy],
 })
 export class AuthModule {}

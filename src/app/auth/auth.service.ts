@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Either, left, rigth } from 'src/app/shared/either/either';
 import { UserEntity } from 'src/app/user/entities/user.entity';
 import { UserRepository } from 'src/app/user/repositories/user.repository';
-import { BcryptService } from './criptography/bcrypt/bcrypt.service';
+import { BcryptAdapter } from './criptography/bcrypt/bcrypt.adapter';
 import { JwtAdapter } from './criptography/jwt/jwt.adapter';
 import { LoginResponse } from './criptography/types/login-response';
 import { LoginDto } from './dto/login.dto';
@@ -11,7 +11,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly bcryptService: BcryptService,
+    private readonly bcryptAdapter: BcryptAdapter,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
 
@@ -24,7 +24,7 @@ export class AuthService {
       return left(new UnauthorizedException('Invalid email and/or password!'));
     }
 
-    const isPasswordValid = await this.bcryptService.compare(
+    const isPasswordValid = await this.bcryptAdapter.compare(
       password,
       userOrNull.password,
     );
