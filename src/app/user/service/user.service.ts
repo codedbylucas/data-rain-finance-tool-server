@@ -49,13 +49,13 @@ export class UserService {
 
   async findUserById(
     id: string,
-  ): Promise<BadRequestException | FindUserResponse> {
+  ): Promise<Either<BadRequestException, FindUserResponse>> {
     const userOrNull = await this.userRepository.findUserById(id);
     if (!userOrNull) {
-      throw new BadRequestException('User not found');
+      return left(new BadRequestException('User not found'));
     }
     const userResponse = this.deleteSomeData(userOrNull);
-    return userResponse;
+    return rigth(userResponse);
   }
 
   verifyRole(role: string): boolean {

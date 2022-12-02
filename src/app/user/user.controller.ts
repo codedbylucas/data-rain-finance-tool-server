@@ -33,6 +33,10 @@ export class UserController {
 
   @Get(':id')
   async findUserById(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.userService.findUserById(id);
+    const userOrError = await this.userService.findUserById(id);
+    if (userOrError.isLeft()) {
+      throw userOrError.value;
+    }
+    return userOrError.value;
   }
 }
