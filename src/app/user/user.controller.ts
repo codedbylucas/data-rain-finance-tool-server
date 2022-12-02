@@ -1,4 +1,12 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UserService } from './service/user.service';
@@ -21,5 +29,10 @@ export class UserController {
       throw userOrError.value;
     }
     return userOrError.value;
+  }
+
+  @Get(':id')
+  async findUserById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.userService.findUserById(id);
   }
 }

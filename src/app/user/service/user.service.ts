@@ -5,6 +5,7 @@ import { UserEntity } from '../entities/user.entity';
 import { UserRepository } from '../repositories/user.repository';
 import { UserCreatedResponse } from '../types/user-created-response.type';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindUserResponse } from '../types/find-user-response';
 
 @Injectable()
 export class UserService {
@@ -46,10 +47,29 @@ export class UserService {
     });
   }
 
+  async findUserById(
+    id: string,
+  ): Promise<BadRequestException | FindUserResponse> {
+    const userOrNull = await this.userRepository.findUserById(id);
+    if (!userOrNull) {
+      throw new BadRequestException('User not found');
+    }
+    const userResponse = this.deleteSomeData(userOrNull);
+    return userResponse;
+  }
+
   verifyRole(role: string): boolean {
     if (role !== 'preSale' && role !== 'financial') {
       return false;
     }
     return true;
+  }
+
+  deleteSomeData(user: UserEntity): FindUserResponse {
+    delete user.createdAt;
+    delete user.updatedAt;
+    delete user.deletedAt;
+    delete user.password;
+    return user;
   }
 }
