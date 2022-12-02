@@ -5,6 +5,7 @@ import { UserRepository } from 'src/app/user/repositories/user.repository';
 import { BcryptService } from './criptography/bcrypt/bcrypt.service';
 import { JwtAdapter } from './criptography/jwt/jwt.adapter';
 import { LoginResponse } from './criptography/types/login-response';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +16,9 @@ export class AuthService {
   ) {}
 
   async validateUser(
-    email: string,
-    password: string,
+    dto: LoginDto,
   ): Promise<Either<UnauthorizedException, UserEntity>> {
+    const { password, email } = dto;
     const userOrNull = await this.userRepository.findUserByEmail(email);
     if (!userOrNull) {
       return left(new UnauthorizedException('Invalid email and/or password!'));
@@ -35,9 +36,14 @@ export class AuthService {
     return rigth(userOrNull);
   }
 
-  async login(user: UserEntity): Promise<LoginResponse> {
+  async login(dto: LoginDto): Promise<LoginResponse> {
+    const userOrError = await this.validateUser(dto);
+    if (userOrError.isLeft()) {
+      throw userOrError.value;
+    }
+
     const userIdEncrypted = await this.jwtAdapter.encrypt(
-      user.id,
+      userOrError.value.id,
       process.env.JWT_SECRET,
     );
 
