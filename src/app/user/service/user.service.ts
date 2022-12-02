@@ -4,27 +4,34 @@ import { UserEntity } from '../entities/user.entity';
 import { UserCreatedResponse } from '../types/user-created-response.type';
 import { UserRepository } from '../user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async createUser(
-    data: CreateUserDto,
+    dto: CreateUserDto,
   ): Promise<Either<BadRequestException, UserCreatedResponse>> {
     const userOrNull: UserEntity | null =
-      await this.userRepository.findUserByEmail(data.email);
+      await this.userRepository.findUserByEmail(dto.email);
     if (userOrNull) {
       return left(new BadRequestException(`User email already exists`));
     }
-    if (!this.verifyRole(data.role)) {
-      return left(new BadRequestException(`Role '${data.role}' is invalid'`));
+    if (!this.verifyRole(dto.role)) {
+      return left(new BadRequestException(`Role '${dto.role}' is invalid'`));
     }
-    if (data.password !== data.confirmPassword) {
+    if (dto.password !== dto.confirmPassword) {
       return left(
         new BadRequestException(`Password is different from confirm password`),
       );
     }
+
+    const data = {
+      ...dto,
+      password: await bcrypt.hash(dto.password, 12),
+    };
+
     await this.userRepository.createUser(data);
 
     return rigth({

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
 import { Either, rigth } from '../shared/either/either';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UserService } from './service/user.service';
@@ -18,4 +18,6 @@ export class UserController {
     }
     return userOrError.value;
   }
+
+  
 }
