@@ -17,10 +17,10 @@ export class UserRepository {
     return savedUser;
   }
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { email },
     });
-    return user
+    return user;
   }
 }

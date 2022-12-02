@@ -1,8 +1,8 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { Either, rigth } from '../shared/either/either';
-import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UserService } from './service/user.service';
+import { UserCreatedResponse } from './types/user-created-response.type';
 
 @Controller('users')
 export class UserController {
@@ -11,11 +11,11 @@ export class UserController {
   @Post()
   async createUser(
     @Body() dto: CreateUserDto,
-  ): Promise<Either<BadRequestException, UserEntity>> {
+  ): Promise<BadRequestException | UserCreatedResponse> {
     const userOrError = await this.userService.createUser(dto);
     if (userOrError.isLeft()) {
       throw userOrError.value;
     }
-    return rigth(userOrError.value);
+    return userOrError.value;
   }
 }
