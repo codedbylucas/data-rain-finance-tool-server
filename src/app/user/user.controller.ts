@@ -43,11 +43,7 @@ export class UserController {
   async findUserById(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | FindUserResponse> {
-    const userOrError = await this.userService.findUserById(id);
-    if (userOrError.isLeft()) {
-      throw userOrError.value;
-    }
-    return userOrError.value;
+    return await this.userService.findUserById(id);
   }
 
   @Get()
@@ -65,7 +61,7 @@ export class UserController {
   })
   async deleteUserById(
     @Param('id', new ParseUUIDPipe()) id: string,
-  ): Promise<void> {
+  ): Promise<BadRequestException | void> {
     await this.userService.deleteUserById(id);
   }
 }

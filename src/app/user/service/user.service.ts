@@ -48,15 +48,13 @@ export class UserService {
     });
   }
 
-  async findUserById(
-    id: string,
-  ): Promise<Either<BadRequestException, FindUserResponse>> {
+  async findUserById(id: string): Promise<FindUserResponse> {
     const userOrNull = await this.userRepository.findUserById(id);
     if (!userOrNull) {
-      return left(new BadRequestException('User not found'));
+      throw new BadRequestException('User not found');
     }
     const userResponse = this.deleteSomeData(userOrNull);
-    return rigth(userResponse);
+    return userResponse;
   }
 
   async findAllUsers(): Promise<FindAllUsersResponse[]> {
