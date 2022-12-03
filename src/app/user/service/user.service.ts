@@ -80,6 +80,17 @@ export class UserService {
     return rigth(users);
   }
 
+  async deleteUserById(id: string): Promise<void> {
+    const userOrNull = await this.userRepository.findUserById(id);
+    if (!userOrNull) {
+      throw new BadRequestException(`User with id '${id}' not found`);
+    }
+    if (userOrNull.role === 'admin') {
+      throw new BadRequestException('Action not allowed');
+    }
+    await this.userRepository.deleteUserById(id);
+  }
+
   verifyRole(role: string): boolean {
     if (role !== 'preSale' && role !== 'financial') {
       return false;

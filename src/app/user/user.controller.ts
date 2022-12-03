@@ -2,10 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
-  Post,
   ParseUUIDPipe,
+  Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './service/dto/create-user.dto';
@@ -52,10 +55,21 @@ export class UserController {
     summary: 'Find all users',
   })
   async findUser(): Promise<BadRequestException | FindAllUsersResponse[]> {
-    const userOrError = await this.userService.findAllUsers();
-    if (userOrError.isLeft()) {
-      throw userOrError.value;
+    const usersOrError = await this.userService.findAllUsers();
+    if (usersOrError.isLeft()) {
+      throw usersOrError.value;
     }
-    return userOrError.value;
+    return usersOrError.value;
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete a user by id',
+  })
+  async deleteUserById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
+    await this.userService.deleteUserById(id);
   }
 }

@@ -43,4 +43,8 @@ export class UserRepository {
 
     return userOrNull;
   }
+
+  async deleteUserById(id: string) {
+    await this.userRepository.softDelete(id);
+  }
 }
