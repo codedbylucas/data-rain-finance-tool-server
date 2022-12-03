@@ -6,6 +6,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { UserCreatedResponse } from '../types/user-created-response.type';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUserResponse } from '../types/find-user-response';
+import { FindAllUsersResponse } from '../types/find-all-users-response';
 
 @Injectable()
 export class UserService {
@@ -56,6 +57,27 @@ export class UserService {
     }
     const userResponse = this.deleteSomeData(userOrNull);
     return rigth(userResponse);
+  }
+
+  async findAllUsers(): Promise<
+    Either<BadRequestException, FindAllUsersResponse[]>
+  > {
+    const userOrNull = await this.userRepository.findAllUsers();
+    if (!userOrNull || userOrNull.length === 0) {
+      return left(new BadRequestException('No user found'));
+    }
+
+    const users = userOrNull.map((user) => {
+      return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      };
+    });
+
+    return rigth(users);
   }
 
   verifyRole(role: string): boolean {

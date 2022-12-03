@@ -10,6 +10,7 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UserService } from './service/user.service';
+import { FindAllUsersResponse } from './types/find-all-users-response';
 import { FindUserResponse } from './types/find-user-response';
 import { UserCreatedResponse } from './types/user-created-response.type';
 
@@ -18,10 +19,10 @@ import { UserCreatedResponse } from './types/user-created-response.type';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post()
   @ApiOperation({
     summary: 'User is created',
   })
-  @Post()
   async createUser(
     @Body() dto: CreateUserDto,
   ): Promise<BadRequestException | UserCreatedResponse> {
@@ -33,10 +34,25 @@ export class UserController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Find a user by id',
+  })
   async findUserById(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | FindUserResponse> {
     const userOrError = await this.userService.findUserById(id);
+    if (userOrError.isLeft()) {
+      throw userOrError.value;
+    }
+    return userOrError.value;
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Find all users',
+  })
+  async findUser(): Promise<BadRequestException | FindAllUsersResponse[]> {
+    const userOrError = await this.userService.findAllUsers();
     if (userOrError.isLeft()) {
       throw userOrError.value;
     }

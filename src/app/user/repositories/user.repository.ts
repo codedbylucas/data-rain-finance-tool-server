@@ -37,4 +37,10 @@ export class UserRepository {
       .catch(serverError);
     return userOrNull;
   }
+
+  async findAllUsers(): Promise<UserEntity[]> {
+    const userOrNull = await this.userRepository.find();
+
+    return userOrNull;
+  }
 }
