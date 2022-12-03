@@ -55,11 +55,7 @@ export class UserController {
     summary: 'Find all users',
   })
   async findUser(): Promise<BadRequestException | FindAllUsersResponse[]> {
-    const usersOrError = await this.userService.findAllUsers();
-    if (usersOrError.isLeft()) {
-      throw usersOrError.value;
-    }
-    return usersOrError.value;
+    return await this.userService.findAllUsers();
   }
 
   @Delete(':id')

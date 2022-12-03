@@ -59,12 +59,10 @@ export class UserService {
     return rigth(userResponse);
   }
 
-  async findAllUsers(): Promise<
-    Either<BadRequestException, FindAllUsersResponse[]>
-  > {
+  async findAllUsers(): Promise<FindAllUsersResponse[]> {
     const userOrNull = await this.userRepository.findAllUsers();
     if (!userOrNull || userOrNull.length === 0) {
-      return left(new BadRequestException('No user found'));
+      throw new BadRequestException('No user found');
     }
 
     const users = userOrNull.map((user) => {
@@ -77,7 +75,7 @@ export class UserService {
       };
     });
 
-    return rigth(users);
+    return users;
   }
 
   async deleteUserById(id: string): Promise<void> {
