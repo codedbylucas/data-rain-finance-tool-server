@@ -29,11 +29,7 @@ export class UserController {
   async createUser(
     @Body() dto: CreateUserDto,
   ): Promise<BadRequestException | UserCreatedResponse> {
-    const userOrError = await this.userService.createUser(dto);
-    if (userOrError.isLeft()) {
-      throw userOrError.value;
-    }
-    return userOrError.value;
+    return await this.userService.createUser(dto);
   }
 
   @Get(':id')

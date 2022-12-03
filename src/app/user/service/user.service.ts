@@ -1,12 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Either, left, rigth } from 'src/app/shared/either/either';
 import { BcryptAdapter } from 'src/app/auth/criptography/bcrypt/bcrypt.adapter';
 import { UserEntity } from '../entities/user.entity';
 import { UserRepository } from '../repositories/user.repository';
+import { FindAllUsersResponse } from '../types/find-all-users-response';
+import { FindUserResponse } from '../types/find-user-response';
 import { UserCreatedResponse } from '../types/user-created-response.type';
 import { CreateUserDto } from './dto/create-user.dto';
-import { FindUserResponse } from '../types/find-user-response';
-import { FindAllUsersResponse } from '../types/find-all-users-response';
 
 @Injectable()
 export class UserService {
@@ -15,20 +14,18 @@ export class UserService {
     private readonly bcryptAdapter: BcryptAdapter,
   ) {}
 
-  async createUser(
-    dto: CreateUserDto,
-  ): Promise<Either<BadRequestException, UserCreatedResponse>> {
+  async createUser(dto: CreateUserDto): Promise<UserCreatedResponse> {
     const userOrNull: UserEntity | null =
       await this.userRepository.findUserByEmail(dto.email);
     if (userOrNull) {
-      return left(new BadRequestException(`User email already exists`));
+      throw new BadRequestException(`User email already exists`);
     }
     if (!this.verifyRole(dto.role)) {
-      return left(new BadRequestException(`Role '${dto.role}' is invalid'`));
+      throw new BadRequestException(`Role '${dto.role}' is invalid'`);
     }
     if (dto.password !== dto.confirmPassword) {
-      return left(
-        new BadRequestException(`Password is different from confirm password`),
+      throw new BadRequestException(
+        `Password is different from confirm password`,
       );
     }
     let formattedPhone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
@@ -42,10 +39,10 @@ export class UserService {
 
     await this.userRepository.createUser(data);
 
-    return rigth({
+    return {
       statusCode: 201,
       message: 'User created successfully',
-    });
+    };
   }
 
   async findUserById(id: string): Promise<FindUserResponse> {
