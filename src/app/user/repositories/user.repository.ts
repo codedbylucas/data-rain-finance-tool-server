@@ -45,12 +45,8 @@ export class UserRepository {
   }
 
   async updateUserById(entity: UserEntity, data: UpdateUserDto) {
-    console.log('entity', entity);
-    console.log('dto', data);
     const userMerge = this.userRepository.merge(entity, data);
     const userUpdated = await this.userRepository.save(userMerge);
-    console.log('merge', userMerge);
-    console.log('userUpdated', userUpdated);
     return userUpdated;
   }
 
