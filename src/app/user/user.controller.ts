@@ -8,13 +8,17 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './service/dto/create-user.dto';
+import { UpdateUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
 import { FindAllUsersResponse } from './types/find-all-users-response';
 import { FindUserResponse } from './types/find-user-response';
+import { UpdateUserResponse } from './types/update-user-response.type';
 import { UserCreatedResponse } from './types/user-created-response.type';
 
 @Controller('user')
@@ -48,6 +52,17 @@ export class UserController {
   })
   async findUser(): Promise<BadRequestException | FindAllUsersResponse[]> {
     return await this.userService.findAllUsers();
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Update a user by id',
+  })
+  async updateUserSelfById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateUserDto,
+  ): Promise<BadRequestException | void> {
+    return await this.userService.updateUserSelfById(id, dto);
   }
 
   @Delete(':id')

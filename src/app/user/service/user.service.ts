@@ -4,8 +4,10 @@ import { UserEntity } from '../entities/user.entity';
 import { UserRepository } from '../repositories/user.repository';
 import { FindAllUsersResponse } from '../types/find-all-users-response';
 import { FindUserResponse } from '../types/find-user-response';
+import { UpdateUserResponse } from '../types/update-user-response.type';
 import { UserCreatedResponse } from '../types/user-created-response.type';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -23,11 +25,8 @@ export class UserService {
     if (!this.verifyRole(dto.role)) {
       throw new BadRequestException(`Role '${dto.role}' is invalid'`);
     }
-    if (dto.password !== dto.confirmPassword) {
-      throw new BadRequestException(
-        `Password is different from confirm password`,
-      );
-    }
+    this.verifyConfirmPassword(dto.password, dto.confirmPassword);
+
     let formattedPhone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
 
     const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
@@ -60,17 +59,51 @@ export class UserService {
       throw new BadRequestException('No user found');
     }
 
-    const users = userOrNull.map((user) => {
-      return {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-      };
-    });
+    const users = userOrNull.map((user) => ({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    }));
 
     return users;
+  }
+
+  async updateUserSelfById(id: string, dto: UpdateUserDto): Promise<void> {
+    const userOrNull = await this.userRepository.findUserById(id);
+    if (!userOrNull) {
+      throw new BadRequestException(`User with id '${id}' not found`);
+    }
+    if (dto.currentPassword) {
+      if (dto.password && dto.confirmPassword) {
+        this.verifyConfirmPassword(dto.password, dto.confirmPassword);
+      } else {
+        throw new BadRequestException(
+          'It is necessary to inform the new password and confirm new password',
+        );
+      }
+      const compare = await this.bcryptAdapter.compare(
+        dto.currentPassword,
+        userOrNull.password,
+      );
+      if (!compare) {
+        throw new BadRequestException(
+          'The password does not match the current password',
+        );
+      }
+      const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
+      delete dto.currentPassword;
+      delete dto.confirmPassword;
+      const data = {
+        ...dto,
+        password: ecryptedPassword,
+      };
+      await this.userRepository.updateUserById(userOrNull, data);
+      return;
+    }
+
+    await this.userRepository.updateUserById(userOrNull, dto);
   }
 
   async deleteUserById(id: string): Promise<void> {
@@ -97,5 +130,13 @@ export class UserService {
     delete user.deletedAt;
     delete user.password;
     return user;
+  }
+
+  verifyConfirmPassword(password: string, confirmPassword: string): void {
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        `Password is different from confirm password`,
+      );
+    }
   }
 }

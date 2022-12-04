@@ -4,6 +4,7 @@ import { serverError } from 'src/app/util/server-error';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserDto } from '../service/dto/create-user.dto';
+import { UpdateUserDto } from '../service/dto/update-user.dto';
 
 @Injectable()
 export class UserRepository {
@@ -40,8 +41,17 @@ export class UserRepository {
 
   async findAllUsers(): Promise<UserEntity[]> {
     const userOrNull = await this.userRepository.find();
-
     return userOrNull;
+  }
+
+  async updateUserById(entity: UserEntity, data: UpdateUserDto) {
+    console.log('entity', entity);
+    console.log('dto', data);
+    const userMerge = this.userRepository.merge(entity, data);
+    const userUpdated = await this.userRepository.save(userMerge);
+    console.log('merge', userMerge);
+    console.log('userUpdated', userUpdated);
+    return userUpdated;
   }
 
   async deleteUserById(id: string) {
