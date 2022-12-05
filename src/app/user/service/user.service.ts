@@ -1,11 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BcryptAdapter } from 'src/app/auth/criptography/bcrypt/bcrypt.adapter';
 import { UserEntity } from '../entities/user.entity';
+import { FindAllUsersResponse } from '../protocols/find-all-users-response';
+import { FindUserResponse } from '../protocols/find-user-response';
+import { UserCreatedResponse } from '../protocols/user-created-response';
 import { UserRepository } from '../repositories/user.repository';
-import { FindAllUsersResponse } from '../types/find-all-users-response';
-import { FindUserResponse } from '../types/find-user-response';
-import { UpdateUserResponse } from '../types/update-user-response.type';
-import { UserCreatedResponse } from '../types/user-created-response.type';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 

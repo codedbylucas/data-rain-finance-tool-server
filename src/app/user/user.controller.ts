@@ -12,14 +12,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { UserEntity } from './entities/user.entity';
+import { FindAllUsersResponse } from './protocols/find-all-users-response';
+import { FindUserResponse } from './protocols/find-user-response';
+import { UserCreatedResponse } from './protocols/user-created-response';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
-import { FindAllUsersResponse } from './types/find-all-users-response';
-import { FindUserResponse } from './types/find-user-response';
-import { UpdateUserResponse } from './types/update-user-response.type';
-import { UserCreatedResponse } from './types/user-created-response.type';
 
 @Controller('user')
 @ApiTags('user')
