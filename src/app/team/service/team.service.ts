@@ -27,4 +27,17 @@ export class TeamService {
       valuePerHour: teamOrNull.valuePerHour,
     };
   }
+
+  async findAllTeams(): Promise<TeamResponse[]> {
+    const teamsOrEmpty = await this.teamRepository.findAllTeams();
+    if (!teamsOrEmpty || teamsOrEmpty.length === 0) {
+      throw new BadRequestException(`No team was found`);
+    }
+    const formattedTeams = teamsOrEmpty.map((team) => ({
+      id: team.id,
+      name: team.name,
+      valuePerHour: team.valuePerHour,
+    }));
+    return formattedTeams;
+  }
 }

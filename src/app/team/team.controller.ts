@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -20,7 +21,9 @@ export class TeamController {
   @ApiOperation({
     summary: 'Team is created',
   })
-  async createTeam(@Body() dto: CreateTeamDto): Promise<TeamResponse> {
+  async createTeam(
+    @Body() dto: CreateTeamDto,
+  ): Promise<BadRequestException | TeamResponse> {
     return await this.teamService.createTeam(dto);
   }
 
@@ -28,7 +31,17 @@ export class TeamController {
   @ApiOperation({
     summary: 'Find team by id',
   })
-  async findTeamById(@Param('id', new ParseUUIDPipe()) id: string) {
+  async findTeamById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BadRequestException | TeamResponse> {
     return await this.teamService.findTeamById(id);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Find all teams',
+  })
+  async findAllTeams(): Promise<BadRequestException | TeamResponse[]> {
+    return await this.teamService.findAllTeams();
   }
 }

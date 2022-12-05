@@ -28,4 +28,9 @@ export class TeamRepository {
       .catch(serverError);
     return teamOrNull;
   }
+
+  async findAllTeams(): Promise<TeamEntity[]> {
+    const teamOrEmpty = await this.teamRepository.find().catch(serverError);
+    return teamOrEmpty;
+  }
 }
