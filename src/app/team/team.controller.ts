@@ -1,10 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateTeamResponse } from './protocols/create-team-response';
 import { CreateTeamDto } from './service/dto/create-team.dto';
 import { TeamService } from './service/team.service';
 
 @Controller('team')
+@ApiTags('team')
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
