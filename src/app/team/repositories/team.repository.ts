@@ -19,4 +19,13 @@ export class TeamRepository {
       .catch(serverError);
     return savedTeam;
   }
+
+  async findTeamById(id: string): Promise<TeamEntity> {
+    const teamOrNull = await this.teamRepository
+      .findOne({
+        where: { id },
+      })
+      .catch(serverError);
+    return teamOrNull;
+  }
 }
