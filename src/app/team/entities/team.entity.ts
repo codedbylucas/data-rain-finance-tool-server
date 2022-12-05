@@ -3,20 +3,19 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
 export class TeamEntity {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   name: string;
 
-  @Column({ name: 'value_per_hour' })
+  @Column({ type: 'decimal', name: 'value_per_hour' })
   valuePerHour: number;
 
   @CreateDateColumn({ name: 'created_at' })
