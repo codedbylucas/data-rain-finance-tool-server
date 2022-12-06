@@ -10,8 +10,10 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TeamResponse } from './protocols/team-response';
 import { CreateTeamDto } from './service/dto/create-team.dto';
 import { UpdateTeamDto } from './service/dto/update-team.dto';
@@ -23,6 +25,8 @@ export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
   @Post()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Team is created',
   })
@@ -33,6 +37,8 @@ export class TeamController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Find team by id',
   })
@@ -43,6 +49,8 @@ export class TeamController {
   }
 
   @Get()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Find all teams',
   })
@@ -51,6 +59,8 @@ export class TeamController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update a team by id',
   })
@@ -62,6 +72,8 @@ export class TeamController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a team by id',
