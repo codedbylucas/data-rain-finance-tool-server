@@ -44,13 +44,16 @@ export class UserRepository {
     return userOrNull;
   }
 
-  async updateUserById(entity: UserEntity, data: UpdateUserDto) {
-    const userMerge = this.userRepository.merge(entity, data);
+  async updateUserByEntity(
+    user: UserEntity,
+    data: UpdateUserDto,
+  ): Promise<UserEntity> {
+    const userMerge = this.userRepository.merge(user, data);
     const userUpdated = await this.userRepository.save(userMerge);
     return userUpdated;
   }
 
-  async deleteUserById(id: string) {
+  async deleteUserById(id: string): Promise<void> {
     await this.userRepository.softDelete(id);
   }
 }

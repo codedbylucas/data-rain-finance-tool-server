@@ -98,11 +98,11 @@ export class UserService {
         ...dto,
         password: ecryptedPassword,
       };
-      await this.userRepository.updateUserById(userOrNull, data);
+      await this.userRepository.updateUserByEntity(userOrNull, data);
       return;
     }
 
-    await this.userRepository.updateUserById(userOrNull, dto);
+    await this.userRepository.updateUserByEntity(userOrNull, dto);
   }
 
   async deleteUserById(id: string): Promise<void> {
