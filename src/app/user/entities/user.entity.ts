@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'users' })
 @Index(['email'], { unique: true })
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
