@@ -1,12 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { BcryptAdapter } from 'src/app/auth/criptography/bcrypt/bcrypt.adapter';
 import { UserEntity } from '../entities/user.entity';
 import { FindAllUsersResponse } from '../protocols/find-all-users-response';
 import { FindUserResponse } from '../protocols/find-user-response';
+import { ProfilePictureResponse } from '../protocols/profile-picture-response';
 import { UserCreatedResponse } from '../protocols/user-created-response';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class UserService {
@@ -25,10 +29,9 @@ export class UserService {
       throw new BadRequestException(`Role '${dto.role}' is invalid'`);
     }
     this.verifyConfirmPassword(dto.password, dto.confirmPassword);
-
     let formattedPhone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
-
     const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
+
     const data = {
       ...dto,
       password: ecryptedPassword,
@@ -40,6 +43,44 @@ export class UserService {
     return {
       statusCode: 201,
       message: 'User created successfully',
+    };
+  }
+
+  async insertProfilePicture(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<ProfilePictureResponse> {
+    const userOrNull = await this.userRepository.findUserById(userId);
+    if (!userOrNull) {
+      throw new BadRequestException(`User with id '${userId}' not found`);
+    }
+
+    const uploadDir = join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'client',
+      'profile-pictures',
+      userId,
+    );
+    if (!existsSync(uploadDir)) {
+      mkdirSync(uploadDir, { recursive: true });
+    }
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const fileDir = `${uploadDir}/${fileName}`;
+    const fileBuffer = await sharp(file.buffer).resize(400, 400).toBuffer();
+    writeFileSync(fileDir, fileBuffer);
+
+    const userUpdated = await this.userRepository.insertProfilePicture({
+      user: userOrNull,
+      imageUrl: `/profile-pictures/${userId}/${fileName}`,
+    });
+
+    return {
+      id: userUpdated.id,
+      imageUrl: userUpdated.imageUrl,
     };
   }
 

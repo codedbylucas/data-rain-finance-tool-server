@@ -10,10 +10,14 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindAllUsersResponse } from './protocols/find-all-users-response';
 import { FindUserResponse } from './protocols/find-user-response';
+import { ProfilePictureResponse } from './protocols/profile-picture-response';
 import { UserCreatedResponse } from './protocols/user-created-response';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateUserDto } from './service/dto/update-user.dto';
@@ -32,6 +36,18 @@ export class UserController {
     @Body() dto: CreateUserDto,
   ): Promise<BadRequestException | UserCreatedResponse> {
     return await this.userService.createUser(dto);
+  }
+
+  @Post('profile-picture/:id')
+  @ApiOperation({
+    summary: 'Add profile picture for user',
+  })
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5000000 } }))
+  async insertProfilePicture(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<ProfilePictureResponse> {
+    return await this.userService.insertProfilePicture(id, file);
   }
 
   @Get(':id')

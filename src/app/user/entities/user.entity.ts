@@ -29,6 +29,9 @@ export class UserEntity {
   @Column()
   phone: string;
 
+  @Column({ name: 'image_url', type: 'text', nullable: true })
+  imageUrl: string;
+
   @Column()
   role: string;
 

@@ -4,6 +4,7 @@ import { serverError } from 'src/app/util/server-error';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserDto } from '../service/dto/create-user.dto';
+import { ProfilePicture } from '../service/dto/insert-profile-picture.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
 
 @Injectable()
@@ -19,6 +20,16 @@ export class UserRepository {
       .save(createdUser)
       .catch(serverError);
     return savedUser;
+  }
+
+  async insertProfilePicture(data: ProfilePicture): Promise<UserEntity> {
+    const userMerge = this.userRepository.merge(data.user, {
+      imageUrl: data.imageUrl,
+    });
+    const userUpdated = await this.userRepository
+      .save(userMerge)
+      .catch(serverError);
+    return userUpdated;
   }
 
   async findUserByEmail(email: string): Promise<UserEntity> {
