@@ -2,10 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
-  Patch,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -56,5 +59,16 @@ export class TeamController {
     @Body() dto: UpdateTeamDto,
   ): Promise<BadRequestException | void> {
     return await this.teamService.updateTeamById(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete a team by id',
+  })
+  async deleteTeamById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BadRequestException | void> {
+    return await this.teamService.deleteTeamById(id);
   }
 }

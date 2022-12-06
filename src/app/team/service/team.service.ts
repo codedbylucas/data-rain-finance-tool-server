@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { TeamEntity } from '../entities/team.entity';
 import { TeamResponse } from '../protocols/team-response';
 import { TeamRepository } from '../repositories/team.repository';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -18,10 +19,7 @@ export class TeamService {
   }
 
   async findTeamById(id: string): Promise<TeamResponse> {
-    const teamOrNull = await this.teamRepository.findTeamById(id);
-    if (!teamOrNull) {
-      throw new BadRequestException(`Team with id '${id}' not found`);
-    }
+    const teamOrNull = await this.verifyTeamExist(id);
     return {
       id: teamOrNull.id,
       name: teamOrNull.name,
@@ -43,10 +41,20 @@ export class TeamService {
   }
 
   async updateTeamById(id: string, dto: UpdateTeamDto): Promise<void> {
+    const teamOrNull = await this.verifyTeamExist(id);
+    await this.teamRepository.updateTeamByEntity(teamOrNull, dto);
+  }
+
+  async deleteTeamById(id: string): Promise<void> {
+    await this.verifyTeamExist(id);
+    await this.teamRepository.deleteTeamById(id);
+  }
+
+  async verifyTeamExist(id: string): Promise<TeamEntity> {
     const teamOrNull = await this.teamRepository.findTeamById(id);
     if (!teamOrNull) {
       throw new BadRequestException(`Team with id '${id}' not found`);
     }
-    await this.teamRepository.updateTeamByEntity(teamOrNull, dto);
+    return teamOrNull;
   }
 }

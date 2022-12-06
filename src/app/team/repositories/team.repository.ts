@@ -46,4 +46,8 @@ export class TeamRepository {
       .catch(serverError);
     return teamUpdated;
   }
+
+  async deleteTeamById(id: string): Promise<void> {
+    await this.teamRepository.softDelete(id).catch(serverError);
+  }
 }
