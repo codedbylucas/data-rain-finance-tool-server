@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TeamResponse } from '../protocols/team-response';
 import { TeamRepository } from '../repositories/team.repository';
 import { CreateTeamDto } from './dto/create-team.dto';
+import { UpdateTeamDto } from './dto/update-team.dto';
 
 @Injectable()
 export class TeamService {
@@ -39,5 +40,13 @@ export class TeamService {
       valuePerHour: team.valuePerHour,
     }));
     return formattedTeams;
+  }
+
+  async updateTeamById(id: string, dto: UpdateTeamDto): Promise<void> {
+    const teamOrNull = await this.teamRepository.findTeamById(id);
+    if (!teamOrNull) {
+      throw new BadRequestException(`Team with id '${id}' not found`);
+    }
+    await this.teamRepository.updateTeamByEntity(teamOrNull, dto);
   }
 }

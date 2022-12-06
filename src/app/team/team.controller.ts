@@ -4,12 +4,14 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TeamResponse } from './protocols/team-response';
 import { CreateTeamDto } from './service/dto/create-team.dto';
+import { UpdateTeamDto } from './service/dto/update-team.dto';
 import { TeamService } from './service/team.service';
 
 @Controller('team')
@@ -43,5 +45,16 @@ export class TeamController {
   })
   async findAllTeams(): Promise<BadRequestException | TeamResponse[]> {
     return await this.teamService.findAllTeams();
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Update a team by id',
+  })
+  async updateTeamById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateTeamDto,
+  ): Promise<BadRequestException | void> {
+    return await this.teamService.updateTeamById(id, dto);
   }
 }
