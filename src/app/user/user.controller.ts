@@ -17,6 +17,8 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PermissionAdmin } from '../auth/decorators/admin.decorator';
+import { UserPayload } from '../auth/protocols/user-payload';
 import { FindAllUsersResponse } from './protocols/find-all-users-response';
 import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
@@ -97,6 +99,7 @@ export class UserController {
     summary: 'Delete a user by id',
   })
   async deleteUserById(
+    @PermissionAdmin() admin: UserPayload,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | void> {
     await this.userService.deleteUserById(id);
