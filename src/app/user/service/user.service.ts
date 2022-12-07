@@ -50,6 +50,9 @@ export class UserService {
     userId: string,
     file: Express.Multer.File,
   ): Promise<ProfilePictureResponse> {
+    if (!file) {
+      throw new BadRequestException('It is necessary to send a file');
+    }
     const userOrNull = await this.userRepository.findUserById(userId);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${userId}' not found`);
