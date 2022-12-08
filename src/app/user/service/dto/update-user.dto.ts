@@ -2,12 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   Matches,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class UpdateUserDto {
+  @IsOptional()
   @Length(2, 50)
   @IsString()
   @ApiProperty({
@@ -16,6 +18,7 @@ export class CreateUserDto {
   })
   firstName: string;
 
+  @IsOptional()
   @Length(2, 50)
   @IsString()
   @ApiProperty({
@@ -24,6 +27,7 @@ export class CreateUserDto {
   })
   lastName: string;
 
+  @IsOptional()
   @IsEmail()
   @Length(3, 100)
   @ApiProperty({
@@ -32,10 +36,18 @@ export class CreateUserDto {
   })
   email: string;
 
+  @IsOptional()
+  @ApiProperty({
+    description: 'Current password of User',
+    example: 'Abcd@1234',
+  })
+  currentPassword: string;
+
+  @IsOptional()
   @IsString()
   @Length(8, 50)
   @ApiProperty({
-    description: 'The password of the User',
+    description: 'The new password of the User',
     example: 'Abcd@1234',
   })
   @Matches(
@@ -46,14 +58,16 @@ export class CreateUserDto {
   )
   password: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
-    description: 'User password confirmation',
+    description: 'User new password confirmation',
     example: 'Abcd@1234',
   })
   confirmPassword: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @Length(8, 16)
@@ -62,11 +76,4 @@ export class CreateUserDto {
     example: '11 99100-9900',
   })
   phone: string;
-
-  @IsNotEmpty()
-  @ApiProperty({
-    description: `The User role ('financial' or 'preSale')`,
-    example: 'preSale',
-  })
-  role: string;
 }
