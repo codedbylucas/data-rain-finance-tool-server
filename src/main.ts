@@ -1,12 +1,27 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
-  await app.listen(3333);
+  app.useStaticAssets(join(__dirname, '..', 'client'));
+  const config = new DocumentBuilder()
+    .setTitle('Finance Tool Server')
+    .setDescription('Aplicação de previsão orçamentária')
+    .setVersion('1.0.0')
+    .addTag('auth')
+    .addTag('user')
+    .addTag('team')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+  await app.listen(process.env.PORT || 3333);
 }
 bootstrap();
