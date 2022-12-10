@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { serverError } from 'src/app/util/server-error';
 import { Repository } from 'typeorm';
 import { TeamEntity } from '../entities/team.entity';
-import { CreateTeamDto } from '../service/dto/create-team.dto';
 import { UpdateTeamDto } from '../service/dto/update-team.dto';
 import { DbCreateTeamDto } from './dto/db-create-team.dto';
 
