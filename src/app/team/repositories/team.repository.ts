@@ -15,7 +15,6 @@ export class TeamRepository {
   ) {}
 
   async createTeam(data: DbCreateTeamDto): Promise<TeamEntity> {
-    console.log(data)
     const createdTeam = this.teamRepository.create(data);
     const savedTeam = await this.teamRepository
       .save(createdTeam)
