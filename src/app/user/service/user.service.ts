@@ -11,6 +11,8 @@ import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as sharp from 'sharp';
+import { createUuid } from 'src/app/util/create-uuid';
+import { DbCreateUserDto } from '../repositories/dto/db-create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -32,14 +34,15 @@ export class UserService {
     let formattedPhone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
     const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
 
-    const data = {
+    delete dto.confirmPassword;
+    const data: DbCreateUserDto = {
       ...dto,
+      id: createUuid(),
       password: ecryptedPassword,
       phone: formattedPhone,
     };
 
     await this.userRepository.createUser(data);
-
     return { message: 'User created successfully' };
   }
 

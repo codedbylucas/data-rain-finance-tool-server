@@ -1,29 +1,11 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from 'src/app/util/base-entity/base-entity';
+import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'teams' })
-export class TeamEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class TeamEntity extends BaseEntity {
   @Column()
   name: string;
 
   @Column({ type: 'decimal', name: 'value_per_hour' })
   valuePerHour: number;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: string;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: string;
-
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: string;
 }

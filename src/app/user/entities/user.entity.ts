@@ -1,19 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from 'src/app/util/base-entity/base-entity';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity({ name: 'users' })
 @Index(['email'], { unique: true })
-export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class UserEntity extends BaseEntity {
   @Column()
   name: string;
 
@@ -31,13 +21,4 @@ export class UserEntity {
 
   @Column()
   role: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: string;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: string;
-
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: string;
 }

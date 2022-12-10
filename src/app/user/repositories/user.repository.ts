@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { serverError } from 'src/app/util/server-error';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { CreateUserDto } from '../service/dto/create-user.dto';
 import { ProfilePicture } from '../service/dto/insert-profile-picture.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
+import { DbCreateUserDto } from './dto/db-create-user.dto';
 
 @Injectable()
 export class UserRepository {
@@ -14,7 +14,7 @@ export class UserRepository {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(data: CreateUserDto): Promise<UserEntity> {
+  async createUser(data: DbCreateUserDto): Promise<UserEntity> {
     const createdUser: UserEntity = this.userRepository.create(data);
     const savedUser: UserEntity = await this.userRepository
       .save(createdUser)
@@ -51,7 +51,7 @@ export class UserRepository {
   }
 
   async findAllUsers(): Promise<UserEntity[]> {
-    const userOrNull = await this.userRepository.find();
+    const userOrNull = await this.userRepository.find().catch(serverError);
     return userOrNull;
   }
 
@@ -60,11 +60,13 @@ export class UserRepository {
     data: UpdateUserDto,
   ): Promise<UserEntity> {
     const userMerge = this.userRepository.merge(user, data);
-    const userUpdated = await this.userRepository.save(userMerge);
+    const userUpdated = await this.userRepository
+      .save(userMerge)
+      .catch(serverError);
     return userUpdated;
   }
 
   async deleteUserById(id: string): Promise<void> {
-    await this.userRepository.softDelete(id);
+    await this.userRepository.softDelete(id).catch(serverError);
   }
 }
