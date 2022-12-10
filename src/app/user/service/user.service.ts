@@ -101,8 +101,7 @@ export class UserService {
 
     const users = userOrNull.map((user) => ({
       id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      name: user.name,
       email: user.email,
       role: user.role,
     }));

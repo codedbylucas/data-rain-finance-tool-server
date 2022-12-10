@@ -1,7 +1,6 @@
 export interface FindUserResponse {
   id: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   phone: string;
   role: string;

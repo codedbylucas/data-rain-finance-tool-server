@@ -10,22 +10,13 @@ import {
 
 export class UpdateUserDto {
   @IsOptional()
-  @Length(2, 50)
+  @Length(2, 70)
   @IsString()
   @ApiProperty({
     description: 'The first name of the User',
     example: 'Lucas',
   })
-  firstName: string;
-
-  @IsOptional()
-  @Length(2, 50)
-  @IsString()
-  @ApiProperty({
-    description: 'The last name of the User',
-    example: 'Marques',
-  })
-  lastName: string;
+  name: string;
 
   @IsOptional()
   @IsEmail()
