@@ -40,10 +40,7 @@ export class UserService {
 
     await this.userRepository.createUser(data);
 
-    return {
-      statusCode: 201,
-      message: 'User created successfully',
-    };
+    return { message: 'User created successfully' };
   }
 
   async insertProfilePicture(
