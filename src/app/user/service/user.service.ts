@@ -97,19 +97,11 @@ export class UserService {
   }
 
   async findAllUsers(): Promise<FindAllUsersResponse[]> {
-    const userOrNull = await this.userRepository.findAllUsers();
-    if (!userOrNull || userOrNull.length === 0) {
+    const usersOrNull = await this.userRepository.findAllUsers();
+    if (!usersOrNull || usersOrNull.length === 0) {
       throw new BadRequestException('No user found');
     }
-
-    const users = userOrNull.map((user) => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    }));
-
-    return users;
+    return usersOrNull;
   }
 
   async updateUserSelfById(id: string, dto: UpdateUserDto): Promise<void> {
@@ -144,7 +136,6 @@ export class UserService {
       await this.userRepository.updateUserById(userOrNull.id, data);
       return;
     }
-
     await this.userRepository.updateUserById(userOrNull.id, dto);
   }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/app/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
+import { FindAllUsersResponse } from '../protocols/find-all-users-response';
 import { ProfilePictureDto } from '../service/dto/insert-profile-picture.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
 import { DbCreateUserDto } from './dto/db-create-user.dto';
@@ -43,8 +44,17 @@ export class UserRepository {
     return user;
   }
 
-  async findAllUsers(): Promise<UserEntity[]> {
-    const users = await this.prisma.users.findMany().catch(serverError);
+  async findAllUsers(): Promise<FindAllUsersResponse[]> {
+    const users = await this.prisma.users
+      .findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      })
+      .catch(serverError);
     return users;
   }
 
