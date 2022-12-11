@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './app/user/user.module';
 import { AuthModule } from './app/auth/auth.module';
 import { TeamModule } from './app/team/team.module';
+import { PrismaModule } from './app/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TeamModule } from './app/team/team.module';
       entities: [__dirname + '/**/*.entity.js'],
       synchronize: true,
     }),
+    PrismaModule,
     UserModule,
     AuthModule,
     TeamModule,
