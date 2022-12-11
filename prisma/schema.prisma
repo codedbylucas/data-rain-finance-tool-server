@@ -23,3 +23,13 @@ model Users {
 
   @@map("users")
 }
+
+model Teams {
+  id           String   @id @unique @default(uuid())
+  name         String   @db.VarChar(100)
+  valuePerHour Float    @map("value_per_hour")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("teams")
+}

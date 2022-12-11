@@ -77,7 +77,7 @@ export class UserService {
     writeFileSync(fileDir, fileBuffer);
 
     const userUpdated = await this.userRepository.insertProfilePicture({
-      user: userOrNull,
+      id: userOrNull.id,
       imageUrl: `/profile-pictures/${userId}/${fileName}`,
     });
 
@@ -141,11 +141,11 @@ export class UserService {
         ...dto,
         password: ecryptedPassword,
       };
-      await this.userRepository.updateUserByEntity(userOrNull, data);
+      await this.userRepository.updateUserById(userOrNull.id, data);
       return;
     }
 
-    await this.userRepository.updateUserByEntity(userOrNull, dto);
+    await this.userRepository.updateUserById(userOrNull.id, dto);
   }
 
   async deleteUserById(id: string): Promise<void> {
@@ -169,7 +169,6 @@ export class UserService {
   deleteSomeData(user: UserEntity): FindUserResponse {
     delete user.createdAt;
     delete user.updatedAt;
-    delete user.deletedAt;
     delete user.password;
     return user;
   }

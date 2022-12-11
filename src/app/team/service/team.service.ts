@@ -48,7 +48,7 @@ export class TeamService {
 
   async updateTeamById(id: string, dto: UpdateTeamDto): Promise<void> {
     const teamOrNull = await this.verifyTeamExist(id);
-    await this.teamRepository.updateTeamByEntity(teamOrNull, dto);
+    await this.teamRepository.updateTeamByEntity(teamOrNull.id, dto);
   }
 
   async deleteTeamById(id: string): Promise<void> {

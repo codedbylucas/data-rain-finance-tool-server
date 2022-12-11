@@ -1,52 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { PrismaService } from 'src/app/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
-import { Repository } from 'typeorm';
 import { TeamEntity } from '../entities/team.entity';
 import { UpdateTeamDto } from '../service/dto/update-team.dto';
 import { DbCreateTeamDto } from './dto/db-create-team.dto';
 
 @Injectable()
 export class TeamRepository {
-  constructor(
-    @InjectRepository(TeamEntity)
-    private readonly teamRepository: Repository<TeamEntity>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createTeam(data: DbCreateTeamDto): Promise<TeamEntity> {
-    const createdTeam = this.teamRepository.create(data);
-    const savedTeam = await this.teamRepository
-      .save(createdTeam)
+    const teamCreated = await this.prisma.teams
+      .create({ data })
       .catch(serverError);
-    return savedTeam;
+    return teamCreated;
   }
 
   async findTeamById(id: string): Promise<TeamEntity> {
-    const teamOrNull = await this.teamRepository
-      .findOne({
-        where: { id },
-      })
+    const team = await this.prisma.teams
+      .findUnique({ where: { id } })
       .catch(serverError);
-    return teamOrNull;
+    return team;
   }
 
   async findAllTeams(): Promise<TeamEntity[]> {
-    const teamOrEmpty = await this.teamRepository.find().catch(serverError);
-    return teamOrEmpty;
+    const teams = await this.prisma.teams.findMany().catch(serverError);
+    return teams;
   }
 
   async updateTeamByEntity(
-    team: TeamEntity,
+    id: string,
     data: UpdateTeamDto,
   ): Promise<TeamEntity> {
-    const teamMerge = this.teamRepository.merge(team, data);
-    const teamUpdated = await this.teamRepository
-      .save(teamMerge)
+    const teamUpdated = await this.prisma.teams
+      .update({ where: { id }, data })
       .catch(serverError);
     return teamUpdated;
   }
 
   async deleteTeamById(id: string): Promise<void> {
-    await this.teamRepository.softDelete(id).catch(serverError);
+    await this.prisma.teams.delete({ where: { id } }).catch(serverError);
   }
 }

@@ -1,72 +1,64 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { PrismaService } from 'src/app/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
-import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { ProfilePicture } from '../service/dto/insert-profile-picture.dto';
+import { ProfilePictureDto } from '../service/dto/insert-profile-picture.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
 import { DbCreateUserDto } from './dto/db-create-user.dto';
 
 @Injectable()
 export class UserRepository {
-  constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createUser(data: DbCreateUserDto): Promise<UserEntity> {
-    const createdUser: UserEntity = this.userRepository.create(data);
-    const savedUser: UserEntity = await this.userRepository
-      .save(createdUser)
+    const createdUser = await this.prisma.users
+      .create({ data })
       .catch(serverError);
-    return savedUser;
+    return createdUser;
   }
 
-  async insertProfilePicture(data: ProfilePicture): Promise<UserEntity> {
-    const userMerge = this.userRepository.merge(data.user, {
-      imageUrl: data.imageUrl,
-    });
-    const userUpdated = await this.userRepository
-      .save(userMerge)
+  async findUserByEmail(email: string): Promise<UserEntity> {
+    const user = await this.prisma.users
+      .findUnique({ where: { email } })
+      .catch(serverError);
+    return user;
+  }
+
+  async insertProfilePicture(
+    profilePictureDto: ProfilePictureDto,
+  ): Promise<UserEntity> {
+    const userUpdated = await this.prisma.users
+      .update({
+        where: { id: profilePictureDto.id },
+        data: { imageUrl: profilePictureDto.imageUrl },
+      })
       .catch(serverError);
     return userUpdated;
   }
 
-  async findUserByEmail(email: string): Promise<UserEntity> {
-    const userOrNull = await this.userRepository
-      .findOne({
-        where: { email },
-      })
-      .catch(serverError);
-    return userOrNull;
-  }
-
   async findUserById(id: string): Promise<UserEntity> {
-    const userOrNull = await this.userRepository
-      .findOne({
-        where: { id },
-      })
+    const user = await this.prisma.users
+      .findUnique({ where: { id } })
       .catch(serverError);
-    return userOrNull;
+    return user;
   }
 
   async findAllUsers(): Promise<UserEntity[]> {
-    const userOrNull = await this.userRepository.find().catch(serverError);
-    return userOrNull;
+    const users = await this.prisma.users.findMany().catch(serverError);
+    return users;
   }
 
-  async updateUserByEntity(
-    user: UserEntity,
-    data: UpdateUserDto,
-  ): Promise<UserEntity> {
-    const userMerge = this.userRepository.merge(user, data);
-    const userUpdated = await this.userRepository
-      .save(userMerge)
+  async updateUserById(id: string, data: UpdateUserDto): Promise<UserEntity> {
+    const userUpdated = await this.prisma.users
+      .update({
+        where: { id },
+        data,
+      })
       .catch(serverError);
     return userUpdated;
   }
 
   async deleteUserById(id: string): Promise<void> {
-    await this.userRepository.softDelete(id).catch(serverError);
+    await this.prisma.users.delete({ where: { id } }).catch(serverError);
   }
 }
