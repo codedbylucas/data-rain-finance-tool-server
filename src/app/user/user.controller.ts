@@ -16,8 +16,15 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PermissionAdmin } from '../auth/decorators/admin.decorator';
+import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
 import { FindAllUsersResponse } from './protocols/find-all-users-response';
 import { FindUserResponse } from './protocols/find-user-response';
@@ -42,18 +49,30 @@ export class UserController {
     return await this.userService.createUser(dto);
   }
 
-  @Post('profile-picture/:id')
+  @Post('profile-picture')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Add profile picture for user',
+    summary: 'insert photo in your profile',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
   })
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5000000 } }))
   async insertProfilePicture(
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @LoggedUser() userId: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<ProfilePictureResponse> {
-    return await this.userService.insertProfilePicture(id, file);
+    return await this.userService.insertProfilePicture(userId, file);
   }
 
   @Get(':id')
@@ -78,17 +97,17 @@ export class UserController {
     return await this.userService.findAllUsers();
   }
 
-  @Patch(':id')
+  @Patch()
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Update a user by id',
+    summary: 'Update yourself',
   })
-  async updateUserSelfById(
-    @Param('id', new ParseUUIDPipe()) id: string,
+  async updateOwnUser(
+    @LoggedUser() userId: string,
     @Body() dto: UpdateUserDto,
   ): Promise<BadRequestException | void> {
-    return await this.userService.updateUserSelfById(id, dto);
+    return await this.userService.updateOwnUser(userId, dto);
   }
 
   @Delete(':id')

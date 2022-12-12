@@ -104,7 +104,7 @@ export class UserService {
     return usersOrNull;
   }
 
-  async updateUserSelfById(id: string, dto: UpdateUserDto): Promise<void> {
+  async updateOwnUser(id: string, dto: UpdateUserDto): Promise<void> {
     const userOrNull = await this.userRepository.findUserById(id);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
