@@ -11,17 +11,41 @@ datasource db {
 }
 
 model Users {
-  id        String   @id @unique @default(uuid())
-  name      String   @db.VarChar(100)
-  email     String   @unique @db.VarChar(100)
+  id        String       @id @unique @default(uuid())
+  name      String       @db.VarChar(100)
+  email     String       @unique @db.VarChar(100)
   password  String
-  phone     String?  @db.VarChar(20)
+  phone     String?      @db.VarChar(20)
   role      String
-  imageUrl  String?  @map("image_url")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  imageUrl  String?      @map("image_url")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  roles     UsersRoles[]
 
   @@map("users")
+}
+
+model Roles {
+  id          String       @id @unique @default(uuid())
+  name        String       @unique
+  description String
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  users       UsersRoles[]
+
+  @@map("roles")
+}
+
+model UsersRoles {
+  id String @id @unique @default(uuid())
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  role   Roles  @relation(fields: [roleId], references: [id])
+  roleId String @map("role_id")
+
+  @@map("users_roles")
 }
 
 model Teams {
