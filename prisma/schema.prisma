@@ -45,6 +45,7 @@ model UsersRoles {
   role   Roles  @relation(fields: [roleId], references: [id])
   roleId String @map("role_id")
 
+  @@unique([userId, roleId])
   @@map("users_roles")
 }
 

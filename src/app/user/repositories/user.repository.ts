@@ -44,6 +44,24 @@ export class UserRepository {
     return user;
   }
 
+  async findUserRolesByUserId(id: string) {
+    const userRoles = await this.prisma.usersRoles
+      .findMany({
+        where: { userId: id },
+        select: {
+          role: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return userRoles;
+  }
+
   async findAllUsers(): Promise<FindAllUsersResponse[]> {
     const users = await this.prisma.users
       .findMany({

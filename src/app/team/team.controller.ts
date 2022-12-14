@@ -14,8 +14,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PermissionAdmin } from '../auth/decorators/admin.decorator';
-import { UserPayload } from '../auth/protocols/user-payload';
+import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { TeamResponse } from './protocols/team-response';
 import { CreateTeamDto } from './service/dto/create-team.dto';
 import { UpdateTeamDto } from './service/dto/update-team.dto';
@@ -33,7 +32,7 @@ export class TeamController {
     summary: 'Team is created',
   })
   async createTeam(
-    @PermissionAdmin() admin: UserPayload,
+    @RolesAccess([Role.admin]) userId: string,
     @Body() dto: CreateTeamDto,
   ): Promise<BadRequestException | TeamResponse> {
     return await this.teamService.createTeam(dto);
@@ -46,6 +45,8 @@ export class TeamController {
     summary: 'Find team by id',
   })
   async findTeamById(
+    @RolesAccess([Role.admin, Role.manager, Role.profissionalServices])
+    userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | TeamResponse> {
     return await this.teamService.findTeamById(id);
@@ -57,7 +58,9 @@ export class TeamController {
   @ApiOperation({
     summary: 'Find all teams',
   })
-  async findAllTeams(): Promise<BadRequestException | TeamResponse[]> {
+  async findAllTeams(
+    @RolesAccess([Role.admin]) userId: string,
+  ): Promise<BadRequestException | TeamResponse[]> {
     return await this.teamService.findAllTeams();
   }
 
@@ -68,7 +71,7 @@ export class TeamController {
     summary: 'Update a team by id',
   })
   async updateTeamById(
-    @PermissionAdmin() admin: UserPayload,
+    @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateTeamDto,
   ): Promise<BadRequestException | void> {
@@ -83,7 +86,7 @@ export class TeamController {
     summary: 'Delete a team by id',
   })
   async deleteTeamById(
-    @PermissionAdmin() admin: UserPayload,
+    @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | void> {
     return await this.teamService.deleteTeamById(id);
