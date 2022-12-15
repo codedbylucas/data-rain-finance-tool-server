@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { BcryptAdapter } from 'src/app/auth/criptography/bcrypt/bcrypt.adapter';
+import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserRepository } from './repositories/user.repository';
 import { UserService } from './service/user.service';

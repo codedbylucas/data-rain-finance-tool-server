@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserEntity } from 'src/app/user/entities/user.entity';
 import { UserRepository } from 'src/app/user/repositories/user.repository';
-import { BcryptAdapter } from '../criptography/bcrypt/bcrypt.adapter';
-import { JwtAdapter } from '../criptography/jwt/jwt.adapter';
+import { BcryptAdapter } from '../../infra/criptography/bcrypt/bcrypt.adapter';
+import { JwtAdapter } from '../../infra/criptography/jwt/jwt.adapter';
 import { LoginResponse } from '../protocols/login-response';
 import { LoginDto } from './dto/login.dto';
 

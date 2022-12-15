@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as sharp from 'sharp';
-import { BcryptAdapter } from 'src/app/auth/criptography/bcrypt/bcrypt.adapter';
+import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
