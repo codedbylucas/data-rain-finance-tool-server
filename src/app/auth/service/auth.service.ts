@@ -42,6 +42,14 @@ export class AuthService {
 
     return {
       token: userIdEncrypted,
+      user: {
+        id: userOrError.id,
+        name: userOrError.name,
+        email: userOrError.email,
+        imageUrl: userOrError.imageUrl,
+        position: userOrError.position,
+        roleName: userOrError.roleName,
+      },
     };
   }
 }
