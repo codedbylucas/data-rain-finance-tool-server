@@ -6,7 +6,5 @@ export interface FindUserResponse {
   billable: boolean;
   allocated: boolean;
   position: string;
-  role: {
-    name: string;
-  };
+  roleName: string;
 }

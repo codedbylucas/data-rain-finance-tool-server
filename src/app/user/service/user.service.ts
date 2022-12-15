@@ -136,7 +136,7 @@ export class UserService {
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
     }
-    if (userOrNull.role.name === 'admin') {
+    if (userOrNull.roleName === 'admin') {
       throw new BadRequestException(`Unable to perform this action`);
     }
 

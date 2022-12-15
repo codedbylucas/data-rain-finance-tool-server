@@ -97,10 +97,6 @@ export class UserRepository {
     billable: true,
     allocated: true,
     position: true,
-    role: {
-      select: {
-        name: true,
-      },
-    },
+    roleName: true,
   };
 }
