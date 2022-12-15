@@ -30,7 +30,7 @@ export const RolesAccess = createParamDecorator(
     let count = 0;
 
     result.forEach((role) => {
-      if (user.roles.includes(role)) {
+      if (user.role.includes(role)) {
         count++;
       }
     });

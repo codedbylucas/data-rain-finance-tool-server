@@ -3,6 +3,6 @@ export class DbCreateUserDto {
   name: string;
   email: string;
   password: string;
-  role: string;
-  phone: string;
+  position: string;
+  billable: boolean;
 }

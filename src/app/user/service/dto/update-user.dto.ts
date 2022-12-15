@@ -57,14 +57,4 @@ export class UpdateUserDto {
     example: 'Abcd@1234',
   })
   confirmPassword: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  @Length(8, 16)
-  @ApiProperty({
-    description: 'The phone of the User',
-    example: '11 99100-9900',
-  })
-  phone: string;
 }

@@ -4,7 +4,8 @@ export class UserEntity extends BaseEntity {
   name: string;
   email: string;
   password: string;
-  phone: string;
   imageUrl: string;
-  role: string;
+  position: string;
+  billable: boolean;
+  allocated: boolean;
 }

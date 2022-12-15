@@ -25,10 +25,8 @@ import {
 } from '@nestjs/swagger';
 import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
-import { FindAllUsersResponse } from './protocols/find-all-users-response';
 import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
-import { UserCreatedResponse } from './protocols/user-created-response';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
@@ -39,12 +37,15 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'User is created',
   })
   async createUser(
+    @RolesAccess([Role.admin]) userId: string,
     @Body() dto: CreateUserDto,
-  ): Promise<BadRequestException | UserCreatedResponse> {
+  ): Promise<BadRequestException | void> {
     return await this.userService.createUser(dto);
   }
 
@@ -95,7 +96,7 @@ export class UserController {
   })
   async findAllUsers(
     @RolesAccess([Role.admin]) userId: string,
-  ): Promise<BadRequestException | FindAllUsersResponse[]> {
+  ): Promise<BadRequestException | FindUserResponse[]> {
     return await this.userService.findAllUsers();
   }
 

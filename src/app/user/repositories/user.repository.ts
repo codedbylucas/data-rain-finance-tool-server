@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
-import { FindAllUsersResponse } from '../protocols/find-all-users-response';
+import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureDto } from '../service/dto/insert-profile-picture.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
 import { DbCreateUserDto } from './dto/db-create-user.dto';
@@ -12,9 +13,18 @@ export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createUser(data: DbCreateUserDto): Promise<UserEntity> {
+    const user: Prisma.UsersCreateInput = {
+      ...data,
+      role: {
+        connect: {
+          name: 'profissional_services',
+        },
+      },
+    };
     const createdUser = await this.prisma.users
-      .create({ data })
+      .create({ data: user })
       .catch(serverError);
+
     return createdUser;
   }
 
@@ -37,40 +47,29 @@ export class UserRepository {
     return userUpdated;
   }
 
-  async findUserById(id: string): Promise<UserEntity> {
+  async findUserById(id: string): Promise<FindUserResponse> {
     const user = await this.prisma.users
-      .findUnique({ where: { id } })
+      .findUnique({
+        where: { id },
+        select: this.findUserSelect,
+      })
       .catch(serverError);
     return user;
   }
 
-  async findUserRolesByUserId(id: string) {
-    const userRoles = await this.prisma.usersRoles
-      .findMany({
-        where: { userId: id },
-        select: {
-          role: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-            },
-          },
-        },
+  async findUserWithPaswordById(id: string): Promise<UserEntity> {
+    const user = await this.prisma.users
+      .findUnique({
+        where: { id },
       })
       .catch(serverError);
-    return userRoles;
+    return user;
   }
 
-  async findAllUsers(): Promise<FindAllUsersResponse[]> {
+  async findAllUsers(): Promise<FindUserResponse[]> {
     const users = await this.prisma.users
       .findMany({
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
+        select: this.findUserSelect,
       })
       .catch(serverError);
     return users;
@@ -89,4 +88,19 @@ export class UserRepository {
   async deleteUserById(id: string): Promise<void> {
     await this.prisma.users.delete({ where: { id } }).catch(serverError);
   }
+
+  private readonly findUserSelect = {
+    id: true,
+    name: true,
+    email: true,
+    imageUrl: true,
+    billable: true,
+    allocated: true,
+    position: true,
+    role: {
+      select: {
+        name: true,
+      },
+    },
+  };
 }

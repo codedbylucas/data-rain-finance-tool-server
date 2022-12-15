@@ -1,18 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import * as sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/auth/criptography/bcrypt/bcrypt.adapter';
+import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
-import { FindAllUsersResponse } from '../protocols/find-all-users-response';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
-import { UserCreatedResponse } from '../protocols/user-created-response';
+import { DbCreateUserDto } from '../repositories/dto/db-create-user.dto';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as sharp from 'sharp';
-import { createUuid } from 'src/app/util/create-uuid';
-import { DbCreateUserDto } from '../repositories/dto/db-create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -21,29 +19,23 @@ export class UserService {
     private readonly bcryptAdapter: BcryptAdapter,
   ) {}
 
-  async createUser(dto: CreateUserDto): Promise<UserCreatedResponse> {
+  async createUser(dto: CreateUserDto): Promise<void> {
     const userOrNull: UserEntity | null =
       await this.userRepository.findUserByEmail(dto.email);
     if (userOrNull) {
       throw new BadRequestException(`User email already exists`);
     }
-    if (!this.verifyRole(dto.role)) {
-      throw new BadRequestException(`Role '${dto.role}' is invalid'`);
-    }
-    this.verifyConfirmPassword(dto.password, dto.confirmPassword);
-    let formattedPhone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
-    const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
 
-    delete dto.confirmPassword;
+    const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
+    const ecryptedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
+
     const data: DbCreateUserDto = {
       ...dto,
       id: createUuid(),
       password: ecryptedPassword,
-      phone: formattedPhone,
     };
 
     await this.userRepository.createUser(data);
-    return { message: 'User created successfully' };
   }
 
   async insertProfilePicture(
@@ -92,11 +84,10 @@ export class UserService {
     if (!userOrNull) {
       throw new BadRequestException('User not found');
     }
-    const userResponse = this.deleteSomeData(userOrNull);
-    return userResponse;
+    return userOrNull;
   }
 
-  async findAllUsers(): Promise<FindAllUsersResponse[]> {
+  async findAllUsers(): Promise<FindUserResponse[]> {
     const usersOrNull = await this.userRepository.findAllUsers();
     if (!usersOrNull || usersOrNull.length === 0) {
       throw new BadRequestException('No user found');
@@ -105,18 +96,18 @@ export class UserService {
   }
 
   async updateOwnUser(id: string, dto: UpdateUserDto): Promise<void> {
-    const userOrNull = await this.userRepository.findUserById(id);
+    const userOrNull = await this.userRepository.findUserWithPaswordById(id);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
     }
     if (dto.currentPassword) {
-      if (dto.password && dto.confirmPassword) {
-        this.verifyConfirmPassword(dto.password, dto.confirmPassword);
-      } else {
+      if (!dto.password && !dto.confirmPassword) {
         throw new BadRequestException(
           'It is necessary to inform the new password and confirm new password',
         );
       }
+      this.verifyConfirmPassword(dto.password, dto.confirmPassword);
+
       const compare = await this.bcryptAdapter.compare(
         dto.currentPassword,
         userOrNull.password,
@@ -126,6 +117,7 @@ export class UserService {
           'The password does not match the current password',
         );
       }
+
       const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
       delete dto.currentPassword;
       delete dto.confirmPassword;
@@ -144,24 +136,11 @@ export class UserService {
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
     }
-    if (userOrNull.role === 'admin') {
-      throw new BadRequestException('Action not allowed');
+    if (userOrNull.role.name === 'admin') {
+      throw new BadRequestException(`Unable to perform this action`);
     }
+
     await this.userRepository.deleteUserById(id);
-  }
-
-  verifyRole(role: string): boolean {
-    if (role !== 'preSale' && role !== 'financial') {
-      return false;
-    }
-    return true;
-  }
-
-  deleteSomeData(user: UserEntity): FindUserResponse {
-    delete user.createdAt;
-    delete user.updatedAt;
-    delete user.password;
-    return user;
   }
 
   verifyConfirmPassword(password: string, confirmPassword: string): void {

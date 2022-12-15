@@ -15,16 +15,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
   async validate(payload: { userId: string }): Promise<UserPayload> {
     const userOrNull = await this.userRepository.findUserById(payload.userId);
-    const userRoles = await this.userRepository.findUserRolesByUserId(
-      userOrNull.id,
-    );
     if (!userOrNull) {
       throw new UnauthorizedException('User not found or not authorized');
     }
-    const roles = userRoles.map((object) => object.role.name);
     return {
       userId: payload.userId,
-      roles,
+      role: userOrNull.role.name,
     };
   }
 }
