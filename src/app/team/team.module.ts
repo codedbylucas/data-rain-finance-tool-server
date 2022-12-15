@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaModule } from '../infra/prisma/prisma.module';
 import { TeamRepository } from './repositories/team.repository';
 import { TeamService } from './service/team.service';
 import { TeamController } from './team.controller';

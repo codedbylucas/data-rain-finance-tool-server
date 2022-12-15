@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/app/prisma/prisma.service';
+import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { TeamEntity } from '../entities/team.entity';
 import { UpdateTeamDto } from '../service/dto/update-team.dto';
