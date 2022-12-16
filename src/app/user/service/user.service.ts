@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
+import { MailService } from 'src/app/infra/mail/mail.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
@@ -17,6 +18,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly bcryptAdapter: BcryptAdapter,
+    private readonly mailService: MailService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -36,6 +38,12 @@ export class UserService {
     };
 
     await this.userRepository.createUser(data);
+
+    await this.mailService.sendMail({
+      to: dto.email,
+      subject: 'Faça seu login',
+      html: '<p>Hello<p>',
+    });
   }
 
   async insertProfilePicture(
