@@ -24,14 +24,6 @@ export class CreateUserDto {
   })
   email: string;
 
-  @IsNotEmpty()
-  @IsBoolean()
-  @ApiProperty({
-    description: `If user is billable or not`,
-    example: true,
-  })
-  billable: boolean;
-
   @Length(2, 200)
   @IsString()
   @IsNotEmpty()

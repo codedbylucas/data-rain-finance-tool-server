@@ -4,5 +4,4 @@ export class DbCreateUserDto {
   email: string;
   password: string;
   position: string;
-  billable: boolean;
 }
