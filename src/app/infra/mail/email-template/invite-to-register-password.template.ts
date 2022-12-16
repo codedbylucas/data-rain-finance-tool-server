@@ -1,7 +1,4 @@
-export interface InviteRegisterPasswordTemplateProps {
-  receiverName: string;
-  token: string;
-}
+import { InviteRegisterPasswordTemplateProps } from "../props/invite-register-password-template.props";
 
 export const inviteRegisterPasswordTemplate = (
   props: InviteRegisterPasswordTemplateProps,
