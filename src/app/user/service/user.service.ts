@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
-import { JwtAdapter } from 'src/app/infra/criptography/jwt/jwt.adapter';
+import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
@@ -20,7 +20,6 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly mailService: MailService,
-    private readonly jwtAdapter: JwtAdapter,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -41,12 +40,15 @@ export class UserService {
 
     const user = await this.userRepository.createUser(data);
 
-    const tokenToFirstAcces = await this.jwtAdapter.encrypt(user.id);
-    
+    const emailHtml = inviteRegisterPasswordTemplate({
+      receiverName: user.name,
+      token: 'token',
+    });
+
     await this.mailService.sendMail({
       to: dto.email,
       subject: 'Faça seu login',
-      html: '<p>Hello<p>',
+      html: emailHtml,
     });
   }
 
