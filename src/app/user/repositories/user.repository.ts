@@ -5,15 +5,15 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
-import { ProfilePictureDto } from '../service/dto/insert-profile-picture.dto';
+import { ProfilePictureProps } from '../service/props/insert-profile-picture.props';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
-import { DbCreateUserDto } from './dto/db-create-user.dto';
+import { DbCreateUserProps } from './props/db-create-user.props';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(data: DbCreateUserDto): Promise<UserEntity> {
+  async createUser(data: DbCreateUserProps): Promise<UserEntity> {
     const user: Prisma.UsersCreateInput = {
       ...data,
       role: {
@@ -37,7 +37,7 @@ export class UserRepository {
   }
 
   async insertProfilePicture(
-    profilePictureDto: ProfilePictureDto,
+    profilePictureDto: ProfilePictureProps,
   ): Promise<UserEntity> {
     const userUpdated = await this.prisma.users
       .update({

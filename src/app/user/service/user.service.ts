@@ -10,7 +10,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
-import { DbCreateUserDto } from '../repositories/dto/db-create-user.dto';
+import { DbCreateUserProps } from '../repositories/props/db-create-user.props';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -34,7 +34,7 @@ export class UserService {
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
     const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
 
-    const data: DbCreateUserDto = {
+    const data: DbCreateUserProps = {
       ...dto,
       id: createUuid(),
       password: hashedPassword,
