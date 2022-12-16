@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { UpdateUserFirstAccesProps } from 'src/app/auth/protocols/props/update-user-first-access.props';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
-import { ProfilePictureDto } from '../service/dto/insert-profile-picture.dto';
+import { ProfilePictureProps } from '../service/props/insert-profile-picture.props';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
-import { DbCreateUserDto } from './dto/db-create-user.dto';
+import { DbCreateUserProps } from './props/db-create-user.props';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(data: DbCreateUserDto): Promise<UserEntity> {
+  async createUser(data: DbCreateUserProps): Promise<UserEntity> {
     const user: Prisma.UsersCreateInput = {
       ...data,
       role: {
@@ -36,7 +37,7 @@ export class UserRepository {
   }
 
   async insertProfilePicture(
-    profilePictureDto: ProfilePictureDto,
+    profilePictureDto: ProfilePictureProps,
   ): Promise<UserEntity> {
     const userUpdated = await this.prisma.users
       .update({
@@ -57,7 +58,7 @@ export class UserRepository {
     return user;
   }
 
-  async findUserWithPaswordById(id: string): Promise<UserEntity> {
+  async findUserEntityById(id: string): Promise<UserEntity> {
     const user = await this.prisma.users
       .findUnique({
         where: { id },
@@ -80,6 +81,21 @@ export class UserRepository {
       .update({
         where: { id },
         data,
+      })
+      .catch(serverError);
+    return userUpdated;
+  }
+
+  async updateUserFirstAccesById(
+    props: UpdateUserFirstAccesProps,
+  ): Promise<UserEntity> {
+    const userUpdated = await this.prisma.users
+      .update({
+        where: { id: props.id },
+        data: {
+          password: props.password,
+          validatedEmail: props.validatedEmail,
+        },
       })
       .catch(serverError);
     return userUpdated;

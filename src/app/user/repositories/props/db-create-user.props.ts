@@ -1,4 +1,4 @@
-export class DbCreateUserDto {
+export class DbCreateUserProps {
   id: string;
   name: string;
   email: string;

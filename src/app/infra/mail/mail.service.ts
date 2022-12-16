@@ -1,13 +1,7 @@
 import * as nodemailer from 'nodemailer';
 import { Injectable } from '@nestjs/common';
 import { serverError } from 'src/app/util/server-error';
-
-export interface SendMailProps {
-  to: string | string[];
-  subject: string;
-  text?: string;
-  html?: string;
-}
+import { SendMailProps } from './props/send-mail.props';
 
 @Injectable()
 export class MailService {

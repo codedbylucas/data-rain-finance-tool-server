@@ -1,15 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
-import { JwtAdapter } from 'src/app/infra/criptography/jwt/jwt.adapter';
+import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
+import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
-import { DbCreateUserDto } from '../repositories/dto/db-create-user.dto';
+import { DbCreateUserProps } from '../repositories/props/db-create-user.props';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -20,7 +21,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly mailService: MailService,
-    private readonly jwtAdapter: JwtAdapter,
+    private readonly cryptrService: CryptrService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -31,23 +32,16 @@ export class UserService {
     }
 
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
-    const ecryptedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
+    const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
 
-    const data: DbCreateUserDto = {
+    const data: DbCreateUserProps = {
       ...dto,
       id: createUuid(),
-      password: ecryptedPassword,
+      password: hashedPassword,
     };
 
     const user = await this.userRepository.createUser(data);
-
-    const tokenToFirstAcces = await this.jwtAdapter.encrypt(user.id);
-    
-    await this.mailService.sendMail({
-      to: dto.email,
-      subject: 'Faça seu login',
-      html: '<p>Hello<p>',
-    });
+    await this.sendEmails([user]);
   }
 
   async insertProfilePicture(
@@ -108,7 +102,7 @@ export class UserService {
   }
 
   async updateOwnUser(id: string, dto: UpdateUserDto): Promise<void> {
-    const userOrNull = await this.userRepository.findUserWithPaswordById(id);
+    const userOrNull = await this.userRepository.findUserEntityById(id);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
     }
@@ -130,12 +124,12 @@ export class UserService {
         );
       }
 
-      const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
+      const hashedPassword = await this.bcryptAdapter.hash(dto.password, 12);
       delete dto.currentPassword;
       delete dto.confirmPassword;
       const data = {
         ...dto,
-        password: ecryptedPassword,
+        password: hashedPassword,
       };
       await this.userRepository.updateUserById(userOrNull.id, data);
       return;
@@ -153,6 +147,23 @@ export class UserService {
     }
 
     await this.userRepository.deleteUserById(id);
+  }
+
+  async sendEmails(users: UserEntity[]): Promise<void> {
+    users.map(async (user) => {
+      const tokenAuthentication = this.cryptrService.encrypt(user.id);
+
+      const emailHtml = inviteRegisterPasswordTemplate({
+        receiverName: user.name,
+        token: tokenAuthentication,
+      });
+
+      await this.mailService.sendMail({
+        to: user.email,
+        subject: 'Crie uma nova senha',
+        html: emailHtml,
+      });
+    });
   }
 
   verifyConfirmPassword(password: string, confirmPassword: string): void {

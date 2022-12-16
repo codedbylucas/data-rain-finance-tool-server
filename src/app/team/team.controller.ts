@@ -45,7 +45,7 @@ export class TeamController {
     summary: 'Find team by id',
   })
   async findTeamById(
-    @RolesAccess([Role.admin, Role.manager, Role.profissionalServices])
+    @RolesAccess([Role.admin, Role.preSale, Role.financial])
     userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | TeamResponse> {
@@ -59,7 +59,7 @@ export class TeamController {
     summary: 'Find all teams',
   })
   async findAllTeams(
-    @RolesAccess([Role.admin]) userId: string,
+    @RolesAccess([Role.admin, Role.preSale, Role.financial]) userId: string,
   ): Promise<BadRequestException | TeamResponse[]> {
     return await this.teamService.findAllTeams();
   }

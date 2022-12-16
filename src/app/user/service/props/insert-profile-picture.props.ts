@@ -1,4 +1,4 @@
-export class ProfilePictureDto {
+export class ProfilePictureProps {
   id: string;
   imageUrl: string;
 }

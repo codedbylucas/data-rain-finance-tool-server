@@ -1,9 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
 import { UserEntity } from 'src/app/user/entities/user.entity';
 import { UserRepository } from 'src/app/user/repositories/user.repository';
 import { BcryptAdapter } from '../../infra/criptography/bcrypt/bcrypt.adapter';
 import { JwtAdapter } from '../../infra/criptography/jwt/jwt.adapter';
 import { LoginResponse } from '../protocols/login-response';
+import { FirstAccessDto } from './dto/first-access.dto';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
@@ -12,6 +18,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly jwtAdapter: JwtAdapter,
+    private readonly cryptr: CryptrService,
   ) {}
 
   async validateUser(dto: LoginDto): Promise<UserEntity> {
@@ -34,6 +41,50 @@ export class AuthService {
 
   async login(dto: LoginDto): Promise<LoginResponse> {
     const userOrError = await this.validateUser(dto);
+
+    const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
+
+    return {
+      token: userIdEncrypted,
+      user: {
+        id: userOrError.id,
+        name: userOrError.name,
+        email: userOrError.email,
+        imageUrl: userOrError.imageUrl,
+        position: userOrError.position,
+        roleName: userOrError.roleName,
+      },
+    };
+  }
+
+  async firstAccess(
+    token: string,
+    dto: FirstAccessDto,
+  ): Promise<LoginResponse> {
+    const decryptToken = this.cryptr.decrypt(token);
+    if (dto.password !== dto.confirmPassword) {
+      throw new BadRequestException(
+        `Password is different from confirm password`,
+      );
+    }
+    delete dto.confirmPassword;
+
+    const userOrError = await this.userRepository.findUserEntityById(
+      decryptToken,
+    );
+    if (!userOrError) {
+      throw new BadRequestException('User not found');
+    }
+    if (userOrError.validatedEmail) {
+      throw new BadRequestException('User already validated');
+    }
+
+    const hashedPassword = await this.bcryptAdapter.hash(dto.password, 12);
+    await this.userRepository.updateUserFirstAccesById({
+      id: userOrError.id,
+      password: hashedPassword,
+      validatedEmail: true,
+    });
 
     const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
 
