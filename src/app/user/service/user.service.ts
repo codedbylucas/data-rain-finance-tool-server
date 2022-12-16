@@ -39,8 +39,10 @@ export class UserService {
       password: ecryptedPassword,
     };
 
-    await this.userRepository.createUser(data);
+    const user = await this.userRepository.createUser(data);
 
+    const tokenToFirstAcces = await this.jwtAdapter.encrypt(user.id);
+    
     await this.mailService.sendMail({
       to: dto.email,
       subject: 'Faça seu login',

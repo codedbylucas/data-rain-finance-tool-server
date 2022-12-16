@@ -35,10 +35,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<LoginResponse> {
     const userOrError = await this.validateUser(dto);
 
-    const userIdEncrypted = await this.jwtAdapter.encrypt(
-      userOrError.id,
-      process.env.JWT_SECRET,
-    );
+    const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
 
     return {
       token: userIdEncrypted,
