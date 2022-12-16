@@ -1,13 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import Cryptr from 'cryptr';
+import { serverError } from 'src/app/util/server-error';
 
 @Injectable()
 export default class CryptrService {
   private readonly cryptr = new Cryptr(process.env.CRYPTR_SECRET_KEY);
 
   encrypt(value: string): string {
-    const encryptedValue = this.cryptr.encrypt(value);
-    return encryptedValue;
+    try {
+      const encryptedValue = this.cryptr.encrypt(value);
+      return encryptedValue;
+    } catch (error) {
+      return serverError(error);
+    }
   }
 
   decrypt(value: string): string {
