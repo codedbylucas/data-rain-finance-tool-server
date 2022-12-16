@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
 import { TeamEntity } from '../entities/team.entity';
 import { TeamResponse } from '../protocols/team-response';
-import { DbCreateTeamDto } from '../repositories/dto/db-create-team.dto';
+import { DbCreateTeamProps } from '../repositories/props/db-create-team.props';
 import { TeamRepository } from '../repositories/team.repository';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
@@ -12,7 +12,7 @@ export class TeamService {
   constructor(private readonly teamRepository: TeamRepository) {}
 
   async createTeam(dto: CreateTeamDto): Promise<TeamResponse> {
-    const data: DbCreateTeamDto = {
+    const data: DbCreateTeamProps = {
       ...dto,
       id: createUuid(),
     };

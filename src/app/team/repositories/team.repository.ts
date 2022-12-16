@@ -3,13 +3,13 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { TeamEntity } from '../entities/team.entity';
 import { UpdateTeamDto } from '../service/dto/update-team.dto';
-import { DbCreateTeamDto } from './dto/db-create-team.dto';
+import { DbCreateTeamProps } from './props/db-create-team.props';
 
 @Injectable()
 export class TeamRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createTeam(data: DbCreateTeamDto): Promise<TeamEntity> {
+  async createTeam(data: DbCreateTeamProps): Promise<TeamEntity> {
     const teamCreated = await this.prisma.teams
       .create({ data })
       .catch(serverError);
