@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { UpdateUserFirstAccesProps } from 'src/app/auth/protocols/props/update-user-first-access.props';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
@@ -57,7 +58,7 @@ export class UserRepository {
     return user;
   }
 
-  async findUserWithPaswordById(id: string): Promise<UserEntity> {
+  async findUserEntityById(id: string): Promise<UserEntity> {
     const user = await this.prisma.users
       .findUnique({
         where: { id },
@@ -85,14 +86,16 @@ export class UserRepository {
     return userUpdated;
   }
 
-  async updateUserPasswordById(
-    id: string,
-    hashPassword: string,
+  async updateUserFirstAccesById(
+    props: UpdateUserFirstAccesProps,
   ): Promise<UserEntity> {
     const userUpdated = await this.prisma.users
       .update({
-        where: { id },
-        data: { password: hashPassword },
+        where: { id: props.id },
+        data: {
+          password: props.password,
+          validatedEmail: props.validatedEmail,
+        },
       })
       .catch(serverError);
     return userUpdated;

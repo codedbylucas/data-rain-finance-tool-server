@@ -8,5 +8,6 @@ export class UserEntity extends BaseEntity {
   position: string;
   billable: boolean;
   allocated: boolean;
+  validatedEmail: boolean;
   roleName: string;
 }

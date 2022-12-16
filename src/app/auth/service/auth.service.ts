@@ -61,22 +61,31 @@ export class AuthService {
     token: string,
     dto: FirstAccessDto,
   ): Promise<LoginResponse> {
+    const decryptToken = this.cryptr.decrypt(token);
     if (dto.password !== dto.confirmPassword) {
       throw new BadRequestException(
         `Password is different from confirm password`,
       );
     }
     delete dto.confirmPassword;
-    const decryptToken = this.cryptr.decrypt(token);
 
-    const hashPassword = await this.bcryptAdapter.hash(dto.password, 12);
-    const userOrError = await this.userRepository.updateUserPasswordById(
+    const userOrError = await this.userRepository.findUserEntityById(
       decryptToken,
-      hashPassword,
     );
     if (!userOrError) {
       throw new BadRequestException('User not found');
     }
+    if (userOrError.validatedEmail) {
+      throw new BadRequestException('User already validated');
+    }
+
+    const hashedPassword = await this.bcryptAdapter.hash(dto.password, 12);
+    await this.userRepository.updateUserFirstAccesById({
+      id: userOrError.id,
+      password: hashedPassword,
+      validatedEmail: true,
+    });
+
     const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
 
     return {
