@@ -28,7 +28,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: 'The user will be logged',
+    summary: 'The user will be logged and your password changed',
   })
   @HttpCode(HttpStatus.OK)
   @Patch('first-access/:token')
