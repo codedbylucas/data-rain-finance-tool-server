@@ -32,12 +32,12 @@ export class UserService {
     }
 
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
-    const ecryptedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
+    const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
 
     const data: DbCreateUserDto = {
       ...dto,
       id: createUuid(),
-      password: ecryptedPassword,
+      password: hashedPassword,
     };
 
     const user = await this.userRepository.createUser(data);
@@ -124,12 +124,12 @@ export class UserService {
         );
       }
 
-      const ecryptedPassword = await this.bcryptAdapter.hash(dto.password, 12);
+      const hashedPassword = await this.bcryptAdapter.hash(dto.password, 12);
       delete dto.currentPassword;
       delete dto.confirmPassword;
       const data = {
         ...dto,
-        password: ecryptedPassword,
+        password: hashedPassword,
       };
       await this.userRepository.updateUserById(userOrNull.id, data);
       return;
