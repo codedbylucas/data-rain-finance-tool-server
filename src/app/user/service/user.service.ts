@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
+import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
 import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
 import { createUuid } from 'src/app/util/create-uuid';
@@ -20,6 +21,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly mailService: MailService,
+    private readonly cryptrService: CryptrService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -39,17 +41,7 @@ export class UserService {
     };
 
     const user = await this.userRepository.createUser(data);
-
-    const emailHtml = inviteRegisterPasswordTemplate({
-      receiverName: user.name,
-      token: 'token',
-    });
-
-    await this.mailService.sendMail({
-      to: dto.email,
-      subject: 'Faça seu login',
-      html: emailHtml,
-    });
+    await this.sendEmails([user]);
   }
 
   async insertProfilePicture(
@@ -155,6 +147,23 @@ export class UserService {
     }
 
     await this.userRepository.deleteUserById(id);
+  }
+
+  async sendEmails(users: UserEntity[]): Promise<void> {
+    users.map(async (user) => {
+      const tokenAuthentication = this.cryptrService.encrypt(user.id);
+
+      const emailHtml = inviteRegisterPasswordTemplate({
+        receiverName: user.name,
+        token: tokenAuthentication,
+      });
+
+      await this.mailService.sendMail({
+        to: user.email,
+        subject: 'Crie uma nova senha',
+        html: emailHtml,
+      });
+    });
   }
 
   verifyConfirmPassword(password: string, confirmPassword: string): void {
