@@ -85,6 +85,19 @@ export class UserRepository {
     return userUpdated;
   }
 
+  async updateUserPasswordById(
+    id: string,
+    hashPassword: string,
+  ): Promise<UserEntity> {
+    const userUpdated = await this.prisma.users
+      .update({
+        where: { id },
+        data: { password: hashPassword },
+      })
+      .catch(serverError);
+    return userUpdated;
+  }
+
   async deleteUserById(id: string): Promise<void> {
     await this.prisma.users.delete({ where: { id } }).catch(serverError);
   }

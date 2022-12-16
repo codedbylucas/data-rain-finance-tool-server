@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Cryptr from 'cryptr';
 
 @Injectable()
@@ -11,7 +11,11 @@ export default class CryptrService {
   }
 
   decrypt(value: string): string {
-    const decryptedValue = this.cryptr.decrypt(value);
-    return decryptedValue;
+    try {
+      const decryptedValue = this.cryptr.decrypt(value);
+      return decryptedValue;
+    } catch (error) {
+      throw new BadRequestException('Token is invalid');
+    }
   }
 }
