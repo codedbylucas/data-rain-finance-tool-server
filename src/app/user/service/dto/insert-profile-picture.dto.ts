@@ -1,6 +1,4 @@
-import { UserEntity } from '../../entities/user.entity';
-
-export class ProfilePicture {
-  user: UserEntity;
+export class ProfilePictureDto {
+  id: string;
   imageUrl: string;
 }

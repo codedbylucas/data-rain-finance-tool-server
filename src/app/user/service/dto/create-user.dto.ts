@@ -1,64 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsString,
   Length,
-  Matches,
 } from 'class-validator';
 
 export class CreateUserDto {
   @Length(2, 70)
   @IsString()
   @ApiProperty({
-    description: 'The name of the User',
-    example: 'Lucas',
+    description: 'Name of the User',
+    example: 'Vini',
   })
   name: string;
 
   @IsEmail()
   @Length(3, 100)
   @ApiProperty({
-    description: 'The email of the User',
-    example: 'email@mail.com',
+    description: 'Email of the User',
+    example: 'violigon@mail.com',
   })
   email: string;
 
-  @IsString()
-  @Length(8, 50)
-  @ApiProperty({
-    description: 'The password of the User',
-    example: 'Abcd@1234',
-  })
-  @Matches(
-    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$/,
-    {
-      message: 'Password too weak',
-    },
-  )
-  password: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty({
-    description: 'User password confirmation',
-    example: 'Abcd@1234',
-  })
-  confirmPassword: string;
-
+  @Length(2, 200)
   @IsString()
   @IsNotEmpty()
-  @Length(8, 16)
   @ApiProperty({
-    description: 'The phone of the User',
-    example: '11 99100-9900',
+    description: 'Postion of the user',
+    example: 'Cloud DevOps Architect',
   })
-  phone: string;
-
-  @IsNotEmpty()
-  @ApiProperty({
-    description: `The User role ('financial' or 'preSale')`,
-    example: 'preSale',
-  })
-  role: string;
+  position: string;
 }

@@ -2,6 +2,9 @@ export interface FindUserResponse {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  role: string;
+  imageUrl: string;
+  billable: boolean;
+  allocated: boolean;
+  position: string;
+  roleName: string;
 }

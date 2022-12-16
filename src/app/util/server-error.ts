@@ -1,4 +1,4 @@
-import { UnprocessableEntityException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 
 export function serverError(error: Error): undefined {
   const errorLines = error.message?.split('\n');
@@ -8,7 +8,7 @@ export function serverError(error: Error): undefined {
     console.log(error);
   }
 
-  throw new UnprocessableEntityException(
+  throw new InternalServerErrorException(
     lastErrorLine || 'Oops, something happened.',
   );
 }

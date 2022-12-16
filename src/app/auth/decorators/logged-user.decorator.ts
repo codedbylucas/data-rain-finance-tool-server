@@ -1,19 +1,17 @@
 import {
   createParamDecorator,
   ExecutionContext,
-  ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserPayload } from '../protocols/user-payload';
 
-export const PermissionAdmin = createParamDecorator(
+export const LoggedUser = createParamDecorator(
   (data: any, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const user: UserPayload = request.user;
-    if (user.role !== 'admin') {
-      throw new ForbiddenException(
-        'User does not have permission to access this route',
-      );
+    if (!user) {
+      throw new UnauthorizedException('User does not have permission');
     }
-    return user;
+    return user.userId;
   },
 );

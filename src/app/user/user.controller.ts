@@ -16,13 +16,17 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PermissionAdmin } from '../auth/decorators/admin.decorator';
-import { UserPayload } from '../auth/protocols/user-payload';
-import { FindAllUsersResponse } from './protocols/find-all-users-response';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { LoggedUser } from '../auth/decorators/logged-user.decorator';
+import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
-import { UserCreatedResponse } from './protocols/user-created-response';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
@@ -33,27 +37,42 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'User is created',
   })
   async createUser(
+    @RolesAccess([Role.admin]) userId: string,
     @Body() dto: CreateUserDto,
-  ): Promise<BadRequestException | UserCreatedResponse> {
+  ): Promise<BadRequestException | void> {
     return await this.userService.createUser(dto);
   }
 
-  @Post('profile-picture/:id')
+  @Post('profile-picture')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Add profile picture for user',
+    summary: 'insert photo in your profile',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
   })
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5000000 } }))
   async insertProfilePicture(
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @LoggedUser() userId: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<ProfilePictureResponse> {
-    return await this.userService.insertProfilePicture(id, file);
+    return await this.userService.insertProfilePicture(userId, file);
   }
 
   @Get(':id')
@@ -63,6 +82,7 @@ export class UserController {
     summary: 'Find a user by id',
   })
   async findUserById(
+    @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | FindUserResponse> {
     return await this.userService.findUserById(id);
@@ -74,21 +94,23 @@ export class UserController {
   @ApiOperation({
     summary: 'Find all users',
   })
-  async findUser(): Promise<BadRequestException | FindAllUsersResponse[]> {
+  async findAllUsers(
+    @RolesAccess([Role.admin]) userId: string,
+  ): Promise<BadRequestException | FindUserResponse[]> {
     return await this.userService.findAllUsers();
   }
 
-  @Patch(':id')
+  @Patch()
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Update a user by id',
+    summary: 'Update yourself',
   })
-  async updateUserSelfById(
-    @Param('id', new ParseUUIDPipe()) id: string,
+  async updateOwnUser(
+    @LoggedUser() userId: string,
     @Body() dto: UpdateUserDto,
   ): Promise<BadRequestException | void> {
-    return await this.userService.updateUserSelfById(id, dto);
+    return await this.userService.updateOwnUser(userId, dto);
   }
 
   @Delete(':id')
@@ -99,7 +121,7 @@ export class UserController {
     summary: 'Delete a user by id',
   })
   async deleteUserById(
-    @PermissionAdmin() admin: UserPayload,
+    @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | void> {
     await this.userService.deleteUserById(id);

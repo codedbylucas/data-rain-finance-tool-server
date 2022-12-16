@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserEntity } from 'src/app/user/entities/user.entity';
 import { UserRepository } from 'src/app/user/repositories/user.repository';
-import { BcryptAdapter } from '../criptography/bcrypt/bcrypt.adapter';
-import { JwtAdapter } from '../criptography/jwt/jwt.adapter';
+import { BcryptAdapter } from '../../infra/criptography/bcrypt/bcrypt.adapter';
+import { JwtAdapter } from '../../infra/criptography/jwt/jwt.adapter';
 import { LoginResponse } from '../protocols/login-response';
 import { LoginDto } from './dto/login.dto';
 
@@ -35,13 +35,18 @@ export class AuthService {
   async login(dto: LoginDto): Promise<LoginResponse> {
     const userOrError = await this.validateUser(dto);
 
-    const userIdEncrypted = await this.jwtAdapter.encrypt(
-      userOrError.id,
-      process.env.JWT_SECRET,
-    );
+    const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
 
     return {
       token: userIdEncrypted,
+      user: {
+        id: userOrError.id,
+        name: userOrError.name,
+        email: userOrError.email,
+        imageUrl: userOrError.imageUrl,
+        position: userOrError.position,
+        roleName: userOrError.roleName,
+      },
     };
   }
 }

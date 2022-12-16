@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TeamController } from './team.controller';
-import { TeamService } from './service/team.service';
-import { TeamRepository } from './repositories/team.repository';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TeamEntity } from './entities/team.entity';
 import { PassportModule } from '@nestjs/passport';
+import { PrismaModule } from '../infra/prisma/prisma.module';
+import { TeamRepository } from './repositories/team.repository';
+import { TeamService } from './service/team.service';
+import { TeamController } from './team.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TeamEntity]),
     PassportModule.register({
       defaultStrategy: 'jwt',
     }),
+    PrismaModule,
   ],
   controllers: [TeamController],
   providers: [TeamService, TeamRepository],
