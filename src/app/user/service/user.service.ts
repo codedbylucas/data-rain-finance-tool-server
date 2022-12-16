@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
+import { JwtAdapter } from 'src/app/infra/criptography/jwt/jwt.adapter';
 import { MailService } from 'src/app/infra/mail/mail.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
@@ -19,6 +20,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly mailService: MailService,
+    private readonly jwtAdapter: JwtAdapter,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
