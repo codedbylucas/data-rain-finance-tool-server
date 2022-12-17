@@ -2,13 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { QuestionRepository } from 'src/app/question/repositories/question.repository';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateAlternativeResponse } from '../protocols/create-alternative-response';
-import { AlternativesRepository } from '../repositories/alternatives.repository';
+import { AlternativeRepository } from '../repositories/alternative.repository';
 import { CreateAlternativeDto } from './dto/create-alternative.dto';
 
 @Injectable()
-export class AlternativesService {
+export class AlternativeService {
   constructor(
-    private readonly alternativeRepository: AlternativesRepository,
+    private readonly alternativeRepository: AlternativeRepository,
     private readonly questionRepository: QuestionRepository,
   ) {}
 

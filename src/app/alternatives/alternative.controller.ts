@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CreateAlternativeResponse } from './protocols/create-alternative-response';
-import { AlternativesService } from './service/alternatives.service';
+import { AlternativeService } from './service/alternative.service';
 import { CreateAlternativeDto } from './service/dto/create-alternative.dto';
 
 @Controller('alternatives')
-export class AlternativesController {
-  constructor(private readonly alternativeService: AlternativesService) {}
+export class AlternativeController {
+  constructor(private readonly alternativeService: AlternativeService) {}
 
   @Post()
   createAlternative(
