@@ -9,12 +9,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CreateAlternativeResponse } from './protocols/create-alternative-response';
 import { AlternativeService } from './service/alternative.service';
 import { CreateAlternativeDto } from './service/dto/create-alternative.dto';
 import { UpdateAlternativeDto } from './service/dto/update-alternative.dto';
 
 @Controller('alternative')
+@ApiTags('alternative')
 export class AlternativeController {
   constructor(private readonly alternativeService: AlternativeService) {}
 
