@@ -32,6 +32,12 @@ export class QuestionRepository {
         select: {
           id: true,
           description: true,
+          alternatives: {
+            select: {
+              id: true,
+              description: true,
+            },
+          },
         },
       })
       .catch(serverError);
