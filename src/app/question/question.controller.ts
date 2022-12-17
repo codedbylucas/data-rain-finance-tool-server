@@ -10,7 +10,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateQuestionResponse } from './protocols/create-question-response';
 import { FindQuestionResponse } from './protocols/find-questions-response';
 import { CreateQuestionDto } from './service/dto/create-question.dto';
@@ -23,6 +23,9 @@ export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Question is created',
+  })
   async createQuestion(
     @Body() dto: CreateQuestionDto,
   ): Promise<CreateQuestionResponse> {
@@ -30,11 +33,17 @@ export class QuestionController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Find all questions',
+  })
   async findAllQuestions(): Promise<FindQuestionResponse[]> {
     return await this.questionService.findAllQuestions();
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update question by id',
+  })
   async updateQuestionById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateQuestionDto,
@@ -43,6 +52,9 @@ export class QuestionController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete question by id',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteQuestionById(
     @Param('id', new ParseUUIDPipe()) id: string,
