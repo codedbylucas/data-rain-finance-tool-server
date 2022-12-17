@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateQuestionResponse } from '../protocols/create-question-response';
-import { FindQuestionResponse } from '../protocols/find-all-questions-response';
+import { FindQuestionResponse } from '../protocols/find-questions-response';
 import { QuestionRepository } from '../repositories/question.repository';
 import { CreateQuestionDto } from './dto/create-question.dto';
+import { UpdateQuestionDto } from './dto/update-question.dto';
 
 @Injectable()
 export class QuestionService {
@@ -28,5 +29,9 @@ export class QuestionService {
       throw new NotFoundException('Questions not found');
     }
     return questions;
+  }
+
+  async updateQuestionById(id: string, dto: UpdateQuestionDto): Promise<void> {
+    await this.questionRepository.updateQuestionById(id, dto);
   }
 }

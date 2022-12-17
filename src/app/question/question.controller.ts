@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateQuestionResponse } from './protocols/create-question-response';
-import { FindQuestionResponse } from './protocols/find-all-questions-response';
+import { FindQuestionResponse } from './protocols/find-questions-response';
 import { CreateQuestionDto } from './service/dto/create-question.dto';
+import { UpdateQuestionDto } from './service/dto/update-question.dto';
 import { QuestionService } from './service/question.service';
 
 @Controller('question')
@@ -20,5 +29,13 @@ export class QuestionController {
   @Get()
   async findAllQuestions(): Promise<FindQuestionResponse[]> {
     return await this.questionService.findAllQuestions();
+  }
+
+  @Patch(':id')
+  async updateQuestionById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateQuestionDto,
+  ): Promise<void> {
+    return await this.questionService.updateQuestionById(id, dto);
   }
 }
