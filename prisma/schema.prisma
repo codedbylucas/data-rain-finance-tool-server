@@ -51,10 +51,23 @@ model Teams {
 }
 
 model Questions {
+  id           String         @id @unique @default(uuid())
+  description  String         @db.VarChar(500)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  alternatives Alternatives[]
+
+  @@map("questions")
+}
+
+model Alternatives {
   id          String   @id @unique @default(uuid())
   description String   @db.VarChar(500)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@map("questions")
+  question   Questions @relation(fields: [questionId], references: [id])
+  questionId String    @map("question_id")
+
+  @@map("alternatives")
 }

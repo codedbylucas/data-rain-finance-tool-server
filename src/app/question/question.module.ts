@@ -8,5 +8,6 @@ import { QuestionRepository } from './repositories/question.repository';
   imports: [PrismaModule],
   providers: [QuestionService, QuestionRepository],
   controllers: [QuestionController],
+  exports: [QuestionRepository],
 })
 export class QuestionModule {}
