@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateQuestionResponse } from './protocols/create-question-response';
+import { FindQuestionResponse } from './protocols/find-all-questions-response';
 import { CreateQuestionDto } from './service/dto/create-question.dto';
 import { QuestionService } from './service/question.service';
 
@@ -15,4 +16,9 @@ export class QuestionController {
   ): Promise<CreateQuestionResponse> {
     return await this.questionService.createQuestion(dto);
   }
-} 
+
+  @Get()
+  async findAllQuestions(): Promise<FindQuestionResponse[]> {
+    return await this.questionService.findAllQuestions();
+  }
+}
