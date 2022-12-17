@@ -5,6 +5,7 @@ import { TeamModule } from './app/team/team.module';
 import { UserModule } from './app/user/user.module';
 import { MailModule } from './app/infra/mail/mail.module';
 import { CriptographyModule } from './app/infra/criptography/criptography.module';
+import { QuestionModule } from './app/question/question.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CriptographyModule } from './app/infra/criptography/criptography.module
     TeamModule,
     MailModule,
     CriptographyModule,
+    QuestionModule,
   ],
 })
 export class AppModule {}
