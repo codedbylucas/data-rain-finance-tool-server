@@ -17,6 +17,15 @@ export class QuestionRepository {
     return question;
   }
 
+  async findQuestionById(id: string): Promise<QuestionEntity> {
+    const questionOrNull = await this.prisma.questions
+      .findUnique({
+        where: { id },
+      })
+      .catch(serverError);
+    return questionOrNull;
+  }
+
   async findAllQuestions(): Promise<FindQuestionResponse[]> {
     const questions = await this.prisma.questions
       .findMany({
@@ -38,5 +47,9 @@ export class QuestionRepository {
         },
       })
       .catch(serverError);
+  }
+
+  async deleteQuestionById(id: string): Promise<void> {
+    await this.prisma.questions.delete({ where: { id } }).catch(serverError);
   }
 }

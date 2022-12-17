@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
+import { QuestionEntity } from '../entities/question.entity';
 import { CreateQuestionResponse } from '../protocols/create-question-response';
 import { FindQuestionResponse } from '../protocols/find-questions-response';
 import { QuestionRepository } from '../repositories/question.repository';
@@ -32,6 +37,20 @@ export class QuestionService {
   }
 
   async updateQuestionById(id: string, dto: UpdateQuestionDto): Promise<void> {
+    await this.veryfiQuestionExist(id);
     await this.questionRepository.updateQuestionById(id, dto);
+  }
+
+  async deleteQuestionById(id: string): Promise<void> {
+    await this.veryfiQuestionExist(id);
+    await this.questionRepository.deleteQuestionById(id);
+  }
+
+  async veryfiQuestionExist(id: string): Promise<QuestionEntity> {
+    const questionOrNull = await this.questionRepository.findQuestionById(id);
+    if (!questionOrNull) {
+      throw new BadRequestException(`Question with '${id}' not found`);
+    }
+    return questionOrNull;
   }
 }

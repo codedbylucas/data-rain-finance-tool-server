@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -37,5 +40,13 @@ export class QuestionController {
     @Body() dto: UpdateQuestionDto,
   ): Promise<void> {
     return await this.questionService.updateQuestionById(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteQuestionById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
+    return await this.questionService.deleteQuestionById(id);
   }
 }
