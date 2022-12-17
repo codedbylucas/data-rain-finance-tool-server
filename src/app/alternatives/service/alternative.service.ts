@@ -3,6 +3,7 @@ import { QuestionRepository } from 'src/app/question/repositories/question.repos
 import { createUuid } from 'src/app/util/create-uuid';
 import { AlternativeEntity } from '../entities/alternative.entity';
 import { CreateAlternativeResponse } from '../protocols/create-alternative-response';
+import { UpdateAlternativeResponse } from '../protocols/update-alternative-response';
 import { AlternativeRepository } from '../repositories/alternative.repository';
 import { CreateAlternativeDto } from './dto/create-alternative.dto';
 import { UpdateAlternativeDto } from './dto/update-alternative.dto';
@@ -37,7 +38,10 @@ export class AlternativeService {
     };
   }
 
-  async updateAlternative(id: string, dto: UpdateAlternativeDto) {
+  async updateAlternative(
+    id: string,
+    dto: UpdateAlternativeDto,
+  ): Promise<UpdateAlternativeResponse> {
     await this.verifyAlternativeExist(id);
     const alternativeUpdated =
       await this.alternativeRepository.updateAlternativeById(id, dto);
@@ -45,6 +49,7 @@ export class AlternativeService {
     return {
       id: alternativeUpdated.id,
       description: alternativeUpdated.description,
+      questionId: alternativeUpdated.questionId,
     };
   }
 
