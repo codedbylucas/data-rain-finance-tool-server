@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateAlternativeResponse } from './protocols/create-alternative-response';
 import { AlternativeService } from './service/alternative.service';
 import { CreateAlternativeDto } from './service/dto/create-alternative.dto';
@@ -21,6 +21,9 @@ export class AlternativeController {
   constructor(private readonly alternativeService: AlternativeService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Alternative is create',
+  })
   async createAlternative(
     @Body() dto: CreateAlternativeDto,
   ): Promise<CreateAlternativeResponse> {
@@ -28,6 +31,9 @@ export class AlternativeController {
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update alternative by id',
+  })
   async updateAlternativeById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateAlternativeDto,
@@ -36,6 +42,9 @@ export class AlternativeController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete alternative by id',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAlternativeById(@Param('id', new ParseUUIDPipe()) id: string) {
     return await this.alternativeService.deleteAlternativeById(id);
