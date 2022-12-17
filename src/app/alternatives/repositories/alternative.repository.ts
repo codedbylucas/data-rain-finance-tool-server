@@ -49,4 +49,8 @@ export class AlternativeRepository {
       .catch(serverError);
     return alternativeUpdated;
   }
+
+  async deleteAlternativeById(id: string): Promise<void> {
+    await this.prisma.alternatives.delete({ where: { id } }).catch(serverError);
+  }
 }

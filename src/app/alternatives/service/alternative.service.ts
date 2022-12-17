@@ -48,6 +48,11 @@ export class AlternativeService {
     };
   }
 
+  async deleteAlternativeById(id: string): Promise<void> {
+    await this.verifyAlternativeExist(id);
+    await this.alternativeRepository.deleteAlternativeById(id);
+  }
+
   async verifyAlternativeExist(id: string): Promise<AlternativeEntity> {
     const alternativeOrNull =
       await this.alternativeRepository.findAlternativeById(id);

@@ -1,6 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -28,5 +31,11 @@ export class AlternativeController {
     @Body() dto: UpdateAlternativeDto,
   ) {
     return await this.alternativeService.updateAlternative(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAlternativeById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.alternativeService.deleteAlternativeById(id);
   }
 }
