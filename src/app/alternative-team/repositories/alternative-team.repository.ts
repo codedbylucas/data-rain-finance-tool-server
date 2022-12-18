@@ -14,6 +14,7 @@ export class AlternativeTeamRepository {
   ): Promise<AlternativeTeamEntity> {
     const data: Prisma.AlternativeTeamCreateInput = {
       id: props.id,
+      workHours: props.workHours,
       alternative: {
         connect: {
           id: props.alternativeId,

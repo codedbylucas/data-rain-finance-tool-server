@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsUUID, Max, Min } from 'class-validator';
 
 export class CreateAlternativeTeamDto {
   @IsUUID()
@@ -21,6 +21,7 @@ export class CreateAlternativeTeamDto {
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 0 })
   @Min(0)
+  @Max(99999)
   @ApiProperty({
     description: 'Hours of work to accomplish the task',
     example: 20,

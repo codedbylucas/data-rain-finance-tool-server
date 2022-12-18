@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateQuestionResponse } from './protocols/create-question-response';
-import { FindQuestionResponse } from './protocols/find-questions-response';
+import { FindAllQuestionsResponse } from './protocols/find-all-questions-response';
 import { CreateQuestionDto } from './service/dto/create-question.dto';
 import { UpdateQuestionDto } from './service/dto/update-question.dto';
 import { QuestionService } from './service/question.service';
@@ -36,7 +36,7 @@ export class QuestionController {
   @ApiOperation({
     summary: 'Find all questions',
   })
-  async findAllQuestions(): Promise<FindQuestionResponse[]> {
+  async findAllQuestions(): Promise<FindAllQuestionsResponse[]> {
     return await this.questionService.findAllQuestions();
   }
 

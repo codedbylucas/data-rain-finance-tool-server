@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { QuestionEntity } from '../entities/question.entity';
-import { FindQuestionResponse } from '../protocols/find-questions-response';
+import { DbFindAllQuestionResponse } from '../protocols/db-find-all-questions-response';
 import { UpdateQuestionDto } from '../service/dto/update-question.dto';
 import { DbCreateQuestionProps } from './props/db-create-question.props';
 
@@ -26,7 +26,7 @@ export class QuestionRepository {
     return questionOrNull;
   }
 
-  async findAllQuestions(): Promise<FindQuestionResponse[]> {
+  async findAllQuestions(): Promise<DbFindAllQuestionResponse[]> {
     const questions = await this.prisma.questions
       .findMany({
         select: {
@@ -36,6 +36,18 @@ export class QuestionRepository {
             select: {
               id: true,
               description: true,
+              teams: {
+                select: {
+                  team: {
+                    select: {
+                      id: true,
+                      name: true,
+                      valuePerHour: true,
+                    },
+                  },
+                  workHours: true,
+                },
+              },
             },
           },
         },

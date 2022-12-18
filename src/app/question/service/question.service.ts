@@ -6,7 +6,7 @@ import {
 import { createUuid } from 'src/app/util/create-uuid';
 import { QuestionEntity } from '../entities/question.entity';
 import { CreateQuestionResponse } from '../protocols/create-question-response';
-import { FindQuestionResponse } from '../protocols/find-questions-response';
+import { FindAllQuestionsResponse } from '../protocols/find-all-questions-response';
 import { QuestionRepository } from '../repositories/question.repository';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -28,12 +28,29 @@ export class QuestionService {
     };
   }
 
-  async findAllQuestions(): Promise<FindQuestionResponse[]> {
+  async findAllQuestions(): Promise<FindAllQuestionsResponse[]> {
     const questions = await this.questionRepository.findAllQuestions();
     if (questions.length === 0) {
       throw new NotFoundException('Questions not found');
     }
-    return questions;
+    const questionsReponse: FindAllQuestionsResponse[] = questions.map(
+      (question) => ({
+        id: question.id,
+        description: question.description,
+        alternatives: question.alternatives.map((alternative) => ({
+          id: alternative.id,
+          description: alternative.description,
+          teams: alternative.teams.map((team, i) => ({
+            id: team.team.id,
+            name: team.team.name,
+            valuePerHour: team.team.valuePerHour,
+            workHours: alternative.teams[i].workHours,
+          })),
+        })),
+      }),
+    );
+
+    return questionsReponse;
   }
 
   async updateQuestionById(id: string, dto: UpdateQuestionDto): Promise<void> {
