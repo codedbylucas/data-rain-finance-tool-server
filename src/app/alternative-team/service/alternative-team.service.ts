@@ -3,9 +3,9 @@ import { AlternativeService } from 'src/app/alternatives/service/alternative.ser
 import { TeamService } from 'src/app/team/service/team.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UpdateAlternativeTeamProps } from '../protocols/props/update-alternative-team.props';
+import { UpdateAlternativeTeamResponse } from '../protocols/update-alternative-team-response';
 import { AlternativeTeamRepository } from '../repositories/alternative-team.repository';
 import { CreateAlternativeTeamDto } from './dto/create-alternative-team.dto';
-import { UpdateAlternativeTeamDto } from './dto/update-alternative-team.dto';
 
 @Injectable()
 export class AlternativeTeamService {
@@ -34,7 +34,9 @@ export class AlternativeTeamService {
     });
   }
 
-  async updateAlternativeTeamByIds(props: UpdateAlternativeTeamProps) {
+  async updateAlternativeTeamByIds(
+    props: UpdateAlternativeTeamProps,
+  ): Promise<UpdateAlternativeTeamResponse> {
     await this.alternativeService.verifyAlternativeExist(props.alternativeId);
     await this.teamService.verifyTeamExist(props.teamId);
     const alternativeTeamOrNull =
