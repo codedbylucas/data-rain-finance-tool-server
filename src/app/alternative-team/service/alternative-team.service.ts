@@ -19,10 +19,11 @@ export class AlternativeTeamService {
   async createAlternativeTeam(dto: CreateAlternativeTeamDto): Promise<void> {
     await this.verifyAlternativeAndTeamExist(dto.alternativeId, dto.teamId);
 
-    const alternativeTeamOrNull = await this.findAlternativeTeamByIds(
-      dto.alternativeId,
-      dto.teamId,
-    );
+    const alternativeTeamOrNull =
+      await this.alternativeTeamRepository.findAlternativeTeamByIds(
+        dto.alternativeId,
+        dto.teamId,
+      );
     if (alternativeTeamOrNull) {
       throw new BadRequestException('This relationship already exists');
     }
@@ -37,15 +38,11 @@ export class AlternativeTeamService {
     props: UpdateAlternativeTeamProps,
   ): Promise<UpdateAlternativeTeamResponse> {
     await this.verifyAlternativeAndTeamExist(props.alternativeId, props.teamId);
-    const alternativeTeamOrNull = await this.findAlternativeTeamByIds(
+    await this.verifyRelationshipAlternativeTeam(
       props.alternativeId,
       props.teamId,
     );
-    if (!alternativeTeamOrNull) {
-      throw new BadRequestException(
-        `It was not possible to find a relationship between alternativeId: '${props.alternativeId}' and teamId: '${props.teamId}'`,
-      );
-    }
+
     const alternativeTeamUpdated =
       await this.alternativeTeamRepository.updateAlternativeTeamByIds(props);
 
@@ -61,15 +58,8 @@ export class AlternativeTeamService {
     teamId: string,
   ): Promise<void> {
     await this.verifyAlternativeAndTeamExist(alternativeId, teamId);
-    const alternativeTeamOrNull = await this.findAlternativeTeamByIds(
-      alternativeId,
-      teamId,
-    );
-    if (!alternativeTeamOrNull) {
-      throw new BadRequestException(
-        `It was not possible to find a relationship between alternativeId: '${alternativeId}' and teamId: '${teamId}'`,
-      );
-    }
+    await this.verifyRelationshipAlternativeTeam(alternativeId, teamId);
+
     await this.alternativeTeamRepository.deleteAlternativeTeamByIds(
       alternativeId,
       teamId,
@@ -84,7 +74,7 @@ export class AlternativeTeamService {
     await this.teamService.verifyTeamExist(teamId);
   }
 
-  async findAlternativeTeamByIds(
+  async verifyRelationshipAlternativeTeam(
     alternativeId: string,
     teamId: string,
   ): Promise<AlternativeTeamEntity> {
@@ -93,6 +83,11 @@ export class AlternativeTeamService {
         alternativeId,
         teamId,
       );
+    if (!alternativeTeamOrNull) {
+      throw new BadRequestException(
+        `It was not possible to find a relationship between alternativeId: '${alternativeId}' and teamId: '${teamId}'`,
+      );
+    }
 
     return alternativeTeamOrNull;
   }
