@@ -1,6 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -37,5 +40,17 @@ export class AlternativeTeamController {
       teamId,
       workHours: dto.workHours,
     });
+  }
+
+  @Delete(':alternativeId/:teamId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAlternativeTeamByIds(
+    @Param('alternativeId', new ParseUUIDPipe()) alternativeId: string,
+    @Param('teamId', new ParseUUIDPipe()) teamId: string,
+  ): Promise<void> {
+    return await this.alternativeTeamService.deleteAlternativeTeamByIds(
+      alternativeId,
+      teamId,
+    );
   }
 }

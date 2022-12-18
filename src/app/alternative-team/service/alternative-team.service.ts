@@ -43,7 +43,7 @@ export class AlternativeTeamService {
     );
     if (!alternativeTeamOrNull) {
       throw new BadRequestException(
-        `It was not possible to find a relationship between ${props.alternativeId} and ${props.teamId}`,
+        `It was not possible to find a relationship between alternativeId: '${props.alternativeId}' and teamId: '${props.teamId}'`,
       );
     }
     const alternativeTeamUpdated =
@@ -54,6 +54,26 @@ export class AlternativeTeamService {
       teamId: alternativeTeamUpdated.teamId,
       workHours: alternativeTeamUpdated.workHours,
     };
+  }
+
+  async deleteAlternativeTeamByIds(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<void> {
+    await this.verifyAlternativeAndTeamExist(alternativeId, teamId);
+    const alternativeTeamOrNull = await this.findAlternativeTeamByIds(
+      alternativeId,
+      teamId,
+    );
+    if (!alternativeTeamOrNull) {
+      throw new BadRequestException(
+        `It was not possible to find a relationship between alternativeId: '${alternativeId}' and teamId: '${teamId}'`,
+      );
+    }
+    await this.alternativeTeamRepository.deleteAlternativeTeamByIds(
+      alternativeId,
+      teamId,
+    );
   }
 
   async verifyAlternativeAndTeamExist(
