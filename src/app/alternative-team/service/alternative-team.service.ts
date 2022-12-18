@@ -26,10 +26,9 @@ export class AlternativeTeamService {
     if (alternativeTeamOrNull) {
       throw new BadRequestException('This relationship already exists');
     }
-    const alternativeTeam =
-      await this.alternativeTeamRepository.createTeamAlternative({
-        ...dto,
-        id: createUuid(),
-      });
+    await this.alternativeTeamRepository.createTeamAlternative({
+      ...dto,
+      id: createUuid(),
+    });
   }
 }
