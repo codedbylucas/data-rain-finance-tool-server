@@ -90,15 +90,15 @@ model AlternativeTeam {
   @@map("alternatives_team")
 }
 
-model Client {
+model Clients {
   id String @id @unique @default(uuid())
 
   name        String?  @db.VarChar(150)
-  companyName String   @db.VarChar(150)
+  companyName String   @unique() @db.VarChar(150)
   email       String?  @db.VarChar(150)
   phone       String?  @db.VarChar(25)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@map("client")
+  @@map("clients")
 }

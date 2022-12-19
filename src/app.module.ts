@@ -8,6 +8,7 @@ import { CriptographyModule } from './app/infra/criptography/criptography.module
 import { QuestionModule } from './app/question/question.module';
 import { AlternativeModule } from './app/alternatives/alternative.module';
 import { AlternativeTeamModule } from './app/alternative-team/alternative-team.module';
+import { ClientModule } from './app/client/client.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AlternativeTeamModule } from './app/alternative-team/alternative-team.m
     QuestionModule,
     AlternativeModule,
     AlternativeTeamModule,
+    ClientModule,
   ],
 })
 export class AppModule {}
