@@ -52,11 +52,12 @@ model Teams {
 }
 
 model Questions {
-  id           String         @id @unique @default(uuid())
-  description  String         @db.VarChar(500)
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  alternatives Alternatives[]
+  id               String             @id @unique @default(uuid())
+  description      String             @db.VarChar(500)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  alternatives     Alternatives[]
+  clientsResponses ClientsResponses[]
 
   @@map("questions")
 }
@@ -67,9 +68,10 @@ model Alternatives {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  question   Questions         @relation(fields: [questionId], references: [id])
-  questionId String            @map("question_id")
-  teams      AlternativeTeam[]
+  question         Questions          @relation(fields: [questionId], references: [id])
+  questionId       String             @map("question_id")
+  teams            AlternativeTeam[]
+  clientsResponses ClientsResponses[]
 
   @@map("alternatives")
 }
@@ -100,5 +102,29 @@ model Clients {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  clientsResponses ClientsResponses[]
+
   @@map("clients")
+}
+
+model ClientsResponses {
+  id      String  @id @unique @default(uuid())
+  details String? @db.VarChar(1000)
+
+  question   Questions @relation(fields: [questionId], references: [id])
+  questionId String    @map("question_id")
+
+  alternative   Alternatives? @relation(fields: [alternativeId], references: [id])
+  alternativeId String        @map("alternative_id")
+
+  client   Clients @relation(fields: [clientId], references: [id])
+  clientId String  @map("client_id")
+
+  verifyByPreSaleId   String? @map("verify_by_pre_sale_id")
+  verifyByFinancialId String? @map("verify_by_financial_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("clients_responses")
 }
