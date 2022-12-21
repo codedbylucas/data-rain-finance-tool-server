@@ -23,6 +23,7 @@ async function bootstrap() {
     .addTag('question')
     .addTag('alternative')
     .addTag('alternative-team')
+    .addTag('client')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
