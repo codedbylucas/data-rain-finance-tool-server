@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateClienteResponse } from '../protocols/create-client-response';
+import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
+import { ClientResponsesDto } from './dto/client-responses.dto';
 import { CreateClientDto } from './dto/create-client.dto';
 
 @Injectable()
@@ -32,5 +34,16 @@ export class ClientService {
       id: clientCreated.id,
       companyName: clientCreated.companyName,
     };
+  }
+
+  async createClientResponses(dto: ClientResponsesDto) {
+    const dtoWithId: DbCreateClientResponsesProps[] = dto.responses.map(
+      (response) => ({
+        ...response,
+        id: createUuid(),
+      }),
+    );
+
+    return await this.clientRepository.createClientResponses(dtoWithId);
   }
 }

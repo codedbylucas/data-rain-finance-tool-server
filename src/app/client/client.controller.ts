@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateClienteResponse } from './protocols/create-client-response';
 import { ClientService } from './service/client.service';
+import { ClientResponsesDto } from './service/dto/client-responses.dto';
 import { CreateClientDto } from './service/dto/create-client.dto';
 
 @Controller('client')
@@ -14,5 +15,10 @@ export class ClientController {
     @Body() dto: CreateClientDto,
   ): Promise<CreateClienteResponse> {
     return await this.clientService.createClient(dto);
+  }
+
+  @Post('responses')
+  async clientResponses(@Body() dto: ClientResponsesDto) {
+    return await this.clientService.createClientResponses(dto);
   }
 }

@@ -115,7 +115,7 @@ model ClientsResponses {
   questionId String    @map("question_id")
 
   alternative   Alternatives? @relation(fields: [alternativeId], references: [id])
-  alternativeId String        @map("alternative_id")
+  alternativeId String?       @map("alternative_id")
 
   client   Clients @relation(fields: [clientId], references: [id])
   clientId String  @map("client_id")

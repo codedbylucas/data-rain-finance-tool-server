@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ClientEntity } from '../entities/client.entity';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
+import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 
 @Injectable()
 export class ClientRepository {
@@ -20,5 +22,16 @@ export class ClientRepository {
       .findUnique({ where: { companyName } })
       .catch(serverError);
     return clientOrNull;
+  }
+
+  async createClientResponses(props: DbCreateClientResponsesProps[]) {
+    console.log(props)
+    const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
+      props.map((response) => ({ ...response }));
+
+    const clientResponsesCreated =
+      await this.prisma.clientsResponses.createMany({ data });
+
+    return clientResponsesCreated;
   }
 }
