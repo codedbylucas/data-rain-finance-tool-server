@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
+import { ClientEntity } from '../entities/client.entity';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
-import { ClientResponsesDto } from './dto/client-responses.dto';
+import { ClientResponse, ClientResponsesDto } from './dto/client-responses.dto';
 import { CreateClientDto } from './dto/create-client.dto';
 
 @Injectable()
@@ -37,13 +38,33 @@ export class ClientService {
   }
 
   async createClientResponses(dto: ClientResponsesDto) {
-    const dtoWithId: DbCreateClientResponsesProps[] = dto.responses.map(
-      (response) => ({
-        ...response,
-        id: createUuid(),
-      }),
-    );
+    const responses: ClientResponse[] = dto.responses;
 
-    return await this.clientRepository.createClientResponses(dtoWithId);
+    responses.forEach((response) => {
+      if (!response.alternativeId && !response.details) {
+        throw new BadRequestException(`Altarnative id or details required`);
+      }
+      if (response.clientId !== responses[0].clientId) {
+        throw new BadRequestException(
+          `Client must contain the same id in all responses`,
+        );
+      }
+    });
+    await this.verifyClientExist(responses[0].clientId);
+
+    const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
+      ...response,
+      id: createUuid(),
+    }));
+
+    return await this.clientRepository.createClientResponses(data);
+  }
+
+  async verifyClientExist(id: string): Promise<ClientEntity> {
+    const clientOrNull = await this.clientRepository.findClientById(id);
+    if (!clientOrNull) {
+      throw new BadRequestException(`Client with id '${id}' not found`);
+    }
+    return clientOrNull;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
@@ -24,14 +24,27 @@ export class ClientRepository {
     return clientOrNull;
   }
 
+  async findClientById(id: string): Promise<ClientEntity> {
+    const clientOrNull = await this.prisma.clients
+      .findUnique({ where: { id } })
+      .catch(serverError);
+
+    return clientOrNull;
+  }
+
   async createClientResponses(props: DbCreateClientResponsesProps[]) {
-    console.log(props)
-    const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
-      props.map((response) => ({ ...response }));
+    try {
+      const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
+        props.map((response) => ({ ...response }));
 
-    const clientResponsesCreated =
-      await this.prisma.clientsResponses.createMany({ data });
+      const clientResponsesCreated =
+        await this.prisma.clientsResponses.createMany({ data });
 
-    return clientResponsesCreated;
+      return clientResponsesCreated;
+    } catch (error) {
+      throw new BadRequestException(
+        'Question Id or Alternative Id entered incorrectly',
+      );
+    }
   }
 }

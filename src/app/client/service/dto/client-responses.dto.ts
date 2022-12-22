@@ -51,8 +51,6 @@ export class ClientResponse {
 export class ClientResponsesDto {
   @IsArray()
   @ValidateNested({ each: true })
-  // @ArrayMinSize(2)
-  // @ArrayMaxSize(2)
   @Type(() => ClientResponse)
   @ApiProperty({
     isArray: true,
