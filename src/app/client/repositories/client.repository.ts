@@ -42,9 +42,16 @@ export class ClientRepository {
 
       return clientResponsesCreated;
     } catch (error) {
-      throw new BadRequestException(
-        'Question Id or Alternative Id entered incorrectly',
-      );
+      if (error.meta.field_name) {
+        const result = error.meta.field_name.split(' ');
+        if (result[0] === 'clients_responses_question_id_fkey') {
+          throw new BadRequestException('Some question id is incorrect');
+        }
+        if (result[0] === 'clients_responses_alternative_id_fkey') {
+          throw new BadRequestException('Some alternative id is incorrect');
+        }
+      }
+      return serverError(error);
     }
   }
 }
