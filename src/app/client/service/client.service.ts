@@ -67,6 +67,11 @@ export class ClientService {
     await this.clientRepository.createClientResponses(data);
   }
 
+  async deleteClientById(id: string): Promise<void> {
+    await this.verifyClientExist(id);
+    await this.clientRepository.deleteClientById(id);
+  }
+
   async verifyClientExist(id: string): Promise<ClientEntity> {
     const clientOrNull = await this.clientRepository.findClientById(id);
     if (!clientOrNull) {

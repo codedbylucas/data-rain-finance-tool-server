@@ -52,4 +52,8 @@ export class ClientRepository {
       return serverError(error);
     }
   }
+
+  async deleteClientById(id: string): Promise<void> {
+    await this.prisma.clients.delete({ where: { id } }).catch(serverError);
+  }
 }

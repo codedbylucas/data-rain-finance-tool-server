@@ -1,4 +1,13 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateClienteResponse } from './protocols/create-client-response';
 import { ClientService } from './service/client.service';
@@ -22,5 +31,11 @@ export class ClientController {
     return await this.clientService.createClientResponses(dto);
   }
 
-  
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteClientById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
+    return await this.clientService.deleteClientById(id);
+  }
 }
