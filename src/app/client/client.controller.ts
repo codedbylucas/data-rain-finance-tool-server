@@ -38,6 +38,11 @@ export class ClientController {
     return await this.clientService.findAllClients();
   }
 
+  @Get(':id')
+  async findClientById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.clientService.findClientById(id);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteClientById(

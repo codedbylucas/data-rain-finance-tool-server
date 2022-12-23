@@ -80,12 +80,24 @@ export class ClientService {
     return clientsOrEmpty;
   }
 
+  async findClientById(id: string) {
+    const clientOrNull = await this.clientRepository.findClientById(id);
+    if (!clientOrNull) {
+      throw new NotFoundException(`Client with id '${id}' not found`);
+    }
+    delete Object.assign(clientOrNull, {
+      ['responses']: clientOrNull['clientsResponses'],
+    })['clientsResponses'];
+
+    return clientOrNull;
+  }
+
   async deleteClientById(id: string): Promise<void> {
     await this.verifyClientExist(id);
     await this.clientRepository.deleteClientById(id);
   }
 
-  async verifyClientExist(id: string): Promise<ClientEntity> {
+  async verifyClientExist(id: string) {
     const clientOrNull = await this.clientRepository.findClientById(id);
     if (!clientOrNull) {
       throw new BadRequestException(`Client with id '${id}' not found`);

@@ -25,14 +25,6 @@ export class ClientRepository {
     return clientOrNull;
   }
 
-  async findClientById(id: string): Promise<ClientEntity> {
-    const clientOrNull = await this.prisma.clients
-      .findUnique({ where: { id } })
-      .catch(serverError);
-
-    return clientOrNull;
-  }
-
   async createClientResponses(
     props: DbCreateClientResponsesProps[],
   ): Promise<void> {
@@ -68,6 +60,39 @@ export class ClientRepository {
       .catch(serverError);
 
     return clientsOrEmpty;
+  }
+
+  async findClientById(id: string) {
+    const clientOrNull = await this.prisma.clients
+      .findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          companyName: true,
+          email: true,
+          phone: true,
+          clientsResponses: {
+            select: {
+              question: {
+                select: {
+                  id: true,
+                  description: true,
+                  alternatives: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
+                  },
+                },
+              },
+              answerDetails: true,
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return clientOrNull;
   }
 
   async deleteClientById(id: string): Promise<void> {
