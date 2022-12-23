@@ -34,9 +34,9 @@ export class ClientResponse {
   @Length(2, 1000)
   @ApiProperty({
     description: 'Additional details about the answers',
-    example: 'Preciso que tenha esses detalhes...',
+    example: 'Preciso que tenham estes detalhes...',
   })
-  answerDetails: string;
+  responseDetails: string;
 }
 
 export class ClientResponsesDto {

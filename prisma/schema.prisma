@@ -109,7 +109,7 @@ model Clients {
 
 model ClientsResponses {
   id            String  @id @unique @default(uuid())
-  answerDetails String? @map("answer_details") @db.VarChar(1000)
+  responseDetails String? @map("answer_details") @db.VarChar(1000)
 
   question   Questions @relation(fields: [questionId], references: [id])
   questionId String    @map("question_id")

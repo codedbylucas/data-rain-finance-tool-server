@@ -4,9 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
-import { ClientEntity } from '../entities/client.entity';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
+import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
 import { ClientResponse, ClientResponsesDto } from './dto/client-responses.dto';
@@ -46,7 +46,7 @@ export class ClientService {
     const responses: ClientResponse[] = dto.responses;
 
     responses.forEach((response) => {
-      if (!response.alternativeId && !response.answerDetails) {
+      if (!response.alternativeId && !response.responseDetails) {
         throw new BadRequestException(`Altarnative id or details required`);
       }
     });
@@ -80,15 +80,16 @@ export class ClientService {
     return clientsOrEmpty;
   }
 
-  async findClientById(id: string) {
+  async findClientById(id: string): Promise<FindClientByIdResponse> {
     const clientOrNull = await this.clientRepository.findClientById(id);
     if (!clientOrNull) {
       throw new NotFoundException(`Client with id '${id}' not found`);
     }
+
     delete Object.assign(clientOrNull, {
       ['responses']: clientOrNull['clientsResponses'],
     })['clientsResponses'];
-
+    
     return clientOrNull;
   }
 

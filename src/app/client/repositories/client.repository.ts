@@ -4,6 +4,7 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ClientEntity } from '../entities/client.entity';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
+import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 
@@ -62,7 +63,7 @@ export class ClientRepository {
     return clientsOrEmpty;
   }
 
-  async findClientById(id: string) {
+  async findClientById(id: string): Promise<FindClientByIdResponse> {
     const clientOrNull = await this.prisma.clients
       .findUnique({
         where: { id },
@@ -78,15 +79,26 @@ export class ClientRepository {
                 select: {
                   id: true,
                   description: true,
-                  alternatives: {
+                },
+              },
+              alternative: {
+                select: {
+                  id: true,
+                  description: true,
+                  teams: {
                     select: {
-                      id: true,
-                      description: true,
+                      team: {
+                        select: {
+                          id: true,
+                          name: true,
+                          valuePerHour: true,
+                        },
+                      },
                     },
                   },
                 },
               },
-              answerDetails: true,
+              responseDetails: true,
             },
           },
         },
