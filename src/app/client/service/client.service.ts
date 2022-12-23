@@ -37,11 +37,11 @@ export class ClientService {
     };
   }
 
-  async createClientResponses(dto: ClientResponsesDto) {
+  async createClientResponses(dto: ClientResponsesDto): Promise<void> {
     const responses: ClientResponse[] = dto.responses;
 
     responses.forEach((response) => {
-      if (!response.alternativeId && !response.details) {
+      if (!response.alternativeId && !response.answerDetails) {
         throw new BadRequestException(`Altarnative id or details required`);
       }
       if (response.clientId !== responses[0].clientId) {
@@ -57,7 +57,7 @@ export class ClientService {
       id: createUuid(),
     }));
 
-    return await this.clientRepository.createClientResponses(data);
+    await this.clientRepository.createClientResponses(data);
   }
 
   async verifyClientExist(id: string): Promise<ClientEntity> {

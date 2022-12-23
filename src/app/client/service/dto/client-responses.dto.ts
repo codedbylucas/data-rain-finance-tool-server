@@ -45,7 +45,7 @@ export class ClientResponse {
     description: 'Additional details about the answers',
     example: 'Preciso que tenha esses detalhes...',
   })
-  details: string;
+  answerDetails: string;
 }
 
 export class ClientResponsesDto {

@@ -32,15 +32,13 @@ export class ClientRepository {
     return clientOrNull;
   }
 
-  async createClientResponses(props: DbCreateClientResponsesProps[]) {
+  async createClientResponses(
+    props: DbCreateClientResponsesProps[],
+  ): Promise<void> {
     try {
       const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
         props.map((response) => ({ ...response }));
-
-      const clientResponsesCreated =
-        await this.prisma.clientsResponses.createMany({ data });
-
-      return clientResponsesCreated;
+      await this.prisma.clientsResponses.createMany({ data });
     } catch (error) {
       if (error.meta.field_name) {
         const result = error.meta.field_name.split(' ');
