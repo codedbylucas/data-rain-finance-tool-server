@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateClienteResponse } from './protocols/create-client-response';
+import { FindAllClientsResponse } from './protocols/find-all-clients-response';
 import { ClientService } from './service/client.service';
 import { ClientResponsesDto } from './service/dto/client-responses.dto';
 import { CreateClientDto } from './service/dto/create-client.dto';
@@ -29,6 +31,11 @@ export class ClientController {
   @Post('responses')
   async clientResponses(@Body() dto: ClientResponsesDto): Promise<void> {
     return await this.clientService.createClientResponses(dto);
+  }
+
+  @Get()
+  async findAllClients(): Promise<FindAllClientsResponse[]> {
+    return await this.clientService.findAllClients();
   }
 
   @Delete(':id')

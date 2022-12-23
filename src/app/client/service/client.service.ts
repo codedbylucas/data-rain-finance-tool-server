@@ -1,7 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { createUuid } from 'src/app/util/create-uuid';
 import { ClientEntity } from '../entities/client.entity';
 import { CreateClienteResponse } from '../protocols/create-client-response';
+import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
 import { ClientResponse, ClientResponsesDto } from './dto/client-responses.dto';
@@ -67,6 +72,14 @@ export class ClientService {
     await this.clientRepository.createClientResponses(data);
   }
 
+  async findAllClients(): Promise<FindAllClientsResponse[]> {
+    const clientsOrEmpty = await this.clientRepository.findAllClients();
+    if (!clientsOrEmpty || clientsOrEmpty.length === 0) {
+      throw new NotFoundException('Clients not found');
+    }
+    return clientsOrEmpty;
+  }
+
   async deleteClientById(id: string): Promise<void> {
     await this.verifyClientExist(id);
     await this.clientRepository.deleteClientById(id);
@@ -80,7 +93,7 @@ export class ClientService {
     return clientOrNull;
   }
 
-  hasDuplicates(array: string[]) {
+  hasDuplicates(array: string[]): Boolean {
     return new Set(array).size !== array.length;
   }
 }

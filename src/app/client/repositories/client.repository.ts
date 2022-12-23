@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ClientEntity } from '../entities/client.entity';
+import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 
@@ -51,6 +52,22 @@ export class ClientRepository {
       }
       return serverError(error);
     }
+  }
+
+  async findAllClients(): Promise<FindAllClientsResponse[]> {
+    const clientsOrEmpty = await this.prisma.clients
+      .findMany({
+        select: {
+          id: true,
+          name: true,
+          companyName: true,
+          email: true,
+          phone: true,
+        },
+      })
+      .catch(serverError);
+
+    return clientsOrEmpty;
   }
 
   async deleteClientById(id: string): Promise<void> {
