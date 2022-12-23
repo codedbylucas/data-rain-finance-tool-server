@@ -37,13 +37,13 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'User is created',
   })
   async createUser(
-    @RolesAccess([Role.admin]) userId: string,
+    // @RolesAccess([Role.admin]) userId: string,
     @Body() dto: CreateUserDto,
   ): Promise<BadRequestException | void> {
     return await this.userService.createUser(dto);
@@ -82,21 +82,20 @@ export class UserController {
     summary: 'Find a user by id',
   })
   async findUserById(
-    @RolesAccess([Role.admin]) userId: string,
+    // @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | FindUserResponse> {
     return await this.userService.findUserById(id);
   }
 
   @Get()
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'Find all users',
   })
-  async findAllUsers(
-    @RolesAccess([Role.admin]) userId: string,
-  ): Promise<BadRequestException | FindUserResponse[]> {
+  async findAllUsers(): // @RolesAccess([Role.admin]) userId: string,
+  Promise<BadRequestException | FindUserResponse[]> {
     return await this.userService.findAllUsers();
   }
 
@@ -114,14 +113,14 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a user by id',
   })
   async deleteUserById(
-    @RolesAccess([Role.admin]) userId: string,
+    // @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | void> {
     await this.userService.deleteUserById(id);

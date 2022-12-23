@@ -5,6 +5,10 @@ import { TeamModule } from './app/team/team.module';
 import { UserModule } from './app/user/user.module';
 import { MailModule } from './app/infra/mail/mail.module';
 import { CriptographyModule } from './app/infra/criptography/criptography.module';
+import { QuestionModule } from './app/question/question.module';
+import { AlternativeModule } from './app/alternatives/alternative.module';
+import { AlternativeTeamModule } from './app/alternative-team/alternative-team.module';
+import { ClientModule } from './app/client/client.module';
 
 @Module({
   imports: [
@@ -14,6 +18,10 @@ import { CriptographyModule } from './app/infra/criptography/criptography.module
     TeamModule,
     MailModule,
     CriptographyModule,
+    QuestionModule,
+    AlternativeModule,
+    AlternativeTeamModule,
+    ClientModule,
   ],
 })
 export class AppModule {}

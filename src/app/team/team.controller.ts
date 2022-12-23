@@ -26,52 +26,51 @@ export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
   @Post()
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'Team is created',
   })
   async createTeam(
-    @RolesAccess([Role.admin]) userId: string,
+    // @RolesAccess([Role.admin]) userId: string,
     @Body() dto: CreateTeamDto,
   ): Promise<BadRequestException | TeamResponse> {
     return await this.teamService.createTeam(dto);
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'Find team by id',
   })
   async findTeamById(
-    @RolesAccess([Role.admin, Role.preSale, Role.financial])
-    userId: string,
+    // @RolesAccess([Role.admin, Role.preSale, Role.financial])
+    // userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | TeamResponse> {
     return await this.teamService.findTeamById(id);
   }
 
   @Get()
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'Find all teams',
   })
-  async findAllTeams(
-    @RolesAccess([Role.admin, Role.preSale, Role.financial]) userId: string,
-  ): Promise<BadRequestException | TeamResponse[]> {
+  async findAllTeams(): // @RolesAccess([Role.admin, Role.preSale, Role.financial]) userId: string,
+  Promise<BadRequestException | TeamResponse[]> {
     return await this.teamService.findAllTeams();
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update a team by id',
   })
   async updateTeamById(
-    @RolesAccess([Role.admin]) userId: string,
+    // @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateTeamDto,
   ): Promise<BadRequestException | void> {
@@ -79,14 +78,14 @@ export class TeamController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a team by id',
   })
   async deleteTeamById(
-    @RolesAccess([Role.admin]) userId: string,
+    // @RolesAccess([Role.admin]) userId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | void> {
     return await this.teamService.deleteTeamById(id);

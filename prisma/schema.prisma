@@ -41,11 +41,90 @@ model Roles {
 }
 
 model Teams {
-  id           String   @id @unique @default(uuid())
-  name         String   @db.VarChar(100)
-  valuePerHour Float    @map("value_per_hour")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id           String            @id @unique @default(uuid())
+  name         String            @db.VarChar(100)
+  valuePerHour Float             @map("value_per_hour")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  alternatives AlternativeTeam[]
 
   @@map("teams")
+}
+
+model Questions {
+  id               String             @id @unique @default(uuid())
+  description      String             @db.VarChar(500)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  alternatives     Alternatives[]
+  clientsResponses ClientsResponses[]
+
+  @@map("questions")
+}
+
+model Alternatives {
+  id          String   @id @unique @default(uuid())
+  description String   @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  question         Questions          @relation(fields: [questionId], references: [id])
+  questionId       String             @map("question_id")
+  teams            AlternativeTeam[]
+  clientsResponses ClientsResponses[]
+
+  @@map("alternatives")
+}
+
+model AlternativeTeam {
+  id        String   @id @unique @default(uuid())
+  workHours Int?     @map("work_hours")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  alternative   Alternatives @relation(fields: [alternativeId], references: [id])
+  alternativeId String       @map("alternative_id")
+
+  team   Teams  @relation(fields: [teamId], references: [id])
+  teamId String @map("team_id")
+
+  @@unique([alternativeId, teamId])
+  @@map("alternatives_team")
+}
+
+model Clients {
+  id String @id @unique @default(uuid())
+
+  name        String?  @db.VarChar(150)
+  companyName String   @unique() @db.VarChar(150)
+  email       String?  @db.VarChar(150)
+  phone       String?  @db.VarChar(25)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  clientsResponses ClientsResponses[]
+
+  @@map("clients")
+}
+
+model ClientsResponses {
+  id            String  @id @unique @default(uuid())
+  responseDetails String? @map("answer_details") @db.VarChar(1000)
+
+  question   Questions @relation(fields: [questionId], references: [id])
+  questionId String    @map("question_id")
+
+  alternative   Alternatives? @relation(fields: [alternativeId], references: [id])
+  alternativeId String?       @map("alternative_id")
+
+  client   Clients @relation(fields: [clientId], references: [id])
+  clientId String  @map("client_id")
+
+  verifyByPreSaleId   String? @map("verify_by_pre_sale_id")
+  verifyByFinancialId String? @map("verify_by_financial_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("clients_responses")
 }
