@@ -44,17 +44,24 @@ export class ClientService {
       if (!response.alternativeId && !response.answerDetails) {
         throw new BadRequestException(`Altarnative id or details required`);
       }
-      if (response.clientId !== responses[0].clientId) {
-        throw new BadRequestException(
-          `Client must contain the same id in all responses`,
-        );
-      }
     });
-    await this.verifyClientExist(responses[0].clientId);
+
+    const questionIds = responses.map((response) => response.questionId);
+    const alternativeIds = responses.map((response) => response.alternativeId);
+    const questionDuplicate = this.hasDuplicates(questionIds);
+    const alternativeDuplicate = this.hasDuplicates(alternativeIds);
+    if (questionDuplicate || alternativeDuplicate) {
+      throw new BadRequestException(
+        `Question Id or Alternative Id cannot be dubbed`,
+      );
+    }
+
+    await this.verifyClientExist(dto.clientId);
 
     const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
       ...response,
       id: createUuid(),
+      clientId: dto.clientId,
     }));
 
     await this.clientRepository.createClientResponses(data);
@@ -66,5 +73,9 @@ export class ClientService {
       throw new BadRequestException(`Client with id '${id}' not found`);
     }
     return clientOrNull;
+  }
+
+  hasDuplicates(array: string[]) {
+    return new Set(array).size !== array.length;
   }
 }
