@@ -11,7 +11,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
-import { DbCreateUserProps } from '../repositories/props/db-create-user.props';
+import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
 import { UserRepository } from '../repositories/user.repository';
 import { AddRoleToUserDto } from './dto/add-role-to-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';

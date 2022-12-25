@@ -7,8 +7,8 @@ import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { AddRoleToUserDto } from '../service/dto/add-role-to-user.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
-import { ProfilePictureProps } from '../service/props/insert-profile-picture.props';
-import { DbCreateUserProps } from './props/db-create-user.props';
+import { ProfilePictureProps } from '../protocols/props/insert-profile-picture.props';
+import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
 
 @Injectable()
 export class UserRepository {
