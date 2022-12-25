@@ -153,8 +153,11 @@ export class UserService {
   }
 
   async updateUserRole(dto: AddRoleToUserDto) {
-    this.findUserById(dto.userId);
-    this.roleService.findRoleById(dto.roleId);
+    await this.findUserById(dto.userId);
+    const roleOrNull = await this.roleService.findRoleById(dto.roleId);
+    if (roleOrNull.name === 'admin') {
+      throw new BadRequestException(`You cannot make an admin user`);
+    }
     const roleAddedToUser = await this.userRepository.updateUserRole(dto);
     return roleAddedToUser;
   }

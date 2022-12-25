@@ -7,7 +7,9 @@ export class RoleService {
   constructor(private readonly roleRepository: RoleRepository) {}
 
   async findAllRoles(): Promise<FindRoleResponse[]> {
-    return await this.roleRepository.findAllRoles();
+    const roles = await this.roleRepository.findAllRoles();
+    const roleWithoutAdmin = roles.filter((role) => role.name !== 'admin');
+    return roleWithoutAdmin;
   }
 
   async findRoleById(id: string): Promise<FindRoleResponse> {
