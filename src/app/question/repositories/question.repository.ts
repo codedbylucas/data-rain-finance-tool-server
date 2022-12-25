@@ -4,7 +4,7 @@ import { serverError } from 'src/app/util/server-error';
 import { QuestionEntity } from '../entities/question.entity';
 import { DbFindAllQuestionResponse } from '../protocols/db-find-all-questions-response';
 import { UpdateQuestionDto } from '../service/dto/update-question.dto';
-import { DbCreateQuestionProps } from './props/db-create-question.props';
+import { DbCreateQuestionProps } from '../protocols/props/db-create-question.props';
 
 @Injectable()
 export class QuestionRepository {
