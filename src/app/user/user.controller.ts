@@ -76,6 +76,18 @@ export class UserController {
     return await this.userService.insertProfilePicture(userId, file);
   }
 
+  @Get('/myself')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find own user',
+  })
+  async findOwnUser(
+    @LoggedUser() userId: string,
+  ): Promise<BadRequestException | FindUserResponse> {
+    return await this.userService.findUserById(userId);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
