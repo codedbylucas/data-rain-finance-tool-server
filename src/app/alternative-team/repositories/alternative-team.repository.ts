@@ -13,7 +13,7 @@ export class AlternativeTeamRepository {
   async createTeamAlternative(
     props: DbCreateAlternativeTeamProps,
   ): Promise<AlternativeTeamEntity> {
-    const data: Prisma.AlternativeTeamCreateInput = {
+    const data: Prisma.AlternativesTeamsCreateInput = {
       id: props.id,
       workHours: props.workHours,
       alternative: {
@@ -27,7 +27,7 @@ export class AlternativeTeamRepository {
         },
       },
     };
-    const alternativeTeam = await this.prisma.alternativeTeam
+    const alternativeTeam = await this.prisma.alternativesTeams
       .create({ data })
       .catch(serverError);
     return alternativeTeam;
@@ -37,7 +37,7 @@ export class AlternativeTeamRepository {
     alternativeId: string,
     teamId: string,
   ): Promise<AlternativeTeamEntity> {
-    const alternativeTeamOrNull = await this.prisma.alternativeTeam
+    const alternativeTeamOrNull = await this.prisma.alternativesTeams
       .findUnique({
         where: {
           alternativeId_teamId: {
@@ -54,7 +54,7 @@ export class AlternativeTeamRepository {
   async updateAlternativeTeamByIds(
     props: UpdateAlternativeTeamProps,
   ): Promise<AlternativeTeamEntity> {
-    const alternativeTeamUpdated = await this.prisma.alternativeTeam
+    const alternativeTeamUpdated = await this.prisma.alternativesTeams
       .update({
         where: {
           alternativeId_teamId: {
@@ -75,7 +75,7 @@ export class AlternativeTeamRepository {
     alternativeId: string,
     teamId: string,
   ): Promise<void> {
-    await this.prisma.alternativeTeam
+    await this.prisma.alternativesTeams
       .delete({
         where: {
           alternativeId_teamId: {

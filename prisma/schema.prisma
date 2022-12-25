@@ -46,7 +46,7 @@ model Teams {
   valuePerHour Float             @map("value_per_hour")
   createdAt    DateTime          @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
-  alternatives AlternativeTeam[]
+  alternatives AlternativesTeams[]
 
   @@map("teams")
 }
@@ -70,13 +70,13 @@ model Alternatives {
 
   question         Questions          @relation(fields: [questionId], references: [id])
   questionId       String             @map("question_id")
-  teams            AlternativeTeam[]
+  teams            AlternativesTeams[]
   clientsResponses ClientsResponses[]
 
   @@map("alternatives")
 }
 
-model AlternativeTeam {
+model AlternativesTeams {
   id        String   @id @unique @default(uuid())
   workHours Int?     @map("work_hours")
   createdAt DateTime @default(now()) @map("created_at")
