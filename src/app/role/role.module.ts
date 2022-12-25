@@ -8,5 +8,6 @@ import { PrismaModule } from '../infra/prisma/prisma.module';
   imports: [PrismaModule],
   providers: [RoleService, RoleRepository],
   controllers: [RoleController],
+  exports: [RoleService],
 })
 export class RoleModule {}

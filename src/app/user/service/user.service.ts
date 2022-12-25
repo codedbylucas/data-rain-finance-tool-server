@@ -6,12 +6,14 @@ import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter'
 import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
 import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
+import { RoleService } from 'src/app/role/service/role.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
 import { DbCreateUserProps } from '../repositories/props/db-create-user.props';
 import { UserRepository } from '../repositories/user.repository';
+import { AddRoleToUserDto } from './dto/add-role-to-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -22,6 +24,7 @@ export class UserService {
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly mailService: MailService,
     private readonly cryptrService: CryptrService,
+    private readonly roleService: RoleService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -147,6 +150,13 @@ export class UserService {
     }
 
     await this.userRepository.deleteUserById(id);
+  }
+
+  async updateUserRole(dto: AddRoleToUserDto) {
+    this.findUserById(dto.userId);
+    this.roleService.findRoleById(dto.roleId);
+    const roleAddedToUser = await this.userRepository.updateUserRole(dto);
+    return roleAddedToUser;
   }
 
   async sendEmails(users: UserEntity[]): Promise<void> {

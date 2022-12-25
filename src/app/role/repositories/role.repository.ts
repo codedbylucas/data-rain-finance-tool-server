@@ -14,4 +14,15 @@ export class RoleRepository {
       })
       .catch(serverError);
   }
+
+  async findRoleById(id: string): Promise<FindRoleResponse> {
+    const roleOrNull = await this.prisma.roles
+      .findUnique({
+        where: { id },
+        select: { id: true, name: true, description: true },
+      })
+      .catch(serverError);
+
+    return roleOrNull;
+  }
 }

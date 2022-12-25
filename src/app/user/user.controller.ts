@@ -27,6 +27,7 @@ import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
+import { AddRoleToUserDto } from './service/dto/add-role-to-user.dto';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
@@ -124,5 +125,10 @@ export class UserController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<BadRequestException | void> {
     await this.userService.deleteUserById(id);
+  }
+
+  @Post('/update-role')
+  async addRoleToUser(@Body() dto: AddRoleToUserDto) {
+    return await this.userService.updateUserRole(dto);
   }
 }
