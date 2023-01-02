@@ -4,7 +4,7 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { AlternativeEntity } from '../entities/alternative.entity';
 import { UpdateAlternativeDto } from '../service/dto/update-alternative.dto';
-import { CreateAlternativeProps } from './props/create-alternative.props';
+import { CreateAlternativeProps } from '../protocols/props/create-alternative.props';
 
 @Injectable()
 export class AlternativeRepository {

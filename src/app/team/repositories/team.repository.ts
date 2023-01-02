@@ -3,7 +3,7 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { TeamEntity } from '../entities/team.entity';
 import { UpdateTeamDto } from '../service/dto/update-team.dto';
-import { DbCreateTeamProps } from './props/db-create-team.props';
+import { DbCreateTeamProps } from '../protocols/props/db-create-team.props';
 
 @Injectable()
 export class TeamRepository {
