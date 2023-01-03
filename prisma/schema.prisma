@@ -11,20 +11,21 @@ datasource db {
 }
 
 model Users {
-  id             String   @id @unique @default(uuid())
-  name           String   @db.VarChar(100)
-  email          String   @unique @db.VarChar(100)
+  id             String  @id @unique @default(uuid())
+  name           String  @db.VarChar(100)
+  email          String  @unique @db.VarChar(100)
   password       String
-  imageUrl       String?  @map("image_url")
-  position       String   @db.VarChar(200)
-  billable       Boolean  @default(false)
-  allocated      Boolean  @default(false)
-  validatedEmail Boolean  @default(false) @map("validated_email")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  imageUrl       String? @map("image_url")
+  position       String  @db.VarChar(200)
+  billable       Boolean @default(false)
+  allocated      Boolean @default(false)
+  validatedEmail Boolean @default(false) @map("validated_email")
 
   role     Roles  @relation(fields: [roleName], references: [name])
   roleName String @map("role_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -41,11 +42,11 @@ model Roles {
 }
 
 model Teams {
-  id           String            @id @unique @default(uuid())
-  name         String            @db.VarChar(100)
-  valuePerHour Float             @map("value_per_hour")
-  createdAt    DateTime          @default(now()) @map("created_at")
-  updatedAt    DateTime          @updatedAt @map("updated_at")
+  id           String              @id @unique @default(uuid())
+  name         String              @db.VarChar(100)
+  valuePerHour Float               @map("value_per_hour")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
   alternatives AlternativesTeams[]
 
   @@map("teams")
@@ -63,13 +64,15 @@ model Questions {
 }
 
 model Alternatives {
-  id          String   @id @unique @default(uuid())
-  description String   @db.VarChar(500)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          String @id @unique @default(uuid())
+  description String @db.VarChar(500)
 
-  question         Questions          @relation(fields: [questionId], references: [id])
-  questionId       String             @map("question_id")
+  question   Questions @relation(fields: [questionId], references: [id])
+  questionId String    @map("question_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   teams            AlternativesTeams[]
   clientsResponses ClientsResponses[]
 
@@ -77,16 +80,17 @@ model Alternatives {
 }
 
 model AlternativesTeams {
-  id        String   @id @unique @default(uuid())
-  workHours Int?     @map("work_hours")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        String @id @unique @default(uuid())
+  workHours Int?   @map("work_hours")
 
   alternative   Alternatives @relation(fields: [alternativeId], references: [id])
   alternativeId String       @map("alternative_id")
 
   team   Teams  @relation(fields: [teamId], references: [id])
   teamId String @map("team_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([alternativeId, teamId])
   @@map("alternatives_team")
@@ -95,21 +99,37 @@ model AlternativesTeams {
 model Clients {
   id String @id @unique @default(uuid())
 
-  name        String?  @db.VarChar(150)
-  companyName String   @unique() @db.VarChar(150)
-  email       String?  @db.VarChar(150)
-  phone       String?  @db.VarChar(25)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  clientsResponses ClientsResponses[]
+  name          String?         @db.VarChar(150)
+  companyName   String          @unique() @db.VarChar(150)
+  email         String?         @db.VarChar(150)
+  phone         String?         @db.VarChar(25)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  budgetRequest BudgetRequest[]
 
   @@map("clients")
 }
 
+model BudgetRequest {
+  id String @id @unique @default(uuid())
+
+  client   Clients @relation(fields: [clientId], references: [id])
+  clientId String  @map("client_id")
+
+  verifyByPreSaleId   String? @map("verify_by_pre_sale_id")
+  verifyByFinancialId String? @map("verify_by_financial_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  clientsResponses ClientsResponses[]
+
+  @@map("budget_request")
+}
+
 model ClientsResponses {
-  id            String  @id @unique @default(uuid())
-  responseDetails String? @map("answer_details") @db.VarChar(1000)
+  id              String  @id @unique @default(uuid())
+  responseDetails String? @map("response_details") @db.VarChar(1000)
 
   question   Questions @relation(fields: [questionId], references: [id])
   questionId String    @map("question_id")
@@ -117,11 +137,8 @@ model ClientsResponses {
   alternative   Alternatives? @relation(fields: [alternativeId], references: [id])
   alternativeId String?       @map("alternative_id")
 
-  client   Clients @relation(fields: [clientId], references: [id])
-  clientId String  @map("client_id")
-
-  verifyByPreSaleId   String? @map("verify_by_pre_sale_id")
-  verifyByFinancialId String? @map("verify_by_financial_id")
+  budgetRequest   BudgetRequest @relation(fields: [budgetRequestId], references: [id])
+  budgetRequestId String        @map("budget_request_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

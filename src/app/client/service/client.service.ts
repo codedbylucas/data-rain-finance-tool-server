@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { BudgetRequestService } from 'src/app/budget-request/service/budget-request.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
@@ -14,7 +15,10 @@ import { CreateClientDto } from './dto/create-client.dto';
 
 @Injectable()
 export class ClientService {
-  constructor(private readonly clientRepository: ClientRepository) {}
+  constructor(
+    private readonly clientRepository: ClientRepository,
+    private readonly budgetRequestService: BudgetRequestService,
+  ) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
     dto.name = dto.name.trim();
@@ -42,7 +46,7 @@ export class ClientService {
     };
   }
 
-  async createClientResponses(dto: ClientResponsesDto): Promise<void> {
+  async createClientResponses(dto: ClientResponsesDto) {
     const responses: ClientResponse[] = dto.responses;
 
     responses.forEach((response) => {
@@ -60,16 +64,20 @@ export class ClientService {
         `Question Id or Alternative Id cannot be dubbed`,
       );
     }
-
     await this.verifyClientExist(dto.clientId);
+
+    const budgetRequestCreated =
+      await this.budgetRequestService.createBudgetRequest({
+        clientId: dto.clientId,
+      });
 
     const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
       ...response,
       id: createUuid(),
-      clientId: dto.clientId,
+      budgetRequestId: budgetRequestCreated.id,
     }));
 
-    await this.clientRepository.createClientResponses(data);
+    return await this.clientRepository.createClientResponses(data);
   }
 
   async findAllClients(): Promise<FindAllClientsResponse[]> {
@@ -81,16 +89,16 @@ export class ClientService {
   }
 
   async findClientById(id: string): Promise<FindClientByIdResponse> {
-    const clientOrNull = await this.clientRepository.findClientById(id);
-    if (!clientOrNull) {
-      throw new NotFoundException(`Client with id '${id}' not found`);
-    }
+    // const clientOrNull = await this.clientRepository.findClientById(id);
+    // if (!clientOrNull) {
+    //   throw new NotFoundException(`Client with id '${id}' not found`);
+    // }
 
-    delete Object.assign(clientOrNull, {
-      ['responses']: clientOrNull['clientsResponses'],
-    })['clientsResponses'];
-    
-    return clientOrNull;
+    // delete Object.assign(clientOrNull, {
+    //   ['responses']: clientOrNull['clientsResponses'],
+    // })['clientsResponses'];
+
+    return null;
   }
 
   async deleteClientById(id: string): Promise<void> {
@@ -99,11 +107,11 @@ export class ClientService {
   }
 
   async verifyClientExist(id: string) {
-    const clientOrNull = await this.clientRepository.findClientById(id);
-    if (!clientOrNull) {
-      throw new BadRequestException(`Client with id '${id}' not found`);
-    }
-    return clientOrNull;
+    // const clientOrNull = await this.clientRepository.findClientById(id);
+    // if (!clientOrNull) {
+    //   throw new BadRequestException(`Client with id '${id}' not found`);
+    // }
+    return null;
   }
 
   hasDuplicates(array: string[]): Boolean {

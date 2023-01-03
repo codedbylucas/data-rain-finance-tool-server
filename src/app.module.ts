@@ -10,6 +10,7 @@ import { AlternativeModule } from './app/alternatives/alternative.module';
 import { AlternativeTeamModule } from './app/alternative-team/alternative-team.module';
 import { ClientModule } from './app/client/client.module';
 import { RoleModule } from './app/role/role.module';
+import { BudgetRequestModule } from './app/budget-request/budget-request.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RoleModule } from './app/role/role.module';
     AlternativeTeamModule,
     ClientModule,
     RoleModule,
+    BudgetRequestModule,
   ],
 })
 export class AppModule {}

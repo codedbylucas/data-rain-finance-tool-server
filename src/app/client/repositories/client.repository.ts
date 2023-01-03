@@ -26,13 +26,11 @@ export class ClientRepository {
     return clientOrNull;
   }
 
-  async createClientResponses(
-    props: DbCreateClientResponsesProps[],
-  ): Promise<void> {
+  async createClientResponses(props: DbCreateClientResponsesProps[]) {
     try {
       const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
         props.map((response) => ({ ...response }));
-      await this.prisma.clientsResponses.createMany({ data });
+      return await this.prisma.clientsResponses.createMany({ data });
     } catch (error) {
       if (error.meta.field_name) {
         const result = error.meta.field_name.split(' ');
@@ -63,49 +61,21 @@ export class ClientRepository {
     return clientsOrEmpty;
   }
 
-  async findClientById(id: string): Promise<FindClientByIdResponse> {
-    const clientOrNull = await this.prisma.clients
-      .findUnique({
-        where: { id },
-        select: {
-          id: true,
-          name: true,
-          companyName: true,
-          email: true,
-          phone: true,
-          clientsResponses: {
-            select: {
-              question: {
-                select: {
-                  id: true,
-                  description: true,
-                },
-              },
-              alternative: {
-                select: {
-                  id: true,
-                  description: true,
-                  teams: {
-                    select: {
-                      team: {
-                        select: {
-                          id: true,
-                          name: true,
-                          valuePerHour: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-              responseDetails: true,
-            },
-          },
-        },
-      })
-      .catch(serverError);
-    return clientOrNull;
-  }
+  // async findClientById(id: string): Promise<FindClientByIdResponse> {
+  //   const clientOrNull = await this.prisma.clients
+  //     .findUnique({
+  //       where: { id },
+  //       select: {
+  //         id: true,
+  //         name: true,
+  //         companyName: true,
+  //         email: true,
+  //         phone: true,
+  //       },
+  //     })
+  //     .catch(serverError);
+  //   return null;
+  // }
 
   async deleteClientById(id: string): Promise<void> {
     await this.prisma.clients.delete({ where: { id } }).catch(serverError);
