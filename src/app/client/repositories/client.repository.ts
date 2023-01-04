@@ -60,7 +60,7 @@ export class ClientRepository {
           companyName: true,
           email: true,
           phone: true,
-          budgetRequest: {
+          budgetRequests: {
             select: {
               clientsResponses: {
                 select: {

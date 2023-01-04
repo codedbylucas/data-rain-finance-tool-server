@@ -4,7 +4,7 @@ export interface FindClientByIdResponse {
   companyName: string;
   email: string;
   phone: string;
-  budgetRequest: {
+  budgetRequests: {
     clientsResponses: {
       responseDetails: string;
       question: {

@@ -103,9 +103,9 @@ export class ClientService {
       throw new NotFoundException(`Client with id '${id}' not found`);
     }
 
-    clientOrNull.budgetRequest.forEach((budgetRequest) => {
+    clientOrNull.budgetRequests.forEach((budgetRequest) => {
       delete Object.assign(budgetRequest, {
-        ['responses']: budgetRequest['clientsResponses'],
+        ['formResponses']: budgetRequest['clientsResponses'],
       })['clientsResponses'];
     });
 
