@@ -5,6 +5,7 @@ import { QuestionEntity } from '../entities/question.entity';
 import { DbFindAllQuestionResponse } from '../protocols/db-find-all-questions-response';
 import { UpdateQuestionDto } from '../service/dto/update-question.dto';
 import { DbCreateQuestionProps } from '../protocols/props/db-create-question.props';
+import { RelationshipQuestionAndAlternativeProps } from '../protocols/props/find-relationship-between-question-and-alternative.props';
 
 @Injectable()
 export class QuestionRepository {
@@ -69,5 +70,29 @@ export class QuestionRepository {
 
   async deleteQuestionById(id: string): Promise<void> {
     await this.prisma.questions.delete({ where: { id } }).catch(serverError);
+  }
+
+  async verifyRelation(dto: { questionId: string; alternativeId: string }) {
+    const questionOrNull = await this.prisma.questions
+      .findUnique({
+        where: { id: dto.questionId },
+        select: { alternatives: { where: { id: dto.alternativeId } } },
+      })
+      .catch(serverError);
+
+    console.log(questionOrNull);
+  }
+
+  async findRelationshipBetweenQuestionAndAlternative(
+    props: RelationshipQuestionAndAlternativeProps,
+  ) {
+    const questionOrNull = await this.prisma.questions
+      .findUnique({
+        where: { id: props.questionId },
+        select: { alternatives: { where: { id: props.alternativeId } } },
+      })
+      .catch(serverError);
+
+    return questionOrNull;
   }
 }

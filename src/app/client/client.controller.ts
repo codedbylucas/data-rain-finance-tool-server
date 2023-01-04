@@ -29,8 +29,8 @@ export class ClientController {
     return await this.clientService.createClient(dto);
   }
 
-  @Post('responses')
-  async clientResponses(@Body() dto: ClientResponsesDto): Promise<void> {
+  @Post('budget-request')
+  async clientResponses(@Body() dto: ClientResponsesDto) {
     return await this.clientService.createClientResponses(dto);
   }
 

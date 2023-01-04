@@ -3,6 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { BudgetRequestService } from 'src/app/budget-request/service/budget-request.service';
+import { QuestionService } from 'src/app/question/service/question.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
@@ -14,7 +16,11 @@ import { CreateClientDto } from './dto/create-client.dto';
 
 @Injectable()
 export class ClientService {
-  constructor(private readonly clientRepository: ClientRepository) {}
+  constructor(
+    private readonly clientRepository: ClientRepository,
+    private readonly budgetRequestService: BudgetRequestService,
+    private readonly questionService: QuestionService,
+  ) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
     dto.name = dto.name.trim();
@@ -42,15 +48,8 @@ export class ClientService {
     };
   }
 
-  async createClientResponses(dto: ClientResponsesDto): Promise<void> {
+  async createClientResponses(dto: ClientResponsesDto) {
     const responses: ClientResponse[] = dto.responses;
-
-    responses.forEach((response) => {
-      if (!response.alternativeId && !response.responseDetails) {
-        throw new BadRequestException(`Altarnative id or details required`);
-      }
-    });
-
     const questionIds = responses.map((response) => response.questionId);
     const alternativeIds = responses.map((response) => response.alternativeId);
     const questionDuplicate = this.hasDuplicates(questionIds);
@@ -63,13 +62,31 @@ export class ClientService {
 
     await this.verifyClientExist(dto.clientId);
 
+    for (const response of responses) {
+      if (!response.alternativeId && !response.responseDetails) {
+        throw new BadRequestException(`Altarnative id or details required`);
+      }
+      await this.questionService.veryfiQuestionExist(response.questionId);
+      await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
+        {
+          questionId: response.questionId,
+          alternativeId: response.alternativeId,
+        },
+      );
+    }
+
+    const budgetRequestCreated =
+      await this.budgetRequestService.createBudgetRequest({
+        clientId: dto.clientId,
+      });
+
     const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
       ...response,
       id: createUuid(),
-      clientId: dto.clientId,
+      budgetRequestId: budgetRequestCreated.id,
     }));
 
-    await this.clientRepository.createClientResponses(data);
+    return await this.clientRepository.createClientResponses(data);
   }
 
   async findAllClients(): Promise<FindAllClientsResponse[]> {
@@ -86,10 +103,12 @@ export class ClientService {
       throw new NotFoundException(`Client with id '${id}' not found`);
     }
 
-    delete Object.assign(clientOrNull, {
-      ['responses']: clientOrNull['clientsResponses'],
-    })['clientsResponses'];
-    
+    clientOrNull.budgetRequest.forEach((budgetRequest) => {
+      delete Object.assign(budgetRequest, {
+        ['responses']: budgetRequest['clientsResponses'],
+      })['clientsResponses'];
+    });
+
     return clientOrNull;
   }
 
@@ -103,7 +122,7 @@ export class ClientService {
     if (!clientOrNull) {
       throw new BadRequestException(`Client with id '${id}' not found`);
     }
-    return clientOrNull;
+    return null;
   }
 
   hasDuplicates(array: string[]): Boolean {
