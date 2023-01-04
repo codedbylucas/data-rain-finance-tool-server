@@ -7,6 +7,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { QuestionEntity } from '../entities/question.entity';
 import { CreateQuestionResponse } from '../protocols/create-question-response';
 import { FindAllQuestionsResponse } from '../protocols/find-all-questions-response';
+import { RelationshipQuestionAndAlternativeProps } from '../protocols/props/find-relationship-between-question-and-alternative.props';
 import { QuestionRepository } from '../repositories/question.repository';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -69,5 +70,20 @@ export class QuestionService {
       throw new BadRequestException(`Question with '${id}' not found`);
     }
     return questionOrNull;
+  }
+
+  async verifyRelationshipBetweenQuestionAndAlternative(
+    props: RelationshipQuestionAndAlternativeProps,
+  ): Promise<void> {
+    const relation =
+      await this.questionRepository.findRelationshipBetweenQuestionAndAlternative(
+        props,
+      );
+
+    if (relation.alternatives.length === 0) {
+      throw new BadRequestException(
+        `Alternative with id '${props.alternativeId}' is not related to the question with id '${props.questionId}'`,
+      );
+    }
   }
 }

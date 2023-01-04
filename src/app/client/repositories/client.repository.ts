@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
@@ -26,23 +26,12 @@ export class ClientRepository {
     return clientOrNull;
   }
 
-  async createClientResponses(props: DbCreateClientResponsesProps[]) {
-    try {
-      const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
-        props.map((response) => ({ ...response }));
-      return await this.prisma.clientsResponses.createMany({ data });
-    } catch (error) {
-      if (error.meta.field_name) {
-        const result = error.meta.field_name.split(' ');
-        if (result[0] === 'clients_responses_question_id_fkey') {
-          throw new BadRequestException('Some question id is incorrect');
-        }
-        if (result[0] === 'clients_responses_alternative_id_fkey') {
-          throw new BadRequestException('Some alternative id is incorrect');
-        }
-      }
-      return serverError(error);
-    }
+  async createClientResponses(
+    props: DbCreateClientResponsesProps[],
+  ): Promise<void> {
+    const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
+      props.map((response) => ({ ...response }));
+    await this.prisma.clientsResponses.createMany({ data });
   }
 
   async findAllClients(): Promise<FindAllClientsResponse[]> {
@@ -61,21 +50,53 @@ export class ClientRepository {
     return clientsOrEmpty;
   }
 
-  // async findClientById(id: string): Promise<FindClientByIdResponse> {
-  //   const clientOrNull = await this.prisma.clients
-  //     .findUnique({
-  //       where: { id },
-  //       select: {
-  //         id: true,
-  //         name: true,
-  //         companyName: true,
-  //         email: true,
-  //         phone: true,
-  //       },
-  //     })
-  //     .catch(serverError);
-  //   return null;
-  // }
+  async findClientById(id: string): Promise<FindClientByIdResponse> {
+    const clientOrNull = await this.prisma.clients
+      .findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          companyName: true,
+          email: true,
+          phone: true,
+          budgetRequest: {
+            select: {
+              clientsResponses: {
+                select: {
+                  responseDetails: true,
+                  question: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
+                  },
+                  alternative: {
+                    select: {
+                      id: true,
+                      description: true,
+                      teams: {
+                        select: {
+                          team: {
+                            select: {
+                              id: true,
+                              name: true,
+                              valuePerHour: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return clientOrNull;
+  }
 
   async deleteClientById(id: string): Promise<void> {
     await this.prisma.clients.delete({ where: { id } }).catch(serverError);
