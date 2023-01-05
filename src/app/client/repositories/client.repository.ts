@@ -62,6 +62,7 @@ export class ClientRepository {
           phone: true,
           budgetRequests: {
             select: {
+              id: true,
               clientsResponses: {
                 select: {
                   responseDetails: true,
