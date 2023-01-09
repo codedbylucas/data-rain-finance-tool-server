@@ -3,15 +3,16 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { AlternativeEntity } from '../entities/alternative.entity';
+import { DbCreateAlternativeProps } from '../protocols/props/db-create-alternative.props';
+import { DbCreateAlternativesTeamsProps } from '../protocols/props/db-create-alternatives-teams.props';
 import { UpdateAlternativeDto } from '../service/dto/update-alternative.dto';
-import { CreateAlternativeProps } from '../protocols/props/create-alternative.props';
 
 @Injectable()
 export class AlternativeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createAlternative(
-    props: CreateAlternativeProps,
+    props: DbCreateAlternativeProps,
   ): Promise<AlternativeEntity> {
     const alternative: Prisma.AlternativesCreateInput = {
       id: props.id,
@@ -28,6 +29,15 @@ export class AlternativeRepository {
       .catch(serverError);
 
     return alternativeCreated;
+  }
+
+  async createAlternativesTeams(props: DbCreateAlternativesTeamsProps[]) {
+    const data: Prisma.Enumerable<Prisma.AlternativesTeamsCreateManyInput> =
+      props.map((item) => ({ ...item }));
+
+    return await this.prisma.alternativesTeams
+      .createMany({ data })
+      .catch(serverError);
   }
 
   async findAlternativeById(id: string): Promise<AlternativeEntity> {
