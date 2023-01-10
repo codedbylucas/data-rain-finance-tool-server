@@ -22,7 +22,6 @@ async function bootstrap() {
     .addTag('team')
     .addTag('question')
     .addTag('alternative')
-    .addTag('alternative-team')
     .addTag('client')
     .addTag('role')
     .addBearerAuth()
