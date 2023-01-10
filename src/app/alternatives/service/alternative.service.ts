@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { QuestionRepository } from 'src/app/question/repositories/question.repository';
 import { TeamService } from 'src/app/team/service/team.service';
+import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
 import { AlternativeEntity } from '../entities/alternative.entity';
 import { CreateAlternativeResponse } from '../protocols/create-alternative-response';
@@ -30,6 +31,8 @@ export class AlternativeService {
     }
 
     if (dto.teams) {
+      const teamIds = dto.teams.map((team) => team.teamId);
+      checkHasDuplicates(teamIds, `Team Id cannot be duplicated`);
       for (const team of dto.teams) {
         await this.teamService.verifyTeamExist(team.teamId);
       }
@@ -57,12 +60,15 @@ export class AlternativeService {
   }
 
   async updateAlternative(
-    id: string,
+    alternativeId: string,
     dto: UpdateAlternativeDto,
   ): Promise<UpdateAlternativeResponse> {
-    await this.verifyAlternativeExist(id);
+    await this.verifyAlternativeExist(alternativeId);
     const alternativeUpdated =
-      await this.alternativeRepository.updateAlternativeById(id, dto);
+      await this.alternativeRepository.updateAlternativeById(
+        alternativeId,
+        dto,
+      );
 
     return {
       id: alternativeUpdated.id,

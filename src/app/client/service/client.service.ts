@@ -6,6 +6,7 @@ import {
 import { BudgetRequestService } from 'src/app/budget-request/service/budget-request.service';
 import { QuestionService } from 'src/app/question/service/question.service';
 import { createUuid } from 'src/app/util/create-uuid';
+import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
@@ -52,13 +53,8 @@ export class ClientService {
     const responses: ClientResponse[] = dto.responses;
     const questionIds = responses.map((response) => response.questionId);
     const alternativeIds = responses.map((response) => response.alternativeId);
-    const questionDuplicate = this.hasDuplicates(questionIds);
-    const alternativeDuplicate = this.hasDuplicates(alternativeIds);
-    if (questionDuplicate || alternativeDuplicate) {
-      throw new BadRequestException(
-        `Question Id or Alternative Id cannot be dubbed`,
-      );
-    }
+    checkHasDuplicates(questionIds, `Question Id cannot be duplicated`);
+    checkHasDuplicates(alternativeIds, `Alternative Id cannot be duplicated`);
 
     await this.verifyClientExist(dto.clientId);
 
@@ -123,9 +119,5 @@ export class ClientService {
       throw new BadRequestException(`Client with id '${id}' not found`);
     }
     return null;
-  }
-
-  hasDuplicates(array: string[]): Boolean {
-    return new Set(array).size !== array.length;
   }
 }

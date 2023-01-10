@@ -36,7 +36,7 @@ export class AlternativeRepository {
       props.map((item) => ({ ...item }));
 
     return await this.prisma.alternativesTeams
-      .createMany({ data })
+      .createMany({ data, skipDuplicates: true })
       .catch(serverError);
   }
 
