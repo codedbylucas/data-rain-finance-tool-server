@@ -53,11 +53,12 @@ export class CreateAlternativeDto {
   questionId: string;
 
   @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => TeamDto)
   @ApiProperty({
     isArray: true,
     type: TeamDto,
   })
-  teams: TeamDto[];
+  teams?: TeamDto[];
 }

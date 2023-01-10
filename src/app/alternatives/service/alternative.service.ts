@@ -29,8 +29,10 @@ export class AlternativeService {
       );
     }
 
-    for (const team of dto.teams) {
-      await this.teamService.verifyTeamExist(team.teamId);
+    if (dto.teams) {
+      for (const team of dto.teams) {
+        await this.teamService.verifyTeamExist(team.teamId);
+      }
     }
 
     const alternative = await this.alternativeRepository.createAlternative({
@@ -38,16 +40,14 @@ export class AlternativeService {
       id: createUuid(),
     });
 
-    const data = dto.teams.map((team) => ({
-      alternativeId: alternative.id,
-      teamId: team.teamId,
-      workHours: team.workHours,
-    }));
-
-    const alternativesTeams =
+    if (dto.teams) {
+      const data = dto.teams.map((team) => ({
+        alternativeId: alternative.id,
+        teamId: team.teamId,
+        workHours: team.workHours,
+      }));
       await this.alternativeRepository.createAlternativesTeams(data);
-
-    console.log(alternativesTeams);
+    }
 
     return {
       id: alternative.id,
