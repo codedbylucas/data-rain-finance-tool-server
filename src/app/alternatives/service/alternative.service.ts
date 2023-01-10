@@ -105,6 +105,27 @@ export class AlternativeService {
     await this.alternativeRepository.deleteAlternativeById(id);
   }
 
+  async deleteAlternativeTeamByIds(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<void> {
+    await this.verifyAlternativeAndTeamExist(alternativeId, teamId);
+    await this.verifyRelationshipAlternativeTeam(alternativeId, teamId);
+
+    await this.alternativeRepository.deleteAlternativeTeamByIds(
+      alternativeId,
+      teamId,
+    );
+  }
+
+  async verifyAlternativeAndTeamExist(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<void> {
+    await this.verifyAlternativeExist(alternativeId);
+    await this.teamService.verifyTeamExist(teamId);
+  }
+
   async verifyAlternativeExist(id: string): Promise<AlternativeEntity> {
     const alternativeOrNull =
       await this.alternativeRepository.findAlternativeById(id);
@@ -130,5 +151,23 @@ export class AlternativeService {
     }
 
     return true;
+  }
+
+  async verifyRelationshipAlternativeTeam(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<AlternativeTeamEntity> {
+    const alternativeTeamOrNull =
+      await this.alternativeRepository.findAlternativeTeamByIds(
+        alternativeId,
+        teamId,
+      );
+    if (!alternativeTeamOrNull) {
+      throw new BadRequestException(
+        `It was not possible to find a relationship between alternativeId: '${alternativeId}' and teamId: '${teamId}'`,
+      );
+    }
+
+    return alternativeTeamOrNull;
   }
 }

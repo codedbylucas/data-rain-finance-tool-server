@@ -104,4 +104,20 @@ export class AlternativeRepository {
   async deleteAlternativeById(id: string): Promise<void> {
     await this.prisma.alternatives.delete({ where: { id } }).catch(serverError);
   }
+
+  async deleteAlternativeTeamByIds(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<void> {
+    await this.prisma.alternativesTeams
+      .delete({
+        where: {
+          alternativeId_teamId: {
+            alternativeId,
+            teamId,
+          },
+        },
+      })
+      .catch(serverError);
+  }
 }

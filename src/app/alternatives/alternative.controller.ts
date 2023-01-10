@@ -51,4 +51,16 @@ export class AlternativeController {
   ): Promise<void> {
     return await this.alternativeService.deleteAlternativeById(id);
   }
+
+  @Delete(':alternativeId/:teamId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAlternativeTeamByIds(
+    @Param('alternativeId', new ParseUUIDPipe()) alternativeId: string,
+    @Param('teamId', new ParseUUIDPipe()) teamId: string,
+  ): Promise<void> {
+    return await this.alternativeService.deleteAlternativeTeamByIds(
+      alternativeId,
+      teamId,
+    );
+  }
 }

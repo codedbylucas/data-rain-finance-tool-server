@@ -16,15 +16,5 @@ export class AlternativeTeamController {
     private readonly alternativeTeamService: AlternativeTeamService,
   ) {}
 
-  @Delete(':alternativeId/:teamId')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAlternativeTeamByIds(
-    @Param('alternativeId', new ParseUUIDPipe()) alternativeId: string,
-    @Param('teamId', new ParseUUIDPipe()) teamId: string,
-  ): Promise<void> {
-    return await this.alternativeTeamService.deleteAlternativeTeamByIds(
-      alternativeId,
-      teamId,
-    );
-  }
+  
 }

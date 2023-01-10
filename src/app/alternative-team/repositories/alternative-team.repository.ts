@@ -25,19 +25,5 @@ export class AlternativeTeamRepository {
     return alternativeTeamOrNull;
   }
 
-  async deleteAlternativeTeamByIds(
-    alternativeId: string,
-    teamId: string,
-  ): Promise<void> {
-    await this.prisma.alternativesTeams
-      .delete({
-        where: {
-          alternativeId_teamId: {
-            alternativeId,
-            teamId,
-          },
-        },
-      })
-      .catch(serverError);
-  }
+  
 }
