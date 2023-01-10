@@ -60,8 +60,9 @@ export class ClientRepository {
           companyName: true,
           email: true,
           phone: true,
-          budgetRequest: {
+          budgetRequests: {
             select: {
+              id: true,
               clientsResponses: {
                 select: {
                   responseDetails: true,

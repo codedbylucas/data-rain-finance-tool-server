@@ -1,5 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+
+export class TeamDto {
+  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Id of the team',
+    example: 'ac06f36e-4b61-4fe8-8fd6-6ad807ac6282',
+  })
+  teamId: string;
+
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Min(1)
+  @Max(99999)
+  @ApiProperty({
+    description: 'Hours of work to accomplish the task',
+    example: 20,
+  })
+  workHours?: number;
+}
 
 export class CreateAlternativeDto {
   @Length(1, 250)
@@ -18,4 +51,14 @@ export class CreateAlternativeDto {
     example: 'ac06f36e-4b61-4fe8-8fd6-6ad807ac6282',
   })
   questionId: string;
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => TeamDto)
+  @ApiProperty({
+    isArray: true,
+    type: TeamDto,
+  })
+  teams?: TeamDto[];
 }

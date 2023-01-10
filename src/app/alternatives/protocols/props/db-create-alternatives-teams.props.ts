@@ -1,5 +1,4 @@
-export interface DbCreateAlternativeTeamProps {
-  id: string;
+export interface DbCreateAlternativesTeamsProps {
   alternativeId: string;
   teamId: string;
   workHours?: number;

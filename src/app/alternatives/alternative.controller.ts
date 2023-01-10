@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateAlternativeResponse } from './protocols/create-alternative-response';
-import { UpdateAlternativeResponse } from './protocols/update-alternative-response';
 import { AlternativeService } from './service/alternative.service';
 import { CreateAlternativeDto } from './service/dto/create-alternative.dto';
 import { UpdateAlternativeDto } from './service/dto/update-alternative.dto';
@@ -38,7 +37,7 @@ export class AlternativeController {
   async updateAlternativeById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateAlternativeDto,
-  ): Promise<UpdateAlternativeResponse> {
+  ): Promise<void> {
     return await this.alternativeService.updateAlternative(id, dto);
   }
 
@@ -51,5 +50,17 @@ export class AlternativeController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<void> {
     return await this.alternativeService.deleteAlternativeById(id);
+  }
+
+  @Delete(':alternativeId/:teamId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAlternativeTeamByIds(
+    @Param('alternativeId', new ParseUUIDPipe()) alternativeId: string,
+    @Param('teamId', new ParseUUIDPipe()) teamId: string,
+  ): Promise<void> {
+    return await this.alternativeService.deleteAlternativeTeamByIds(
+      alternativeId,
+      teamId,
+    );
   }
 }
