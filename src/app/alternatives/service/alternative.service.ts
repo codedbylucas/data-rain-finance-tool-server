@@ -3,9 +3,9 @@ import { QuestionRepository } from 'src/app/question/repositories/question.repos
 import { TeamService } from 'src/app/team/service/team.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
+import { AlternativeTeamEntity } from '../entities/alternative-team.entity';
 import { AlternativeEntity } from '../entities/alternative.entity';
 import { CreateAlternativeResponse } from '../protocols/create-alternative-response';
-import { UpdateAlternativeResponse } from '../protocols/update-alternative-response';
 import { AlternativeRepository } from '../repositories/alternative.repository';
 import { CreateAlternativeDto } from './dto/create-alternative.dto';
 import { UpdateAlternativeDto } from './dto/update-alternative.dto';
@@ -62,19 +62,42 @@ export class AlternativeService {
   async updateAlternative(
     alternativeId: string,
     dto: UpdateAlternativeDto,
-  ): Promise<UpdateAlternativeResponse> {
-    await this.verifyAlternativeExist(alternativeId);
-    const alternativeUpdated =
+  ): Promise<void> {
+    if (dto.description) {
       await this.alternativeRepository.updateAlternativeById(
         alternativeId,
         dto,
       );
+    }
 
-    return {
-      id: alternativeUpdated.id,
-      description: alternativeUpdated.description,
-      questionId: alternativeUpdated.questionId,
-    };
+    if (dto.teams) {
+      const teamIds = dto.teams.map((team) => team.teamId);
+      checkHasDuplicates(teamIds, `Team Id cannot be duplicated`);
+      for (const team of dto.teams) {
+        await this.teamService.verifyTeamExist(team.teamId);
+        const relationshipExist = await this.alternativeTeamRelationshipExist(
+          alternativeId,
+          team.teamId,
+        );
+        if (relationshipExist) {
+          if (team.workHours) {
+            await this.alternativeRepository.updateAlternativesTeams({
+              alternativeId,
+              teamId: team.teamId,
+              workHours: team.workHours,
+            });
+          }
+        } else {
+          await this.alternativeRepository.createAlternativesTeams([
+            {
+              alternativeId: alternativeId,
+              teamId: team.teamId,
+              workHours: team.workHours,
+            },
+          ]);
+        }
+      }
+    }
   }
 
   async deleteAlternativeById(id: string): Promise<void> {
@@ -90,5 +113,22 @@ export class AlternativeService {
       throw new BadRequestException(`Alternative with id '${id}' not found`);
     }
     return alternativeOrNull;
+  }
+
+  async alternativeTeamRelationshipExist(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<boolean> {
+    const alternativeTeamOrNull =
+      await this.alternativeRepository.findAlternativeTeamByIds(
+        alternativeId,
+        teamId,
+      );
+
+    if (!alternativeTeamOrNull) {
+      return false;
+    }
+
+    return true;
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
+import { AlternativeTeamEntity } from '../entities/alternative-team.entity';
 import { AlternativeEntity } from '../entities/alternative.entity';
 import { DbCreateAlternativeProps } from '../protocols/props/db-create-alternative.props';
 import { DbCreateAlternativesTeamsProps } from '../protocols/props/db-create-alternatives-teams.props';
@@ -31,11 +32,13 @@ export class AlternativeRepository {
     return alternativeCreated;
   }
 
-  async createAlternativesTeams(props: DbCreateAlternativesTeamsProps[]) {
+  async createAlternativesTeams(
+    props: DbCreateAlternativesTeamsProps[],
+  ): Promise<void> {
     const data: Prisma.Enumerable<Prisma.AlternativesTeamsCreateManyInput> =
       props.map((item) => ({ ...item }));
 
-    return await this.prisma.alternativesTeams
+    await this.prisma.alternativesTeams
       .createMany({ data, skipDuplicates: true })
       .catch(serverError);
   }
@@ -45,6 +48,24 @@ export class AlternativeRepository {
       .findUnique({ where: { id } })
       .catch(serverError);
     return alternativeOrNull;
+  }
+
+  async findAlternativeTeamByIds(
+    alternativeId: string,
+    teamId: string,
+  ): Promise<AlternativeTeamEntity> {
+    const alternativeTeamOrNull = await this.prisma.alternativesTeams
+      .findUnique({
+        where: {
+          alternativeId_teamId: {
+            alternativeId,
+            teamId,
+          },
+        },
+      })
+      .catch(serverError);
+
+    return alternativeTeamOrNull;
   }
 
   async updateAlternativeById(
@@ -58,6 +79,26 @@ export class AlternativeRepository {
       })
       .catch(serverError);
     return alternativeUpdated;
+  }
+
+  async updateAlternativesTeams(
+    props: DbCreateAlternativesTeamsProps,
+  ): Promise<void> {
+    const data: Prisma.AlternativesTeamsUpdateInput = {
+      workHours: props.workHours,
+    };
+
+    await this.prisma.alternativesTeams
+      .update({
+        where: {
+          alternativeId_teamId: {
+            alternativeId: props.alternativeId,
+            teamId: props.teamId,
+          },
+        },
+        data,
+      })
+      .catch(serverError);
   }
 
   async deleteAlternativeById(id: string): Promise<void> {
