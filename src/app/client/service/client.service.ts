@@ -10,7 +10,7 @@ import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
-import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
+import { DbCreateClientResponsesProps } from '../../budget-request/protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
 import { ClientResponse, ClientResponsesDto } from './dto/client-responses.dto';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -19,8 +19,6 @@ import { CreateClientDto } from './dto/create-client.dto';
 export class ClientService {
   constructor(
     private readonly clientRepository: ClientRepository,
-    private readonly budgetRequestService: BudgetRequestService,
-    private readonly questionService: QuestionService,
   ) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
@@ -47,42 +45,6 @@ export class ClientService {
       id: clientCreated.id,
       companyName: clientCreated.companyName,
     };
-  }
-
-  async createClientResponses(dto: ClientResponsesDto) {
-    const responses: ClientResponse[] = dto.responses;
-    const questionIds = responses.map((response) => response.questionId);
-    const alternativeIds = responses.map((response) => response.alternativeId);
-    checkHasDuplicates(questionIds, `Question Id cannot be duplicated`);
-    checkHasDuplicates(alternativeIds, `Alternative Id cannot be duplicated`);
-
-    await this.verifyClientExist(dto.clientId);
-
-    for (const response of responses) {
-      if (!response.alternativeId && !response.responseDetails) {
-        throw new BadRequestException(`Altarnative id or details required`);
-      }
-      await this.questionService.veryfiQuestionExist(response.questionId);
-      await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
-        {
-          questionId: response.questionId,
-          alternativeId: response.alternativeId,
-        },
-      );
-    }
-
-    const budgetRequestCreated =
-      await this.budgetRequestService.createBudgetRequest({
-        clientId: dto.clientId,
-      });
-
-    const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
-      ...response,
-      id: createUuid(),
-      budgetRequestId: budgetRequestCreated.id,
-    }));
-
-    return await this.clientRepository.createClientResponses(data);
   }
 
   async findAllClients(): Promise<FindAllClientsResponse[]> {

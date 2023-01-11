@@ -6,7 +6,7 @@ import { ClientEntity } from '../entities/client.entity';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
-import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
+import { DbCreateClientResponsesProps } from '../../budget-request/protocols/props/db-create-client-responses.props';
 
 @Injectable()
 export class ClientRepository {
@@ -24,14 +24,6 @@ export class ClientRepository {
       .findUnique({ where: { companyName } })
       .catch(serverError);
     return clientOrNull;
-  }
-
-  async createClientResponses(
-    props: DbCreateClientResponsesProps[],
-  ): Promise<void> {
-    const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
-      props.map((response) => ({ ...response }));
-    await this.prisma.clientsResponses.createMany({ data });
   }
 
   async findAllClients(): Promise<FindAllClientsResponse[]> {

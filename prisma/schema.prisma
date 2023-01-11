@@ -99,12 +99,12 @@ model AlternativesTeams {
 model Clients {
   id String @id @unique @default(uuid())
 
-  name          String?         @db.VarChar(150)
-  companyName   String          @unique() @db.VarChar(150)
-  email         String?         @db.VarChar(150)
-  phone         String?         @db.VarChar(25)
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
+  name           String?         @db.VarChar(150)
+  companyName    String          @unique() @db.VarChar(150)
+  email          String?         @db.VarChar(150)
+  phone          String?         @db.VarChar(25)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
   budgetRequests BudgetRequest[]
 
   @@map("clients")
@@ -112,6 +112,10 @@ model Clients {
 
 model BudgetRequest {
   id String @id @unique @default(uuid())
+
+  amount     Float
+  totalHours Int    @map("total_hours")
+  status     Status @default(request)
 
   client   Clients @relation(fields: [clientId], references: [id])
   clientId String  @map("client_id")
@@ -144,4 +148,10 @@ model ClientsResponses {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("clients_responses")
+}
+
+enum Status {
+  request
+  review
+  approved
 }

@@ -53,6 +53,9 @@ export class AlternativeController {
   }
 
   @Delete(':alternativeId/:teamId')
+  @ApiOperation({
+    summary: 'Delete the relationship between alternative and team',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAlternativeTeamByIds(
     @Param('alternativeId', new ParseUUIDPipe()) alternativeId: string,

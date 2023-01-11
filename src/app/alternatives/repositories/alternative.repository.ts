@@ -50,6 +50,31 @@ export class AlternativeRepository {
     return alternativeOrNull;
   }
 
+  async findAlternativeAndTheirTeams(id: string) {
+    const alternativeOrNull = await this.prisma.alternatives
+      .findUnique({
+        where: { id },
+        select: {
+          id: true,
+          description: true,
+          teams: {
+            select: {
+              workHours: true,
+              team: {
+                select: {
+                  id: true,
+                  name: true,
+                  valuePerHour: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return alternativeOrNull;
+  }
+
   async findAlternativeTeamByIds(
     alternativeId: string,
     teamId: string,
