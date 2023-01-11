@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Status } from '@prisma/client';
+import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { ClientService } from 'src/app/client/service/client.service';
 import { QuestionService } from 'src/app/question/service/question.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
-import { DbCreateBudgetRequestProps } from '../protocols/props/db-create-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { BudgetRequestRepository } from '../repositories/budget-request.repository';
 import {
@@ -18,6 +18,7 @@ export class BudgetRequestService {
     private readonly budgetRequestRepository: BudgetRequestRepository,
     private readonly clientService: ClientService,
     private readonly questionService: QuestionService,
+    private readonly alternativeService: AlternativeService,
   ) {}
 
   async createBudgetRequest(dto: CreateBudgetRequestDto) {
@@ -42,13 +43,31 @@ export class BudgetRequestService {
       );
     }
 
+    let amount = 0;
+    let totalHours = 0;
+    for (const response of responses) {
+      if (response.alternativeId) {
+        const alternative =
+          await this.alternativeService.findAlternativeAndTheirTeams(
+            response.alternativeId,
+          );
+
+        if (alternative.teams.length > 0) {
+          alternative.teams.forEach((team) => {
+            amount += team.workHours * team.team.valuePerHour;
+            totalHours += team.workHours;
+          });
+        }
+      }
+    }
+
     const budgetRequestCreated =
       await this.budgetRequestRepository.createBudgetRequest({
         id: createUuid(),
         clientId: dto.clientId,
         status: Status.request,
-        amount: 30,
-        totalHours: 22,
+        amount: Number(amount.toFixed(2)),
+        totalHours: totalHours,
       });
 
     const data: DbCreateClientResponsesProps[] = responses.map((response) => ({

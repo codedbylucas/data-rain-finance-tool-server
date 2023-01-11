@@ -38,6 +38,6 @@ export class BudgetRequestRepository {
   ): Promise<void> {
     const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
       props.map((response) => ({ ...response }));
-    await this.prisma.clientsResponses.createMany({ data });
+    await this.prisma.clientsResponses.createMany({ data }).catch(serverError);
   }
 }

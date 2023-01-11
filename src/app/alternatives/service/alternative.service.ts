@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { QuestionRepository } from 'src/app/question/repositories/question.repository';
 import { TeamService } from 'src/app/team/service/team.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
@@ -57,6 +61,19 @@ export class AlternativeService {
       description: alternative.description,
       questionId: alternative.questionId,
     };
+  }
+
+  async findAlternativeAndTheirTeams(alternativeId: string) {
+    const alternativeOrNull =
+      await this.alternativeRepository.findAlternativeAndTheirTeams(
+        alternativeId,
+      );
+    if (!alternativeOrNull) {
+      throw new NotFoundException(
+        `Alternative with ID '${alternativeId}' not found`,
+      );
+    }
+    return alternativeOrNull;
   }
 
   async updateAlternative(
