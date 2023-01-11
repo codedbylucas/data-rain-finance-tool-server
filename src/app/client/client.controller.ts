@@ -32,11 +32,6 @@ export class ClientController {
     return await this.clientService.createClient(dto);
   }
 
-  @Post('budget-request')
-  async clientResponses(@Body() dto: ClientResponsesDto) {
-    return await this.clientService.createClientResponses(dto);
-  }
-
   @Get()
   @ApiOperation({
     summary: 'Find all clients',

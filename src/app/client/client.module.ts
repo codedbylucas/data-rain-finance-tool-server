@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ClientService } from './service/client.service';
+import { PrismaModule } from '../infra/prisma/prisma.module';
 import { ClientController } from './client.controller';
 import { ClientRepository } from './repositories/client.repository';
-import { PrismaModule } from '../infra/prisma/prisma.module';
-import { BudgetRequestModule } from '../budget-request/budget-request.module';
-import { QuestionModule } from '../question/question.module';
+import { ClientService } from './service/client.service';
 
 @Module({
-  imports: [PrismaModule, BudgetRequestModule, QuestionModule],
+  imports: [PrismaModule],
   providers: [ClientService, ClientRepository],
   controllers: [ClientController],
+  exports: [ClientService],
 })
 export class ClientModule {}
