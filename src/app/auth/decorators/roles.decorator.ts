@@ -49,9 +49,9 @@ const rolesName = (roles: Role[]): string[] => {
   roles.forEach((role) => {
     if (role === 0) rolesName.push('admin');
     if (role === 1) rolesName.push('financial');
-    if (role === 2) rolesName.push('preSale');
+    if (role === 2) rolesName.push('pre_sale');
     if (role === 3) rolesName.push('manager');
-    if (role === 4) rolesName.push('profissionalServices');
+    if (role === 4) rolesName.push('profissional_services');
   });
 
   return rolesName;
