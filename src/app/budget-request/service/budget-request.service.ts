@@ -3,10 +3,13 @@ import { Status } from '@prisma/client';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { ClientService } from 'src/app/client/service/client.service';
 import { QuestionService } from 'src/app/question/service/question.service';
+import { UserService } from 'src/app/user/service/user.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
+import { BudgetRequestEntity } from '../entities/budget-request.entity';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { BudgetRequestRepository } from '../repositories/budget-request.repository';
+import { ApprovedBudgetRequestDto } from './dto/approved-budget-request.dto';
 import {
   BudgetRequest,
   CreateBudgetRequestDto,
@@ -19,6 +22,7 @@ export class BudgetRequestService {
     private readonly clientService: ClientService,
     private readonly questionService: QuestionService,
     private readonly alternativeService: AlternativeService,
+    private readonly userService: UserService,
   ) {}
 
   async createBudgetRequest(dto: CreateBudgetRequestDto) {
@@ -77,5 +81,51 @@ export class BudgetRequestService {
     }));
 
     return await this.budgetRequestRepository.createClientResponses(data);
+  }
+
+  async approvedBudgetRequest(userId: string, dto: ApprovedBudgetRequestDto):Promise<void> {
+    const budgetRequest = await this.verifyBudgetRequestExist(
+      dto.budgetRequestId,
+    );
+    const user = await this.userService.findUserById(userId);
+    if (budgetRequest.verifyByPreSaleId && user.roleName === 'pre_sale') {
+      throw new BadRequestException(
+        'Budget request has already been validaded by pre sale',
+      );
+    }
+    if (budgetRequest.verifyByFinancialId && user.roleName === 'financial') {
+      throw new BadRequestException(
+        'Budget request has already been validaded by financial',
+      );
+    }
+    if (!budgetRequest.verifyByPreSaleId && user.roleName === 'financial') {
+      throw new BadRequestException(
+        'A budget request needs to be validated first by the pre-sale',
+      );
+    }
+
+    if (user.roleName === 'pre_sale') {
+      await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
+        ...dto,
+        verify_by_pre_sale_id: userId,
+      });
+      return;
+    }
+    if (user.roleName === 'financial') {
+      await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
+        ...dto,
+        verify_by_financial_id: userId,
+      });
+      return;
+    }
+  }
+
+  async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {
+    const budgetRequstOrNull =
+      await this.budgetRequestRepository.findBudgetRequestById(id);
+    if (!budgetRequstOrNull) {
+      throw new BadRequestException(`Budget request with id '${id}' not found`);
+    }
+    return budgetRequstOrNull;
   }
 }
