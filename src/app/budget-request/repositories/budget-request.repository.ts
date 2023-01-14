@@ -78,6 +78,7 @@ export class BudgetRequestRepository {
   ): Promise<void> {
     const data: Prisma.BudgetRequestUpdateInput = {
       verifyByPreSaleId: props.verify_by_pre_sale_id,
+      status: props.status,
     };
     await this.prisma.budgetRequest
       .update({
@@ -92,6 +93,7 @@ export class BudgetRequestRepository {
   ): Promise<void> {
     const data: Prisma.BudgetRequestUpdateInput = {
       verifyByFinancialId: props.verify_by_financial_id,
+      status: props.status,
     };
     await this.prisma.budgetRequest
       .update({

@@ -116,6 +116,7 @@ export class BudgetRequestService {
       await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
         ...dto,
         verify_by_pre_sale_id: userId,
+        status: Status.review,
       });
       return;
     }
@@ -123,6 +124,7 @@ export class BudgetRequestService {
       await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
         ...dto,
         verify_by_financial_id: userId,
+        status: Status.approved,
       });
       return;
     }
