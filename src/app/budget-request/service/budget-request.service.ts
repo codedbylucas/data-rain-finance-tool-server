@@ -1,12 +1,20 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { ClientService } from 'src/app/client/service/client.service';
 import { QuestionService } from 'src/app/question/service/question.service';
+import { UserService } from 'src/app/user/service/user.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
+import { BudgetRequestEntity } from '../entities/budget-request.entity';
+import { FindAllBudgetRequestsResponse } from '../protocols/find-all-budget-requests-response';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { BudgetRequestRepository } from '../repositories/budget-request.repository';
+import { ApprovedBudgetRequestDto } from './dto/approved-budget-request.dto';
 import {
   BudgetRequest,
   CreateBudgetRequestDto,
@@ -19,6 +27,7 @@ export class BudgetRequestService {
     private readonly clientService: ClientService,
     private readonly questionService: QuestionService,
     private readonly alternativeService: AlternativeService,
+    private readonly userService: UserService,
   ) {}
 
   async createBudgetRequest(dto: CreateBudgetRequestDto) {
@@ -77,5 +86,88 @@ export class BudgetRequestService {
     }));
 
     return await this.budgetRequestRepository.createClientResponses(data);
+  }
+
+  async approvedBudgetRequest(
+    userId: string,
+    dto: ApprovedBudgetRequestDto,
+  ): Promise<void> {
+    const budgetRequest = await this.verifyBudgetRequestExist(
+      dto.budgetRequestId,
+    );
+    const user = await this.userService.findUserById(userId);
+    if (budgetRequest.verifyByPreSaleId && user.roleName === 'pre_sale') {
+      throw new BadRequestException(
+        'Budget request has already been validaded by pre sale',
+      );
+    }
+    if (budgetRequest.verifyByFinancialId && user.roleName === 'financial') {
+      throw new BadRequestException(
+        'Budget request has already been validaded by financial',
+      );
+    }
+    if (!budgetRequest.verifyByPreSaleId && user.roleName === 'financial') {
+      throw new BadRequestException(
+        'A budget request needs to be validated first by the pre-sale',
+      );
+    }
+
+    if (user.roleName === 'pre_sale') {
+      await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
+        ...dto,
+        verify_by_pre_sale_id: userId,
+        status: Status.review,
+      });
+      return;
+    }
+    if (user.roleName === 'financial') {
+      await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
+        ...dto,
+        verify_by_financial_id: userId,
+        status: Status.approved,
+      });
+      return;
+    }
+  }
+
+  async findAllBudgetRequests(): Promise<FindAllBudgetRequestsResponse[]> {
+    let budgetRequestsOrEmpty =
+      await this.budgetRequestRepository.findAllBudgetRequests();
+    if (budgetRequestsOrEmpty.length === 0) {
+      throw new NotFoundException('No budget request found');
+    }
+    const budgetRequestsOrFormatted = budgetRequestsOrEmpty.map(
+      (budgetRequest) => ({
+        id: budgetRequest.id,
+        status: budgetRequest.status,
+        createdAt: this.formattedCurrentDate(budgetRequest.createdAt),
+        updatedAt: this.formattedCurrentDate(budgetRequest.updatedAt),
+        client: {
+          id: budgetRequest.client.id,
+          companyName: budgetRequest.client.companyName,
+          name: budgetRequest.client.name,
+        },
+      }),
+    );
+
+    return budgetRequestsOrFormatted;
+  }
+
+  async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {
+    const budgetRequstOrNull =
+      await this.budgetRequestRepository.findBudgetRequestById(id);
+    if (!budgetRequstOrNull) {
+      throw new BadRequestException(`Budget request with id '${id}' not found`);
+    }
+    return budgetRequstOrNull;
+  }
+
+  formattedCurrentDate(data: Date) {
+    const day = data.getDate().toString(),
+      dayformatted = day.length == 1 ? '0' + day : day,
+      month = (data.getMonth() + 1).toString(),
+      monthformatted = month.length == 1 ? '0' + month : month,
+      yearformatted = data.getFullYear();
+    return dayformatted + '/' + monthformatted + '/' + yearformatted;
   }
 }

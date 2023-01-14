@@ -3,6 +3,8 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
+import { DbFindAllBudgetRequestsResponse } from '../protocols/db-find-all-budget-requests.response';
+import { DbAprrovedByPreSaleBudgetRequestProps } from '../protocols/props/db-approved-budget-request.props';
 import { DbCreateBudgetRequestProps } from '../protocols/props/db-create-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 
@@ -39,5 +41,65 @@ export class BudgetRequestRepository {
     const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
       props.map((response) => ({ ...response }));
     await this.prisma.clientsResponses.createMany({ data }).catch(serverError);
+  }
+
+  async findBudgetRequestById(id: string): Promise<BudgetRequestEntity> {
+    const budgetRequestOrNull = await this.prisma.budgetRequest
+      .findUnique({
+        where: { id },
+      })
+      .catch(serverError);
+    return budgetRequestOrNull;
+  }
+
+  async findAllBudgetRequests(): Promise<DbFindAllBudgetRequestsResponse[]> {
+    const budgetRequestsOrEmpty = await this.prisma.budgetRequest
+      .findMany({
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          client: {
+            select: {
+              id: true,
+              companyName: true,
+              name: true,
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return budgetRequestsOrEmpty;
+  }
+
+  async aprrovedByPreSaleBudgetRequest(
+    props: DbAprrovedByPreSaleBudgetRequestProps,
+  ): Promise<void> {
+    const data: Prisma.BudgetRequestUpdateInput = {
+      verifyByPreSaleId: props.verify_by_pre_sale_id,
+      status: props.status,
+    };
+    await this.prisma.budgetRequest
+      .update({
+        where: { id: props.budgetRequestId },
+        data,
+      })
+      .catch(serverError);
+  }
+
+  async aprrovedByFinancialBudgetRequest(
+    props: DbAprrovedByPreSaleBudgetRequestProps,
+  ): Promise<void> {
+    const data: Prisma.BudgetRequestUpdateInput = {
+      verifyByFinancialId: props.verify_by_financial_id,
+      status: props.status,
+    };
+    await this.prisma.budgetRequest
+      .update({
+        where: { id: props.budgetRequestId },
+        data,
+      })
+      .catch(serverError);
   }
 }
