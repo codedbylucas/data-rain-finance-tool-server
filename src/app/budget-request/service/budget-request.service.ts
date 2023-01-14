@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { ClientService } from 'src/app/client/service/client.service';
@@ -7,6 +11,7 @@ import { UserService } from 'src/app/user/service/user.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
+import { FindAllBudgetRequestsResponse } from '../protocols/find-all-budget-requests-response';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { BudgetRequestRepository } from '../repositories/budget-request.repository';
 import { ApprovedBudgetRequestDto } from './dto/approved-budget-request.dto';
@@ -83,7 +88,10 @@ export class BudgetRequestService {
     return await this.budgetRequestRepository.createClientResponses(data);
   }
 
-  async approvedBudgetRequest(userId: string, dto: ApprovedBudgetRequestDto):Promise<void> {
+  async approvedBudgetRequest(
+    userId: string,
+    dto: ApprovedBudgetRequestDto,
+  ): Promise<void> {
     const budgetRequest = await this.verifyBudgetRequestExist(
       dto.budgetRequestId,
     );
@@ -120,6 +128,29 @@ export class BudgetRequestService {
     }
   }
 
+  async findAllBudgetRequests(): Promise<FindAllBudgetRequestsResponse[]> {
+    let budgetRequestsOrEmpty =
+      await this.budgetRequestRepository.findAllBudgetRequests();
+    if (budgetRequestsOrEmpty.length === 0) {
+      throw new NotFoundException('No budget request found');
+    }
+    const budgetRequestsOrFormatted = budgetRequestsOrEmpty.map(
+      (budgetRequest) => ({
+        id: budgetRequest.id,
+        status: budgetRequest.status,
+        createdAt: this.formattedCurrentDate(budgetRequest.createdAt),
+        updatedAt: this.formattedCurrentDate(budgetRequest.updatedAt),
+        client: {
+          id: budgetRequest.client.id,
+          companyName: budgetRequest.client.companyName,
+          name: budgetRequest.client.name,
+        },
+      }),
+    );
+
+    return budgetRequestsOrFormatted;
+  }
+
   async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {
     const budgetRequstOrNull =
       await this.budgetRequestRepository.findBudgetRequestById(id);
@@ -127,5 +158,14 @@ export class BudgetRequestService {
       throw new BadRequestException(`Budget request with id '${id}' not found`);
     }
     return budgetRequstOrNull;
+  }
+
+  formattedCurrentDate(data: Date) {
+    const day = data.getDate().toString(),
+      dayformatted = day.length == 1 ? '0' + day : day,
+      month = (data.getMonth() + 1).toString(),
+      monthformatted = month.length == 1 ? '0' + month : month,
+      yearformatted = data.getFullYear();
+    return dayformatted + '/' + monthformatted + '/' + yearformatted;
   }
 }
