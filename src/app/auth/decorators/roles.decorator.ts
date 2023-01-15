@@ -30,7 +30,7 @@ export const RolesAccess = createParamDecorator(
     let count = 0;
 
     result.forEach((role) => {
-      if (user.role.includes(role)) {
+      if (user.roleName.includes(role)) {
         count++;
       }
     });
@@ -39,7 +39,7 @@ export const RolesAccess = createParamDecorator(
         'User does not have permission to access this route',
       );
     }
-    return user.userId;
+    return user;
   },
 );
 
