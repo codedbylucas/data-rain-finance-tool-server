@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Status } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
@@ -52,9 +52,12 @@ export class BudgetRequestRepository {
     return budgetRequestOrNull;
   }
 
-  async findAllBudgetRequests(): Promise<DbFindAllBudgetRequestsResponse[]> {
+  async findAllBudgetRequests(
+    status?: Status,
+  ): Promise<DbFindAllBudgetRequestsResponse[]> {
     const budgetRequestsOrEmpty = await this.prisma.budgetRequest
       .findMany({
+        where: { status: { equals: status } },
         select: {
           id: true,
           status: true,

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
+import { UserPayload } from 'src/app/auth/protocols/user-payload';
 import { ClientService } from 'src/app/client/service/client.service';
 import { QuestionService } from 'src/app/question/service/question.service';
 import { UserService } from 'src/app/user/service/user.service';
@@ -130,9 +131,18 @@ export class BudgetRequestService {
     }
   }
 
-  async findAllBudgetRequests(): Promise<FindAllBudgetRequestsResponse[]> {
+  async findAllBudgetRequests(
+    user: UserPayload,
+  ): Promise<FindAllBudgetRequestsResponse[]> {
+    let status: Status;
+    if (user.roleName === 'pre_sale') {
+      status = Status.request;
+    } else if (user.roleName === 'financial') {
+      status = Status.review;
+    }
+
     let budgetRequestsOrEmpty =
-      await this.budgetRequestRepository.findAllBudgetRequests();
+      await this.budgetRequestRepository.findAllBudgetRequests(status);
     if (budgetRequestsOrEmpty.length === 0) {
       throw new NotFoundException('No budget request found');
     }

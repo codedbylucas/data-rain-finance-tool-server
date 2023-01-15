@@ -10,6 +10,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
+import { UserPayload } from '../auth/protocols/user-payload';
 import { FindAllBudgetRequestsResponse } from './protocols/find-all-budget-requests-response';
 import { BudgetRequestService } from './service/budget-request.service';
 import { ApprovedBudgetRequestDto } from './service/dto/approved-budget-request.dto';
@@ -30,14 +31,21 @@ export class BudgetRequestController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   async approvedBudgetRequest(
-    @RolesAccess([Role.preSale, Role.financial]) userId: string,
+    @RolesAccess([Role.preSale, Role.financial]) user: UserPayload,
     @Body() dto: ApprovedBudgetRequestDto,
   ): Promise<void> {
-    return await this.budgetRequestService.approvedBudgetRequest(userId, dto);
+    return await this.budgetRequestService.approvedBudgetRequest(
+      user.userId,
+      dto,
+    );
   }
 
   @Get()
-  async findAllBudgetRequest(): Promise<FindAllBudgetRequestsResponse[]> {
-    return await this.budgetRequestService.findAllBudgetRequests();
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  async findAllBudgetRequest(
+    @RolesAccess([Role.preSale, Role.financial, Role.admin]) user: UserPayload,
+  ): Promise<FindAllBudgetRequestsResponse[]> {
+    return await this.budgetRequestService.findAllBudgetRequests(user);
   }
 }
