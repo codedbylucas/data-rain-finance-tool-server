@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -47,5 +49,16 @@ export class BudgetRequestController {
     @RolesAccess([Role.preSale, Role.financial, Role.admin]) user: UserPayload,
   ): Promise<FindAllBudgetRequestsResponse[]> {
     return await this.budgetRequestService.findAllBudgetRequests(user);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  async findBudgetRequestById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @RolesAccess([Role.preSale, Role.financial, Role.admin])
+    user: UserPayload,
+  ) {
+    return await this.budgetRequestService.findBudgetRequestById(id);
   }
 }

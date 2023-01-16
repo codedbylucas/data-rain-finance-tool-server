@@ -134,13 +134,7 @@ export class BudgetRequestService {
   async findAllBudgetRequests(
     user: UserPayload,
   ): Promise<FindAllBudgetRequestsResponse[]> {
-    let status: Status;
-    if (user.roleName === 'pre_sale') {
-      status = Status.request;
-    } else if (user.roleName === 'financial') {
-      status = Status.review;
-    }
-
+    const status = this.returnStatusThatUserHasPermission(user.roleName);
     let budgetRequestsOrEmpty =
       await this.budgetRequestRepository.findAllBudgetRequests(status);
     if (budgetRequestsOrEmpty.length === 0) {
@@ -163,6 +157,20 @@ export class BudgetRequestService {
     return budgetRequestsOrFormatted;
   }
 
+  async findBudgetRequestById(id: string) {
+    const budgetRequestOrNull =
+      await this.budgetRequestRepository.findBudgetRequestByIdWithClient(id);
+    if (!budgetRequestOrNull) {
+      throw new NotFoundException(`Budget request with id '${id}' not found`);
+    }
+
+    delete Object.assign(budgetRequestOrNull, {
+      ['formResponses']: budgetRequestOrNull['clientsResponses'],
+    })['clientsResponses'];
+
+    return budgetRequestOrNull;
+  }
+
   async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {
     const budgetRequstOrNull =
       await this.budgetRequestRepository.findBudgetRequestById(id);
@@ -179,5 +187,15 @@ export class BudgetRequestService {
       monthformatted = month.length == 1 ? '0' + month : month,
       yearformatted = data.getFullYear();
     return dayformatted + '/' + monthformatted + '/' + yearformatted;
+  }
+
+  returnStatusThatUserHasPermission(roleName: string): Status {
+    let status: Status;
+    if (roleName === 'pre_sale') {
+      status = Status.request;
+    } else if (roleName === 'financial') {
+      status = Status.review;
+    }
+    return status;
   }
 }

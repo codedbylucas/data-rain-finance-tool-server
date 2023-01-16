@@ -52,6 +52,52 @@ export class BudgetRequestRepository {
     return budgetRequestOrNull;
   }
 
+  async findBudgetRequestByIdWithClient(id: string) {
+    const budgetRequestOrNull = await this.prisma.budgetRequest
+      .findUnique({
+        where: { id },
+        select: {
+          id: true,
+          status: true,
+          amount: true,
+          totalHours: true,
+          createdAt: true,
+          updatedAt: true,
+          client: {
+            select: {
+              id: true,
+              companyName: true,
+              name: true,
+              phone: true,
+              email: true,
+            },
+          },
+          clientsResponses: {
+            where: {
+              budgetRequestId: id,
+            },
+            select: {
+              responseDetails: true,
+              question: {
+                select: {
+                  id: true,
+                  description: true,
+                },
+              },
+              alternative: {
+                select: {
+                  id: true,
+                  description: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return budgetRequestOrNull;
+  }
+
   async findAllBudgetRequests(
     status?: Status,
   ): Promise<DbFindAllBudgetRequestsResponse[]> {
