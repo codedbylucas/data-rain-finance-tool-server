@@ -71,6 +71,9 @@ export class BudgetRequestRepository {
             },
           },
         },
+        orderBy: {
+          status: 'asc',
+        },
       })
       .catch(serverError);
     return budgetRequestsOrEmpty;
