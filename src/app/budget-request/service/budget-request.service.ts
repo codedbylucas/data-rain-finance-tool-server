@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
+import { UserPayload } from 'src/app/auth/protocols/user-payload';
 import { ClientService } from 'src/app/client/service/client.service';
 import { QuestionService } from 'src/app/question/service/question.service';
 import { UserService } from 'src/app/user/service/user.service';
@@ -130,9 +131,12 @@ export class BudgetRequestService {
     }
   }
 
-  async findAllBudgetRequests(): Promise<FindAllBudgetRequestsResponse[]> {
+  async findAllBudgetRequests(
+    user: UserPayload,
+  ): Promise<FindAllBudgetRequestsResponse[]> {
+    const status = this.returnStatusThatUserHasPermission(user.roleName);
     let budgetRequestsOrEmpty =
-      await this.budgetRequestRepository.findAllBudgetRequests();
+      await this.budgetRequestRepository.findAllBudgetRequests(status);
     if (budgetRequestsOrEmpty.length === 0) {
       throw new NotFoundException('No budget request found');
     }
@@ -153,6 +157,20 @@ export class BudgetRequestService {
     return budgetRequestsOrFormatted;
   }
 
+  async findBudgetRequestById(id: string) {
+    const budgetRequestOrNull =
+      await this.budgetRequestRepository.findBudgetRequestByIdWithClient(id);
+    if (!budgetRequestOrNull) {
+      throw new NotFoundException(`Budget request with id '${id}' not found`);
+    }
+
+    delete Object.assign(budgetRequestOrNull, {
+      ['formResponses']: budgetRequestOrNull['clientsResponses'],
+    })['clientsResponses'];
+
+    return budgetRequestOrNull;
+  }
+
   async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {
     const budgetRequstOrNull =
       await this.budgetRequestRepository.findBudgetRequestById(id);
@@ -169,5 +187,15 @@ export class BudgetRequestService {
       monthformatted = month.length == 1 ? '0' + month : month,
       yearformatted = data.getFullYear();
     return dayformatted + '/' + monthformatted + '/' + yearformatted;
+  }
+
+  returnStatusThatUserHasPermission(roleName: string): Status {
+    let status: Status;
+    if (roleName === 'pre_sale') {
+      status = Status.request;
+    } else if (roleName === 'financial') {
+      status = Status.review;
+    }
+    return status;
   }
 }

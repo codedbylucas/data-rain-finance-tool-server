@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Status } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
@@ -52,9 +52,58 @@ export class BudgetRequestRepository {
     return budgetRequestOrNull;
   }
 
-  async findAllBudgetRequests(): Promise<DbFindAllBudgetRequestsResponse[]> {
+  async findBudgetRequestByIdWithClient(id: string) {
+    const budgetRequestOrNull = await this.prisma.budgetRequest
+      .findUnique({
+        where: { id },
+        select: {
+          id: true,
+          status: true,
+          amount: true,
+          totalHours: true,
+          createdAt: true,
+          updatedAt: true,
+          client: {
+            select: {
+              id: true,
+              companyName: true,
+              name: true,
+              phone: true,
+              email: true,
+            },
+          },
+          clientsResponses: {
+            where: {
+              budgetRequestId: id,
+            },
+            select: {
+              responseDetails: true,
+              question: {
+                select: {
+                  id: true,
+                  description: true,
+                },
+              },
+              alternative: {
+                select: {
+                  id: true,
+                  description: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return budgetRequestOrNull;
+  }
+
+  async findAllBudgetRequests(
+    status?: Status,
+  ): Promise<DbFindAllBudgetRequestsResponse[]> {
     const budgetRequestsOrEmpty = await this.prisma.budgetRequest
       .findMany({
+        where: { status: { equals: status } },
         select: {
           id: true,
           status: true,
@@ -67,6 +116,9 @@ export class BudgetRequestRepository {
               name: true,
             },
           },
+        },
+        orderBy: {
+          status: 'asc',
         },
       })
       .catch(serverError);
