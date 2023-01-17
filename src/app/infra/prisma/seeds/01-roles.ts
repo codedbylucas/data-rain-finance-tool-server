@@ -1,14 +1,29 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { v4 as uuid } from 'uuid';
 
 export const roles: Prisma.RolesCreateInput[] = [
-  { name: 'admin', description: 'Chefe geral do sistema' },
-  { name: 'financial', description: 'Gerencia valores de projetos' },
-  { name: 'pre_sale', description: 'Analiza respostas de clientes' },
   {
+    id: uuid(),
+    name: 'admin',
+    description: 'Chefe geral do sistema',
+  },
+  {
+    id: uuid(),
+    name: 'financial',
+    description: 'Gerencia valores de projetos',
+  },
+  {
+    id: uuid(),
+    name: 'pre_sale',
+    description: 'Analiza respostas de clientes',
+  },
+  {
+    id: uuid(),
     name: 'manager',
     description: 'Aprova chamado de um profissional services',
   },
   {
+    id: uuid(),
     name: 'profissional_services',
     description: 'Funcionário alocado em projetos',
   },
