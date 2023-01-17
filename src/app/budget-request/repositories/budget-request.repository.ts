@@ -7,6 +7,7 @@ import { DbFindAllBudgetRequestsResponse } from '../protocols/db-find-all-budget
 import { DbAprrovedByPreSaleBudgetRequestProps } from '../protocols/props/db-approved-budget-request.props';
 import { DbCreateBudgetRequestProps } from '../protocols/props/db-create-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
+import { DbCreateAlternativeBudgetRequestProps } from '../protocols/props/db-create-alternative-budget-request.props';
 
 @Injectable()
 export class BudgetRequestRepository {
@@ -41,6 +42,29 @@ export class BudgetRequestRepository {
     const data: Prisma.Enumerable<Prisma.ClientsResponsesCreateManyInput> =
       props.map((response) => ({ ...response }));
     await this.prisma.clientsResponses.createMany({ data }).catch(serverError);
+  }
+
+  async createManyAlternativeBudgetRequest(
+    props: DbCreateAlternativeBudgetRequestProps[],
+  ): Promise<void> {
+    const data: Prisma.Enumerable<Prisma.AlternativeBudgetRequestCreateManyInput> =
+      props.map((item) => {
+        let workHours = null;
+        if (item.workHours) {
+          workHours = item.workHours;
+        }
+        return {
+          id: item.id,
+          valuePerHour: item.valuePerHour,
+          workHours: workHours,
+          alternativeId: item.alternativeId,
+          budgetRequestId: item.budgetRequestId,
+        };
+      });
+
+    await this.prisma.alternativeBudgetRequest
+      .createMany({ data })
+      .catch(serverError);
   }
 
   async findBudgetRequestById(id: string): Promise<BudgetRequestEntity> {

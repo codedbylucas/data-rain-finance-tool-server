@@ -73,8 +73,9 @@ model Alternatives {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  teams            AlternativesTeams[]
-  clientsResponses ClientsResponses[]
+  teams                     AlternativesTeams[]
+  clientsResponses          ClientsResponses[]
+  alternativeBudgetRequests AlternativeBudgetRequest[]
 
   @@map("alternatives")
 }
@@ -126,9 +127,16 @@ model BudgetRequest {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  clientsResponses ClientsResponses[]
+  clientsResponses          ClientsResponses[]
+  alternativeBudgetRequests AlternativeBudgetRequest[]
 
   @@map("budget_request")
+}
+
+enum Status {
+  request
+  review
+  approved
 }
 
 model ClientsResponses {
@@ -150,8 +158,16 @@ model ClientsResponses {
   @@map("clients_responses")
 }
 
-enum Status {
-  request
-  review
-  approved
+model AlternativeBudgetRequest {
+  id           String @id @unique @default(uuid())
+  valuePerHour Float @map("value_per_hour")
+  workHours    Int?    @map("work_hours")
+
+  alternative   Alternatives @relation(fields: [alternativeId], references: [id])
+  alternativeId String       @map("alternative_id")
+
+  budgetRequest   BudgetRequest @relation(fields: [budgetRequestId], references: [id])
+  budgetRequestId String        @map("budget_request_id")
+
+  @@map("alternative_budget_request")
 }

@@ -13,6 +13,7 @@ import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
 import { FindAllBudgetRequestsResponse } from '../protocols/find-all-budget-requests-response';
+import { DbCreateAlternativeBudgetRequestProps } from '../protocols/props/db-create-alternative-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { BudgetRequestRepository } from '../repositories/budget-request.repository';
 import { ApprovedBudgetRequestDto } from './dto/approved-budget-request.dto';
@@ -31,13 +32,18 @@ export class BudgetRequestService {
     private readonly userService: UserService,
   ) {}
 
-  async createBudgetRequest(dto: CreateBudgetRequestDto) {
+  async createBudgetRequest(dto: CreateBudgetRequestDto): Promise<void> {
     const responses: BudgetRequest[] = dto.responses;
-    const questionIds = responses.map((response) => response.questionId);
-    const alternativeIds = responses.map((response) => response.alternativeId);
+    const questionIds: string[] = [];
+    const alternativeIds: string[] = [];
+    for (const response of responses) {
+      questionIds.push(response.questionId);
+      if (response.alternativeId) {
+        alternativeIds.push(response.alternativeId);
+      }
+    }
     checkHasDuplicates(questionIds, `Question Id cannot be duplicated`);
     checkHasDuplicates(alternativeIds, `Alternative Id cannot be duplicated`);
-
     await this.clientService.verifyClientExist(dto.clientId);
 
     for (const response of responses) {
@@ -55,6 +61,9 @@ export class BudgetRequestService {
 
     let amount = 0;
     let totalHours = 0;
+    const alternativesBudgetRequestsPartial: DbCreateAlternativeBudgetRequestProps[] =
+      [];
+
     for (const response of responses) {
       if (response.alternativeId) {
         const alternative =
@@ -63,9 +72,18 @@ export class BudgetRequestService {
           );
 
         if (alternative.teams.length > 0) {
-          alternative.teams.forEach((team) => {
-            amount += team.workHours * team.team.valuePerHour;
-            totalHours += team.workHours;
+          alternative.teams.forEach((alternativesTeams) => {
+            amount +=
+              alternativesTeams.workHours * alternativesTeams.team.valuePerHour;
+            totalHours += alternativesTeams.workHours;
+
+            alternativesBudgetRequestsPartial.push({
+              id: createUuid(),
+              valuePerHour: alternativesTeams.team.valuePerHour,
+              workHours: alternativesTeams.workHours,
+              alternativeId: alternative.id,
+              budgetRequestId: 'id',
+            });
           });
         }
       }
@@ -86,7 +104,17 @@ export class BudgetRequestService {
       budgetRequestId: budgetRequestCreated.id,
     }));
 
-    return await this.budgetRequestRepository.createClientResponses(data);
+    const alternativesBudgetRequests = alternativesBudgetRequestsPartial.map(
+      (item) => ({
+        ...item,
+        budgetRequestId: budgetRequestCreated.id,
+      }),
+    );
+
+    await this.budgetRequestRepository.createManyAlternativeBudgetRequest(
+      alternativesBudgetRequests,
+    );
+    await this.budgetRequestRepository.createClientResponses(data);
   }
 
   async approvedBudgetRequest(
