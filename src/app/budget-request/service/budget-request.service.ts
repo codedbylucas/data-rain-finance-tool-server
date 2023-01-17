@@ -51,18 +51,19 @@ export class BudgetRequestService {
         throw new BadRequestException(`Altarnative id or details required`);
       }
       await this.questionService.veryfiQuestionExist(response.questionId);
-      await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
-        {
-          questionId: response.questionId,
-          alternativeId: response.alternativeId,
-        },
-      );
+      if (response.alternativeId) {
+        await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
+          {
+            questionId: response.questionId,
+            alternativeId: response.alternativeId,
+          },
+        );
+      }
     }
 
     let amount = 0;
     let totalHours = 0;
-    const alternativesBudgetRequestsPartial: DbCreateAlternativeBudgetRequestProps[] =
-      [];
+    const clientsResponsesPartial: DbCreateClientResponsesProps[] = [];
 
     for (const response of responses) {
       if (response.alternativeId) {
@@ -77,11 +78,13 @@ export class BudgetRequestService {
               alternativesTeams.workHours * alternativesTeams.team.valuePerHour;
             totalHours += alternativesTeams.workHours;
 
-            alternativesBudgetRequestsPartial.push({
+            clientsResponsesPartial.push({
               id: createUuid(),
               valuePerHour: alternativesTeams.team.valuePerHour,
               workHours: alternativesTeams.workHours,
-              alternativeId: alternative.id,
+              responseDetails: response.responseDetails,
+              alternativeId: response.alternativeId,
+              questionId: response.questionId,
               budgetRequestId: 'id',
             });
           });
@@ -98,22 +101,16 @@ export class BudgetRequestService {
         totalHours: totalHours,
       });
 
-    const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
-      ...response,
-      id: createUuid(),
-      budgetRequestId: budgetRequestCreated.id,
-    }));
-
-    const alternativesBudgetRequests = alternativesBudgetRequestsPartial.map(
-      (item) => ({
-        ...item,
+    const data: DbCreateClientResponsesProps[] = clientsResponsesPartial.map(
+      (response) => ({
+        ...response,
         budgetRequestId: budgetRequestCreated.id,
       }),
     );
 
-    await this.budgetRequestRepository.createManyAlternativeBudgetRequest(
-      alternativesBudgetRequests,
-    );
+    // await this.budgetRequestRepository.createManyAlternativeBudgetRequest(
+    //   alternativesBudgetRequests,
+    // );
     await this.budgetRequestRepository.createClientResponses(data);
   }
 

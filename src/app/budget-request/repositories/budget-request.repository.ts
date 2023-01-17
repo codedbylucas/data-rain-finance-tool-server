@@ -44,29 +44,6 @@ export class BudgetRequestRepository {
     await this.prisma.clientsResponses.createMany({ data }).catch(serverError);
   }
 
-  async createManyAlternativeBudgetRequest(
-    props: DbCreateAlternativeBudgetRequestProps[],
-  ): Promise<void> {
-    const data: Prisma.Enumerable<Prisma.AlternativeBudgetRequestCreateManyInput> =
-      props.map((item) => {
-        let workHours = null;
-        if (item.workHours) {
-          workHours = item.workHours;
-        }
-        return {
-          id: item.id,
-          valuePerHour: item.valuePerHour,
-          workHours: workHours,
-          alternativeId: item.alternativeId,
-          budgetRequestId: item.budgetRequestId,
-        };
-      });
-
-    await this.prisma.alternativeBudgetRequest
-      .createMany({ data })
-      .catch(serverError);
-  }
-
   async findBudgetRequestById(id: string): Promise<BudgetRequestEntity> {
     const budgetRequestOrNull = await this.prisma.budgetRequest
       .findUnique({
