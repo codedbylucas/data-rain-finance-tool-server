@@ -72,20 +72,30 @@ export class BudgetRequestService {
           );
 
         if (alternative.teams.length > 0) {
+          let workHours = 0;
+          let valuePerHour = 0;
           alternative.teams.forEach((alternativesTeams) => {
             amount +=
               alternativesTeams.workHours * alternativesTeams.team.valuePerHour;
             totalHours += alternativesTeams.workHours;
 
+            alternative.teams.forEach((item) => {
+              valuePerHour += item.team.valuePerHour;
+              workHours += item.workHours;
+            });
+
             clientsResponsesPartial.push({
               id: createUuid(),
-              valuePerHour: alternativesTeams.team.valuePerHour,
-              workHours: alternativesTeams.workHours,
+              valuePerHour: valuePerHour,
+              workHours: workHours,
               responseDetails: response.responseDetails,
               alternativeId: response.alternativeId,
               questionId: response.questionId,
               budgetRequestId: 'id',
             });
+
+            workHours = 0;
+            valuePerHour = 0;
           });
         }
       }
