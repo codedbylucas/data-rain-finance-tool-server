@@ -31,13 +31,18 @@ export class BudgetRequestService {
     private readonly userService: UserService,
   ) {}
 
-  async createBudgetRequest(dto: CreateBudgetRequestDto) {
+  async createBudgetRequest(dto: CreateBudgetRequestDto): Promise<void> {
     const responses: BudgetRequest[] = dto.responses;
-    const questionIds = responses.map((response) => response.questionId);
-    const alternativeIds = responses.map((response) => response.alternativeId);
+    const questionIds: string[] = [];
+    const alternativeIds: string[] = [];
+    for (const response of responses) {
+      questionIds.push(response.questionId);
+      if (response.alternativeId) {
+        alternativeIds.push(response.alternativeId);
+      }
+    }
     checkHasDuplicates(questionIds, `Question Id cannot be duplicated`);
     checkHasDuplicates(alternativeIds, `Alternative Id cannot be duplicated`);
-
     await this.clientService.verifyClientExist(dto.clientId);
 
     for (const response of responses) {
@@ -45,16 +50,20 @@ export class BudgetRequestService {
         throw new BadRequestException(`Altarnative id or details required`);
       }
       await this.questionService.veryfiQuestionExist(response.questionId);
-      await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
-        {
-          questionId: response.questionId,
-          alternativeId: response.alternativeId,
-        },
-      );
+      if (response.alternativeId) {
+        await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
+          {
+            questionId: response.questionId,
+            alternativeId: response.alternativeId,
+          },
+        );
+      }
     }
 
     let amount = 0;
     let totalHours = 0;
+    const clientsResponsesPartial: DbCreateClientResponsesProps[] = [];
+
     for (const response of responses) {
       if (response.alternativeId) {
         const alternative =
@@ -63,9 +72,30 @@ export class BudgetRequestService {
           );
 
         if (alternative.teams.length > 0) {
-          alternative.teams.forEach((team) => {
-            amount += team.workHours * team.team.valuePerHour;
-            totalHours += team.workHours;
+          let workHours = 0;
+          let valuePerHour = 0;
+          alternative.teams.forEach((alternativesTeams) => {
+            amount +=
+              alternativesTeams.workHours * alternativesTeams.team.valuePerHour;
+            totalHours += alternativesTeams.workHours;
+
+            alternative.teams.forEach((item) => {
+              valuePerHour += item.team.valuePerHour;
+              workHours += item.workHours;
+            });
+
+            clientsResponsesPartial.push({
+              id: createUuid(),
+              valuePerHour: valuePerHour,
+              workHours: workHours,
+              responseDetails: response.responseDetails,
+              alternativeId: response.alternativeId,
+              questionId: response.questionId,
+              budgetRequestId: 'id',
+            });
+
+            workHours = 0;
+            valuePerHour = 0;
           });
         }
       }
@@ -80,13 +110,14 @@ export class BudgetRequestService {
         totalHours: totalHours,
       });
 
-    const data: DbCreateClientResponsesProps[] = responses.map((response) => ({
-      ...response,
-      id: createUuid(),
-      budgetRequestId: budgetRequestCreated.id,
-    }));
+    const data: DbCreateClientResponsesProps[] = clientsResponsesPartial.map(
+      (response) => ({
+        ...response,
+        budgetRequestId: budgetRequestCreated.id,
+      }),
+    );
 
-    return await this.budgetRequestRepository.createClientResponses(data);
+    await this.budgetRequestRepository.createClientResponses(data);
   }
 
   async approvedBudgetRequest(

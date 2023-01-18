@@ -5,10 +5,10 @@ import { v4 as uuid } from 'uuid';
 export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
   const users: Prisma.UsersCreateInput[] = [
     {
+      id: uuid(),
       name: 'Admin',
       email: 'admin@admin.com',
       password: 'Admin@1234',
-      imageUrl: `/default-profile-picture/default-profile-picture.jpg`,
       billable: false,
       position: 'Admin',
       allocated: false,
@@ -19,10 +19,10 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       },
     },
     {
+      id: uuid(),
       name: 'User 01',
       email: 'user01@mail.com',
       password: 'Abcd@1234',
-      imageUrl: `/default-profile-picture/default-profile-picture.jpg`,
       billable: false,
       position: 'Dev Ops',
       allocated: false,
@@ -33,10 +33,10 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       },
     },
     {
+      id: uuid(),
       name: 'User 02',
       email: 'user02@mail.com',
       password: 'Abcd@1234',
-      imageUrl: `/default-profile-picture/default-profile-picture.jpg`,
       billable: false,
       position: 'Back-end developer',
       allocated: false,
@@ -47,10 +47,10 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       },
     },
     {
+      id: uuid(),
       name: 'User 03',
       email: 'user03@mail.com',
       password: 'Abcd@1234',
-      imageUrl: `/default-profile-picture/default-profile-picture.jpg`,
       billable: false,
       position: 'Front-end developer',
       allocated: false,
@@ -70,7 +70,7 @@ export const user = async (prisma: PrismaClient) => {
     obj.password = await bcrypt.hash(obj.password, 12);
 
     await prisma.users.upsert({
-      where: { id: 'id' },
+      where: { id: obj.id },
       update: {},
       create: {
         ...obj,

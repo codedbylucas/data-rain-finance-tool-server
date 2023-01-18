@@ -77,7 +77,10 @@ export class BudgetRequestRepository {
               budgetRequestId: id,
             },
             select: {
+              id: true,
               responseDetails: true,
+              valuePerHour: true,
+              workHours: true,
               question: {
                 select: {
                   id: true,
@@ -88,6 +91,17 @@ export class BudgetRequestRepository {
                 select: {
                   id: true,
                   description: true,
+                  teams: {
+                    select: {
+                      team: {
+                        select: {
+                          id: true,
+                          name: true,
+                          valuePerHour: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },

@@ -24,7 +24,9 @@ export class BudgetRequestController {
   constructor(private readonly budgetRequestService: BudgetRequestService) {}
 
   @Post()
-  async createBudgetRequest(@Body() dto: CreateBudgetRequestDto) {
+  async createBudgetRequest(
+    @Body() dto: CreateBudgetRequestDto,
+  ): Promise<void> {
     return await this.budgetRequestService.createBudgetRequest(dto);
   }
 

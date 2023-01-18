@@ -131,9 +131,17 @@ model BudgetRequest {
   @@map("budget_request")
 }
 
+enum Status {
+  request
+  review
+  approved
+}
+
 model ClientsResponses {
   id              String  @id @unique @default(uuid())
   responseDetails String? @map("response_details") @db.VarChar(1000)
+  valuePerHour    Float   @map("value_per_hour")
+  workHours       Int?    @map("work_hours")
 
   question   Questions @relation(fields: [questionId], references: [id])
   questionId String    @map("question_id")
@@ -148,10 +156,4 @@ model ClientsResponses {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("clients_responses")
-}
-
-enum Status {
-  request
-  review
-  approved
 }
