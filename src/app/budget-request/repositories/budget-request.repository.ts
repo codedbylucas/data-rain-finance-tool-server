@@ -7,7 +7,6 @@ import { DbFindAllBudgetRequestsResponse } from '../protocols/db-find-all-budget
 import { DbAprrovedByPreSaleBudgetRequestProps } from '../protocols/props/db-approved-budget-request.props';
 import { DbCreateBudgetRequestProps } from '../protocols/props/db-create-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
-import { DbCreateAlternativeBudgetRequestProps } from '../protocols/props/db-create-alternative-budget-request.props';
 
 @Injectable()
 export class BudgetRequestRepository {
@@ -78,7 +77,10 @@ export class BudgetRequestRepository {
               budgetRequestId: id,
             },
             select: {
+              id: true,
               responseDetails: true,
+              valuePerHour: true,
+              workHours: true,
               question: {
                 select: {
                   id: true,
@@ -89,6 +91,17 @@ export class BudgetRequestRepository {
                 select: {
                   id: true,
                   description: true,
+                  teams: {
+                    select: {
+                      team: {
+                        select: {
+                          id: true,
+                          name: true,
+                          valuePerHour: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },

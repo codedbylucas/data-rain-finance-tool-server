@@ -13,7 +13,6 @@ import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { createUuid } from 'src/app/util/create-uuid';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
 import { FindAllBudgetRequestsResponse } from '../protocols/find-all-budget-requests-response';
-import { DbCreateAlternativeBudgetRequestProps } from '../protocols/props/db-create-alternative-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
 import { BudgetRequestRepository } from '../repositories/budget-request.repository';
 import { ApprovedBudgetRequestDto } from './dto/approved-budget-request.dto';
@@ -108,9 +107,6 @@ export class BudgetRequestService {
       }),
     );
 
-    // await this.budgetRequestRepository.createManyAlternativeBudgetRequest(
-    //   alternativesBudgetRequests,
-    // );
     await this.budgetRequestRepository.createClientResponses(data);
   }
 
