@@ -198,6 +198,12 @@ export class BudgetRequestService {
     delete Object.assign(budgetRequestOrNull, {
       ['formResponses']: budgetRequestOrNull['clientsResponses'],
     })['clientsResponses'];
+    Object.assign(budgetRequestOrNull, budgetRequestOrNull, {
+      createdAt: this.formattedCurrentDate(budgetRequestOrNull.createdAt),
+    });
+    Object.assign(budgetRequestOrNull, budgetRequestOrNull, {
+      updatedAt: this.formattedCurrentDate(budgetRequestOrNull.updatedAt),
+    });
 
     return budgetRequestOrNull;
   }
