@@ -3,23 +3,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { BudgetRequestService } from 'src/app/budget-request/service/budget-request.service';
-import { QuestionService } from 'src/app/question/service/question.service';
 import { createUuid } from 'src/app/util/create-uuid';
-import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
-import { DbCreateClientResponsesProps } from '../../budget-request/protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
-import { ClientResponse, ClientResponsesDto } from './dto/client-responses.dto';
 import { CreateClientDto } from './dto/create-client.dto';
 
 @Injectable()
 export class ClientService {
-  constructor(
-    private readonly clientRepository: ClientRepository,
-  ) {}
+  constructor(private readonly clientRepository: ClientRepository) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
     dto.name = dto.name.trim();
