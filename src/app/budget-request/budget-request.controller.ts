@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { FindAllBudgetRequestsResponse } from './protocols/find-all-budget-reque
 import { BudgetRequestService } from './service/budget-request.service';
 import { ApprovedBudgetRequestDto } from './service/dto/approved-budget-request.dto';
 import { CreateBudgetRequestDto } from './service/dto/create-budget-request.dto';
+import { UpdatedBudgetRequestDto } from './service/dto/update-budget-request.dto';
 
 @Controller('budget-request')
 @ApiTags('budget-request')
@@ -62,5 +64,10 @@ export class BudgetRequestController {
     user: UserPayload,
   ) {
     return await this.budgetRequestService.findBudgetRequestById(id);
+  }
+
+  @Patch()
+  async updateBudgetRequest(@Body() dto: UpdatedBudgetRequestDto) {
+    return await this.budgetRequestService.updateBudgetRequest(dto);
   }
 }

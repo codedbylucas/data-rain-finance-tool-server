@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
+import { toASCII } from 'punycode';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { UserPayload } from 'src/app/auth/protocols/user-payload';
 import { ClientService } from 'src/app/client/service/client.service';
@@ -20,6 +21,7 @@ import {
   BudgetRequest,
   CreateBudgetRequestDto,
 } from './dto/create-budget-request.dto';
+import { UpdatedBudgetRequestDto } from './dto/update-budget-request.dto';
 
 @Injectable()
 export class BudgetRequestService {
@@ -75,28 +77,24 @@ export class BudgetRequestService {
           let workHours = 0;
           let valuePerHour = 0;
           alternative.teams.forEach((alternativesTeams) => {
-            amount +=
-              alternativesTeams.workHours * alternativesTeams.team.valuePerHour;
+            amount += alternativesTeams.team.valuePerHour;
             totalHours += alternativesTeams.workHours;
 
-            alternative.teams.forEach((item) => {
-              valuePerHour += item.team.valuePerHour;
-              workHours += item.workHours;
-            });
-
-            clientsResponsesPartial.push({
-              id: createUuid(),
-              valuePerHour: valuePerHour,
-              workHours: workHours,
-              responseDetails: response.responseDetails,
-              alternativeId: response.alternativeId,
-              questionId: response.questionId,
-              budgetRequestId: 'id',
-            });
-
-            workHours = 0;
-            valuePerHour = 0;
+            valuePerHour += alternativesTeams.team.valuePerHour;
+            workHours += alternativesTeams.workHours;
           });
+
+          clientsResponsesPartial.push({
+            id: createUuid(),
+            valuePerHour: valuePerHour,
+            workHours: workHours,
+            responseDetails: response.responseDetails,
+            alternativeId: response.alternativeId,
+            questionId: response.questionId,
+            budgetRequestId: 'id',
+          });
+          workHours = 0;
+          valuePerHour = 0;
         }
       }
     }
@@ -116,7 +114,6 @@ export class BudgetRequestService {
         budgetRequestId: budgetRequestCreated.id,
       }),
     );
-
     await this.budgetRequestRepository.createClientResponses(data);
   }
 
@@ -200,12 +197,34 @@ export class BudgetRequestService {
     })['clientsResponses'];
     Object.assign(budgetRequestOrNull, budgetRequestOrNull, {
       createdAt: this.formattedCurrentDate(budgetRequestOrNull.createdAt),
-    });
-    Object.assign(budgetRequestOrNull, budgetRequestOrNull, {
       updatedAt: this.formattedCurrentDate(budgetRequestOrNull.updatedAt),
     });
 
     return budgetRequestOrNull;
+  }
+
+  async updateBudgetRequest(dto: UpdatedBudgetRequestDto): Promise<void> {
+    await this.verifyBudgetRequestExist(dto.budgetRequestId);
+    for (const response of dto.formResponses) {
+      if (!response.valuePerHour && !response.workHours) {
+        throw new BadRequestException(
+          `It is necessary to inform 'valuePerHour' or 'workHours'`,
+        );
+      }
+      await this.verifyClientResponsesExist(response.id);
+      await this.budgetRequestRepository.updateClientResponse(response);
+    }
+    const budgetRequest =
+      await this.budgetRequestRepository.findBudgetRequestByIdWithClient(
+        dto.budgetRequestId,
+      );
+
+    let workHours = 0;
+    let valuePerHour = 0;
+    budgetRequest.clientsResponses.map((response) => {
+      workHours += response.workHours;
+      valuePerHour += response.valuePerHour;
+    });
   }
 
   async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {
@@ -234,5 +253,15 @@ export class BudgetRequestService {
       status = Status.review;
     }
     return status;
+  }
+
+  async verifyClientResponsesExist(id: string): Promise<void> {
+    const clientResponsesOrNull =
+      await this.budgetRequestRepository.findClientResponses(id);
+    if (!clientResponsesOrNull) {
+      throw new BadRequestException(
+        `Form response with id '${id}' not found to update`,
+      );
+    }
   }
 }
