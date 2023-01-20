@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { checkIfEmailIsValid } from 'src/app/util/check-if-email-is-valid';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
@@ -23,6 +24,18 @@ export class ClientService {
         .replace(/[^0-9]/g, '');
     }
 
+    if (!dto.technicalContact) {
+      delete dto.technicalContact;
+    }
+    if (!dto.technicalContactPhone) {
+      delete dto.technicalContactPhone;
+    }
+    if (!dto.technicalContactEmail) {
+      delete dto.technicalContactEmail;
+    } else {
+      checkIfEmailIsValid(dto.technicalContactEmail);
+    }
+
     const clientOrNull = await this.clientRepository.findClientByEmail(
       dto.email,
     );
@@ -36,6 +49,7 @@ export class ClientService {
       ...dto,
       id: createUuid(),
     });
+    console.log(clientCreated);
     return {
       id: clientCreated.id,
       companyName: clientCreated.companyName,

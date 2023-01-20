@@ -36,7 +36,6 @@ export class CreateClientDto {
   mainContact: string;
 
   @IsOptional()
-  @Length(2, 100)
   @IsString()
   @ApiProperty({
     description: 'Technical customer contact',
@@ -45,7 +44,6 @@ export class CreateClientDto {
   technicalContact?: string;
 
   @IsOptional()
-  @Length(8, 16)
   @IsString()
   @ApiProperty({
     description: 'Technical contact phone',
@@ -54,38 +52,10 @@ export class CreateClientDto {
   technicalContactPhone?: string;
 
   @IsOptional()
-  @IsEmail()
-  @Length(5, 100)
+  @IsString()
   @ApiProperty({
     description: 'Technical contact email',
     example: 'technical@mail.com',
   })
   technicalContactEmail?: string;
-
-  @IsOptional()
-  @Length(2, 50)
-  @IsString()
-  @ApiProperty({
-    description: 'Project Name',
-    example: 'eCommerce',
-  })
-  projectName?: string;
-
-  @IsOptional()
-  @Length(1, 100)
-  @IsString()
-  @ApiProperty({
-    description: 'Expected time to complete the project',
-    example: '6 meses',
-  })
-  timeProject?: string;
-
-  @IsOptional()
-  @Length(2, 1000)
-  @IsString()
-  @ApiProperty({
-    description: 'Application Description',
-    example: 'Virtual Store',
-  })
-  applicationDescription?: string;
 }

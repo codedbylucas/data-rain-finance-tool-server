@@ -7,9 +7,6 @@ export interface FindClientByIdResponse {
   technicalContact?: string;
   technicalContactPhone?: string;
   technicalContactEmail?: string;
-  projectName?: string;
-  timeProject?: string;
-  applicationDescription?: string;
   budgetRequests: {
     clientsResponses: {
       responseDetails: string;
