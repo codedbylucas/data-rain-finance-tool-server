@@ -51,13 +51,10 @@ export class ClientRepository {
           companyName: true,
           email: true,
           phone: true,
-          mainContact: true, 
-          projectName: true,
-          applicationDescription: true,
+          mainContact: true,
           technicalContact: true,
           technicalContactEmail: true,
           technicalContactPhone: true,
-          timeProject: true,
           budgetRequests: {
             select: {
               id: true,
