@@ -9,6 +9,7 @@ import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { ClientRepository } from '../repositories/client.repository';
 import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
 
 @Injectable()
 export class ClientService {
@@ -64,16 +65,38 @@ export class ClientService {
     return clientOrNull;
   }
 
+  async updateClientById(id: string, dto: UpdateClientDto): Promise<void> {
+    const clientOrError = await this.verifyClientExist(id);
+    if (dto.email) {
+      const clientOrNull = await this.clientRepository.findClientByEmail(
+        dto.email,
+      );
+
+      if (clientOrNull) {
+        if (clientOrError.email !== clientOrNull.email) {
+          throw new BadRequestException(
+            `Unable to create a customer with an existing email`,
+          );
+        }
+      }
+
+      if (dto.email === clientOrError.email) {
+        delete dto.email;
+      }
+    }
+    await this.clientRepository.updateClientById(id, dto);
+  }
+
   async deleteClientById(id: string): Promise<void> {
     await this.verifyClientExist(id);
     await this.clientRepository.deleteClientById(id);
   }
 
-  async verifyClientExist(id: string) {
+  async verifyClientExist(id: string): Promise<FindClientByIdResponse> {
     const clientOrNull = await this.clientRepository.findClientById(id);
     if (!clientOrNull) {
       throw new BadRequestException(`Client with id '${id}' not found`);
     }
-    return null;
+    return clientOrNull;
   }
 }

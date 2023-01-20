@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ClientEntity } from '../entities/client.entity';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
+import { UpdateClientDto } from '../service/dto/update-client.dto';
 
 @Injectable()
 export class ClientRepository {
@@ -93,6 +95,16 @@ export class ClientRepository {
       })
       .catch(serverError);
     return clientOrNull;
+  }
+
+  async updateClientById(id: string, dto: UpdateClientDto): Promise<void> {
+    const data: Prisma.ClientsUpdateInput = { ...dto };
+    await this.prisma.clients
+      .update({
+        where: { id },
+        data,
+      })
+      .catch(serverError);
   }
 
   async deleteClientById(id: string): Promise<void> {
