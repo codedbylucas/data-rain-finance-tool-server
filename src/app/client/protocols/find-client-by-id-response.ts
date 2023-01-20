@@ -1,6 +1,5 @@
 export interface FindClientByIdResponse {
   id: string;
-  name: string;
   companyName: string;
   email: string;
   phone: string;

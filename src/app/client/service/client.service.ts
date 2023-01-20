@@ -15,21 +15,22 @@ export class ClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
-    dto.name = dto.name.trim();
-    dto.companyName = dto.companyName.toLowerCase().trim();
     dto.phone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
+    if (dto.technicalContactPhone) {
+      dto.technicalContactPhone = dto.technicalContactPhone
+        .replace(/\s/g, '')
+        .replace(/[^0-9]/g, '');
+    }
 
-    const clientOrNull = await this.clientRepository.findClientByCompanyName(
-      dto.companyName,
+    const clientOrNull = await this.clientRepository.findClientByEmail(
+      dto.email,
     );
-
     if (clientOrNull) {
       return {
         id: clientOrNull.id,
         companyName: clientOrNull.companyName,
       };
     }
-
     const clientCreated = await this.clientRepository.createClient({
       ...dto,
       id: createUuid(),

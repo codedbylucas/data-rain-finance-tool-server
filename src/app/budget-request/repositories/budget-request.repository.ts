@@ -68,7 +68,6 @@ export class BudgetRequestRepository {
             select: {
               id: true,
               companyName: true,
-              name: true,
               phone: true,
               email: true,
             },
@@ -128,7 +127,6 @@ export class BudgetRequestRepository {
             select: {
               id: true,
               companyName: true,
-              name: true,
             },
           },
         },

@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ClientEntity } from '../entities/client.entity';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
-import { DbCreateClientResponsesProps } from '../../budget-request/protocols/props/db-create-client-responses.props';
 
 @Injectable()
 export class ClientRepository {
@@ -19,9 +17,9 @@ export class ClientRepository {
     return clientCreated;
   }
 
-  async findClientByCompanyName(companyName: string): Promise<ClientEntity> {
+  async findClientByEmail(email: string): Promise<ClientEntity> {
     const clientOrNull = await this.prisma.clients
-      .findUnique({ where: { companyName } })
+      .findUnique({ where: { email } })
       .catch(serverError);
     return clientOrNull;
   }
@@ -31,7 +29,7 @@ export class ClientRepository {
       .findMany({
         select: {
           id: true,
-          name: true,
+          mainContact: true,
           companyName: true,
           email: true,
           phone: true,
@@ -48,10 +46,16 @@ export class ClientRepository {
         where: { id },
         select: {
           id: true,
-          name: true,
           companyName: true,
           email: true,
           phone: true,
+          mainContact: true,
+          projectName: true,
+          applicationDescription: true,
+          technicalContact: true,
+          technicalContactEmail: true,
+          technicalContactPhone: true,
+          timeProject: true,
           budgetRequests: {
             select: {
               id: true,

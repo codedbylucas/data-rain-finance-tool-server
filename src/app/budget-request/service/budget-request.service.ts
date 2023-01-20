@@ -51,6 +51,9 @@ export class BudgetRequestService {
       if (!response.alternativeId && !response.responseDetails) {
         throw new BadRequestException(`Altarnative id or details required`);
       }
+      if (!response.alternativeId) {
+        delete response.alternativeId;
+      }
       await this.questionService.veryfiQuestionExist(response.questionId);
       if (response.alternativeId) {
         await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
@@ -109,10 +112,18 @@ export class BudgetRequestService {
       });
 
     const data: DbCreateClientResponsesProps[] = clientsResponsesPartial.map(
-      (response) => ({
-        ...response,
-        budgetRequestId: budgetRequestCreated.id,
-      }),
+      (response) => {
+        if (response.alternativeId === '') {
+          delete response.alternativeId;
+        }
+        if (response.responseDetails === '') {
+          delete response.responseDetails;
+        }
+        return {
+          ...response,
+          budgetRequestId: budgetRequestCreated.id,
+        };
+      },
     );
     await this.budgetRequestRepository.createClientResponses(data);
   }
@@ -177,7 +188,6 @@ export class BudgetRequestService {
         client: {
           id: budgetRequest.client.id,
           companyName: budgetRequest.client.companyName,
-          name: budgetRequest.client.name,
         },
       }),
     );

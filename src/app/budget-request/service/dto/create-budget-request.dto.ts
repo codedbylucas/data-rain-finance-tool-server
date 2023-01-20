@@ -20,7 +20,6 @@ export class BudgetRequest {
   questionId: string;
 
   @IsUUID()
-  @IsNotEmpty()
   @IsOptional()
   @ApiProperty({
     description: 'Id of the alternative marked by the client',
@@ -29,7 +28,6 @@ export class BudgetRequest {
   alternativeId: string;
 
   @IsString()
-  @IsNotEmpty()
   @IsOptional()
   @Length(2, 1000)
   @ApiProperty({
