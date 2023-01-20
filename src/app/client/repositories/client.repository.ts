@@ -51,7 +51,7 @@ export class ClientRepository {
           companyName: true,
           email: true,
           phone: true,
-          mainContact: true,
+          mainContact: true, 
           projectName: true,
           applicationDescription: true,
           technicalContact: true,
