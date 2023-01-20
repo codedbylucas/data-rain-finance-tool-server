@@ -146,7 +146,7 @@ enum Status {
 model ClientsResponses {
   id              String  @id @unique @default(uuid())
   responseDetails String? @map("response_details") @db.VarChar(1000)
-  valuePerHour    Float   @map("value_per_hour")
+  valuePerHour    Float?  @map("value_per_hour")
   workHours       Int?    @map("work_hours")
 
   question   Questions @relation(fields: [questionId], references: [id])

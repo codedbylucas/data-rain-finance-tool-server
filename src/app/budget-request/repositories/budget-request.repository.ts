@@ -97,7 +97,6 @@ export class BudgetRequestRepository {
                         select: {
                           id: true,
                           name: true,
-                          valuePerHour: true,
                         },
                       },
                     },

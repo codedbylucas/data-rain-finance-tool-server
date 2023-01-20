@@ -35,6 +35,12 @@ export class AlternativeService {
     }
 
     if (dto.teams) {
+      if (dto.teams.length > 1) {
+        throw new BadRequestException(
+          `An alternative can contain only one team`,
+        );
+      }
+
       const teamIds = dto.teams.map((team) => team.teamId);
       checkHasDuplicates(teamIds, `Team Id cannot be duplicated`);
       for (const team of dto.teams) {

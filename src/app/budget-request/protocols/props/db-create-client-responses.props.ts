@@ -1,6 +1,6 @@
 export interface DbCreateClientResponsesProps {
   id: string;
-  valuePerHour: number;
+  valuePerHour?: number;
   workHours?: number;
   responseDetails?: string;
   questionId: string;

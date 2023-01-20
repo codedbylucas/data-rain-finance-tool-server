@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
+import { IsUUID } from 'class-validator';
 import { toASCII } from 'punycode';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { UserPayload } from 'src/app/auth/protocols/user-payload';
@@ -11,6 +12,7 @@ import { ClientService } from 'src/app/client/service/client.service';
 import { QuestionService } from 'src/app/question/service/question.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
+import { checkIfItsUiid } from "src/app/util/check-if-it's-uiid";
 import { createUuid } from 'src/app/util/create-uuid';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
 import { FindAllBudgetRequestsResponse } from '../protocols/find-all-budget-requests-response';
@@ -40,6 +42,10 @@ export class BudgetRequestService {
     for (const response of responses) {
       questionIds.push(response.questionId);
       if (response.alternativeId) {
+        checkIfItsUiid(
+          response.alternativeId,
+          `Alternative with Id '${response.alternativeId}'it's not uuid`,
+        );
         alternativeIds.push(response.alternativeId);
       }
     }
@@ -80,7 +86,8 @@ export class BudgetRequestService {
           let workHours = 0;
           let valuePerHour = 0;
           alternative.teams.forEach((alternativesTeams) => {
-            amount += alternativesTeams.team.valuePerHour;
+            amount +=
+              alternativesTeams.team.valuePerHour * alternativesTeams.workHours;
             totalHours += alternativesTeams.workHours;
 
             valuePerHour += alternativesTeams.team.valuePerHour;
@@ -99,6 +106,13 @@ export class BudgetRequestService {
           workHours = 0;
           valuePerHour = 0;
         }
+      } else {
+        clientsResponsesPartial.push({
+          id: createUuid(),
+          responseDetails: response.responseDetails,
+          questionId: response.questionId,
+          budgetRequestId: 'id',
+        });
       }
     }
 
@@ -113,9 +127,6 @@ export class BudgetRequestService {
 
     const data: DbCreateClientResponsesProps[] = clientsResponsesPartial.map(
       (response) => {
-        if (response.alternativeId === '') {
-          delete response.alternativeId;
-        }
         if (response.responseDetails === '') {
           delete response.responseDetails;
         }
@@ -125,6 +136,7 @@ export class BudgetRequestService {
         };
       },
     );
+
     await this.budgetRequestRepository.createClientResponses(data);
   }
 

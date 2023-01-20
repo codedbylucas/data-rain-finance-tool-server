@@ -19,7 +19,7 @@ export class BudgetRequest {
   })
   questionId: string;
 
-  @IsUUID()
+  // @IsUUID()
   @IsOptional()
   @ApiProperty({
     description: 'Id of the alternative marked by the client',
@@ -29,7 +29,6 @@ export class BudgetRequest {
 
   @IsString()
   @IsOptional()
-  @Length(2, 1000)
   @ApiProperty({
     description: 'Additional details about the answers',
     example: 'Preciso que tenham estes detalhes...',
