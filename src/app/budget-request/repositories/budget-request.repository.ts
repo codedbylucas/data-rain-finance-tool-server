@@ -7,6 +7,7 @@ import { DbFindAllBudgetRequestsResponse } from '../protocols/db-find-all-budget
 import { DbAprrovedByPreSaleBudgetRequestProps } from '../protocols/props/db-approved-budget-request.props';
 import { DbCreateBudgetRequestProps } from '../protocols/props/db-create-budget-request.props';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
+import { DbUpdatedBudgetRequestProps } from '../protocols/props/db-update-budget-request.props';
 
 @Injectable()
 export class BudgetRequestRepository {
@@ -67,7 +68,6 @@ export class BudgetRequestRepository {
             select: {
               id: true,
               companyName: true,
-              name: true,
               phone: true,
               email: true,
             },
@@ -127,7 +127,6 @@ export class BudgetRequestRepository {
             select: {
               id: true,
               companyName: true,
-              name: true,
             },
           },
         },
@@ -167,5 +166,28 @@ export class BudgetRequestRepository {
         data,
       })
       .catch(serverError);
+  }
+
+  async updateClientResponse(
+    props: DbUpdatedBudgetRequestProps,
+  ): Promise<void> {
+    await this.prisma.clientsResponses
+      .update({
+        where: { id: props.id },
+        data: {
+          valuePerHour: props.valuePerHour,
+          workHours: props.workHours,
+        },
+      })
+      .catch(serverError);
+  }
+
+  async findClientResponses(id: string) {
+    const clientResponsesOrNull = await this.prisma.clientsResponses
+      .findUnique({
+        where: { id },
+      })
+      .catch(serverError);
+    return clientResponsesOrNull;
   }
 }

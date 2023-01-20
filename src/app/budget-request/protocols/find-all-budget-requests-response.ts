@@ -8,6 +8,5 @@ export interface FindAllBudgetRequestsResponse {
   client: {
     id: string;
     companyName: string;
-    name: string;
   };
 }

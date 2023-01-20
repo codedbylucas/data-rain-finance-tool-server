@@ -4,5 +4,4 @@ export class DbCreateUserProps {
   email: string;
   password: string;
   position: string;
-  imageUrl: string;
 }

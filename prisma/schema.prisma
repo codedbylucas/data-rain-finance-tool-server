@@ -97,14 +97,20 @@ model AlternativesTeams {
 }
 
 model Clients {
-  id String @id @unique @default(uuid())
+  id                     String   @id @unique @default(uuid())
+  email                  String   @unique @db.VarChar(100)
+  phone                  String   @db.VarChar(16)
+  companyName            String   @db.VarChar(100)
+  mainContact            String   @db.VarChar(100)
+  technicalContact       String?  @db.VarChar(100)
+  technicalContactPhone  String?  @db.VarChar(16)
+  technicalContactEmail  String?  @db.VarChar(100)
+  projectName            String?  @db.VarChar(50)
+  timeProject            String?  @db.VarChar(100)
+  applicationDescription String?  @db.VarChar(1000)
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
 
-  name           String?         @db.VarChar(150)
-  companyName    String          @unique() @db.VarChar(150)
-  email          String?         @db.VarChar(150)
-  phone          String?         @db.VarChar(25)
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
   budgetRequests BudgetRequest[]
 
   @@map("clients")

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -14,8 +15,8 @@ import { CreateClienteResponse } from './protocols/create-client-response';
 import { FindAllClientsResponse } from './protocols/find-all-clients-response';
 import { FindClientByIdResponse } from './protocols/find-client-by-id-response';
 import { ClientService } from './service/client.service';
-import { ClientResponsesDto } from './service/dto/client-responses.dto';
 import { CreateClientDto } from './service/dto/create-client.dto';
+import { UpdateClientDto } from './service/dto/update-client.dto';
 
 @Controller('client')
 @ApiTags('client')
@@ -48,6 +49,17 @@ export class ClientController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<FindClientByIdResponse> {
     return await this.clientService.findClientById(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Update client by id',
+  })
+  async updateClientById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateClientDto,
+  ): Promise<void> {
+    return await this.clientService.updateClientById(id, dto);
   }
 
   @Delete(':id')

@@ -3,40 +3,35 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { BudgetRequestService } from 'src/app/budget-request/service/budget-request.service';
-import { QuestionService } from 'src/app/question/service/question.service';
 import { createUuid } from 'src/app/util/create-uuid';
-import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
-import { DbCreateClientResponsesProps } from '../../budget-request/protocols/props/db-create-client-responses.props';
 import { ClientRepository } from '../repositories/client.repository';
-import { ClientResponse, ClientResponsesDto } from './dto/client-responses.dto';
 import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
 
 @Injectable()
 export class ClientService {
-  constructor(
-    private readonly clientRepository: ClientRepository,
-  ) {}
+  constructor(private readonly clientRepository: ClientRepository) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
-    dto.name = dto.name.trim();
-    dto.companyName = dto.companyName.toLowerCase().trim();
     dto.phone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
+    if (dto.technicalContactPhone) {
+      dto.technicalContactPhone = dto.technicalContactPhone
+        .replace(/\s/g, '')
+        .replace(/[^0-9]/g, '');
+    }
 
-    const clientOrNull = await this.clientRepository.findClientByCompanyName(
-      dto.companyName,
+    const clientOrNull = await this.clientRepository.findClientByEmail(
+      dto.email,
     );
-
     if (clientOrNull) {
       return {
         id: clientOrNull.id,
         companyName: clientOrNull.companyName,
       };
     }
-
     const clientCreated = await this.clientRepository.createClient({
       ...dto,
       id: createUuid(),
@@ -70,16 +65,38 @@ export class ClientService {
     return clientOrNull;
   }
 
+  async updateClientById(id: string, dto: UpdateClientDto): Promise<void> {
+    const clientOrError = await this.verifyClientExist(id);
+    if (dto.email) {
+      const clientOrNull = await this.clientRepository.findClientByEmail(
+        dto.email,
+      );
+
+      if (clientOrNull) {
+        if (clientOrError.email !== clientOrNull.email) {
+          throw new BadRequestException(
+            `Unable to create a customer with an existing email`,
+          );
+        }
+      }
+
+      if (dto.email === clientOrError.email) {
+        delete dto.email;
+      }
+    }
+    await this.clientRepository.updateClientById(id, dto);
+  }
+
   async deleteClientById(id: string): Promise<void> {
     await this.verifyClientExist(id);
     await this.clientRepository.deleteClientById(id);
   }
 
-  async verifyClientExist(id: string) {
+  async verifyClientExist(id: string): Promise<FindClientByIdResponse> {
     const clientOrNull = await this.clientRepository.findClientById(id);
     if (!clientOrNull) {
       throw new BadRequestException(`Client with id '${id}' not found`);
     }
-    return null;
+    return clientOrNull;
   }
 }

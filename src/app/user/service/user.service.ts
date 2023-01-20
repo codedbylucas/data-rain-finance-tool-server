@@ -41,7 +41,6 @@ export class UserService {
       ...dto,
       id: createUuid(),
       password: hashedPassword,
-      imageUrl: `/default-profile-picture/default-profile-picture.jpg`
     };
 
     const user = await this.userRepository.createUser(data);

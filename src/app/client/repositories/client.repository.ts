@@ -6,7 +6,7 @@ import { ClientEntity } from '../entities/client.entity';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateClientProps } from '../protocols/props/db-create-client-props';
-import { DbCreateClientResponsesProps } from '../../budget-request/protocols/props/db-create-client-responses.props';
+import { UpdateClientDto } from '../service/dto/update-client.dto';
 
 @Injectable()
 export class ClientRepository {
@@ -19,9 +19,9 @@ export class ClientRepository {
     return clientCreated;
   }
 
-  async findClientByCompanyName(companyName: string): Promise<ClientEntity> {
+  async findClientByEmail(email: string): Promise<ClientEntity> {
     const clientOrNull = await this.prisma.clients
-      .findUnique({ where: { companyName } })
+      .findUnique({ where: { email } })
       .catch(serverError);
     return clientOrNull;
   }
@@ -31,7 +31,7 @@ export class ClientRepository {
       .findMany({
         select: {
           id: true,
-          name: true,
+          mainContact: true,
           companyName: true,
           email: true,
           phone: true,
@@ -48,10 +48,16 @@ export class ClientRepository {
         where: { id },
         select: {
           id: true,
-          name: true,
           companyName: true,
           email: true,
           phone: true,
+          mainContact: true,
+          projectName: true,
+          applicationDescription: true,
+          technicalContact: true,
+          technicalContactEmail: true,
+          technicalContactPhone: true,
+          timeProject: true,
           budgetRequests: {
             select: {
               id: true,
@@ -89,6 +95,16 @@ export class ClientRepository {
       })
       .catch(serverError);
     return clientOrNull;
+  }
+
+  async updateClientById(id: string, dto: UpdateClientDto): Promise<void> {
+    const data: Prisma.ClientsUpdateInput = { ...dto };
+    await this.prisma.clients
+      .update({
+        where: { id },
+        data,
+      })
+      .catch(serverError);
   }
 
   async deleteClientById(id: string): Promise<void> {
