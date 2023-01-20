@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -11,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
 import { FindAllBudgetRequestsResponse } from './protocols/find-all-budget-requests-response';
@@ -69,5 +70,16 @@ export class BudgetRequestController {
   @Patch()
   async updateBudgetRequest(@Body() dto: UpdatedBudgetRequestDto) {
     return await this.budgetRequestService.updateBudgetRequest(dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete a Budget Request by id',
+  })
+  async deleteBudgetRequestById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
+    await this.budgetRequestService.deleteBudgetRequestById(id);
   }
 }

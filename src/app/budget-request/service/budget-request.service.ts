@@ -60,6 +60,9 @@ export class BudgetRequestService {
       if (!response.alternativeId) {
         delete response.alternativeId;
       }
+      if (!response.responseDetails) {
+        delete response.responseDetails;
+      }
       await this.questionService.veryfiQuestionExist(response.questionId);
       if (response.alternativeId) {
         await this.questionService.verifyRelationshipBetweenQuestionAndAlternative(
@@ -247,6 +250,11 @@ export class BudgetRequestService {
       workHours += response.workHours;
       valuePerHour += response.valuePerHour;
     });
+  }
+
+  async deleteBudgetRequestById(id: string): Promise<void> {
+    await this.verifyBudgetRequestExist(id);
+    await this.budgetRequestRepository.deleteBudgetRequestById(id);
   }
 
   async verifyBudgetRequestExist(id: string): Promise<BudgetRequestEntity> {

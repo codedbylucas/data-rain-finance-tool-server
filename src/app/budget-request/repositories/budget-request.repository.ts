@@ -189,4 +189,10 @@ export class BudgetRequestRepository {
       .catch(serverError);
     return clientResponsesOrNull;
   }
+
+  async deleteBudgetRequestById(id: string): Promise<void> {
+    await this.prisma.budgetRequest
+      .delete({ where: { id } })
+      .catch(serverError);
+  }
 }
