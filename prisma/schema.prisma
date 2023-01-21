@@ -67,7 +67,7 @@ model Alternatives {
   id          String @id @unique @default(uuid())
   description String @db.VarChar(500)
 
-  question   Questions @relation(fields: [questionId], references: [id])
+  question   Questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String    @map("question_id")
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -83,10 +83,10 @@ model AlternativesTeams {
   id        String @id @unique @default(uuid())
   workHours Int?   @map("work_hours")
 
-  alternative   Alternatives @relation(fields: [alternativeId], references: [id])
+  alternative   Alternatives @relation(fields: [alternativeId], references: [id], onDelete: Cascade)
   alternativeId String       @map("alternative_id")
 
-  team   Teams  @relation(fields: [teamId], references: [id])
+  team   Teams  @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String @map("team_id")
 
   createdAt DateTime @default(now()) @map("created_at")
