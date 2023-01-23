@@ -1,5 +1,5 @@
-export class DbUpdatedBudgetRequestProps {
+export interface DbUpdateBudgetRequestProps {
   id: string;
-  valuePerHour?: number;
-  workHours?: number;
+  amount: number;
+  totalHours: number;
 }

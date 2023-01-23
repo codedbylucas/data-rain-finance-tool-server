@@ -42,14 +42,6 @@ export class FormResponseDto {
 }
 
 export class UpdatedBudgetRequestDto {
-  @IsUUID()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Budget Request Id to receive the update',
-    example: 'ac36f56e-1b51-4fe8-1fd6-6ad333ac3652',
-  })
-  budgetRequestId: string;
-
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FormResponseDto)
