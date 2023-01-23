@@ -67,9 +67,12 @@ export class BudgetRequestController {
     return await this.budgetRequestService.findBudgetRequestById(id);
   }
 
-  @Patch()
-  async updateBudgetRequest(@Body() dto: UpdatedBudgetRequestDto) {
-    return await this.budgetRequestService.updateBudgetRequest(dto);
+  @Patch(':id')
+  async updateBudgetRequest(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdatedBudgetRequestDto,
+  ) {
+    return await this.budgetRequestService.updateBudgetRequest(id, dto);
   }
 
   @Delete(':id')

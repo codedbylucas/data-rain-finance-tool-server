@@ -228,8 +228,11 @@ export class BudgetRequestService {
     return budgetRequestOrNull;
   }
 
-  async updateBudgetRequest(dto: UpdatedBudgetRequestDto): Promise<void> {
-    await this.verifyBudgetRequestExist(dto.budgetRequestId);
+  async updateBudgetRequest(
+    id: string,
+    dto: UpdatedBudgetRequestDto,
+  ): Promise<void> {
+    await this.verifyBudgetRequestExist(id);
     for (const response of dto.formResponses) {
       if (!response.valuePerHour && !response.workHours) {
         throw new BadRequestException(
@@ -240,15 +243,19 @@ export class BudgetRequestService {
       await this.budgetRequestRepository.updateClientResponse(response);
     }
     const budgetRequest =
-      await this.budgetRequestRepository.findBudgetRequestByIdWithClient(
-        dto.budgetRequestId,
-      );
+      await this.budgetRequestRepository.findBudgetRequestByIdWithClient(id);
 
-    let workHours = 0;
-    let valuePerHour = 0;
+    let totalHours = 0;
+    let amount = 0;
     budgetRequest.clientsResponses.map((response) => {
-      workHours += response.workHours;
-      valuePerHour += response.valuePerHour;
+      totalHours += response.workHours;
+      amount += response.valuePerHour * response.workHours;
+    });
+
+    await this.budgetRequestRepository.updateBudgetRequest({
+      id: budgetRequest.id,
+      amount,
+      totalHours,
     });
   }
 
