@@ -6,6 +6,8 @@ export interface LoginResponse {
     email: string;
     imageUrl: string;
     position: string;
+    billable: boolean;
+    allocated: boolean;
     roleName: string;
   };
 }

@@ -28,7 +28,7 @@ export class UserService {
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
-    const userOrNull: UserEntity | null =
+    const userOrNull: FindUserResponse | null =
       await this.userRepository.findUserByEmail(dto.email);
     if (userOrNull) {
       throw new BadRequestException(`User email already exists`);

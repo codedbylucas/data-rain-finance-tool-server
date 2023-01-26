@@ -19,11 +19,11 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addTag('auth')
     .addTag('user')
+    .addTag('role')
     .addTag('team')
     .addTag('question')
     .addTag('alternative')
     .addTag('client')
-    .addTag('role')
     .addTag('budget-request')
     .addBearerAuth()
     .build();

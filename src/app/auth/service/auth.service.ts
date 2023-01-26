@@ -41,20 +41,8 @@ export class AuthService {
 
   async login(dto: LoginDto): Promise<LoginResponse> {
     const userOrError = await this.validateUser(dto);
-
     const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
-
-    return {
-      token: userIdEncrypted,
-      user: {
-        id: userOrError.id,
-        name: userOrError.name,
-        email: userOrError.email,
-        imageUrl: userOrError.imageUrl,
-        position: userOrError.position,
-        roleName: userOrError.roleName,
-      },
-    };
+    return this.returnUserLogged(userIdEncrypted, userOrError);
   }
 
   async firstAccess(
@@ -87,16 +75,21 @@ export class AuthService {
     });
 
     const userIdEncrypted = await this.jwtAdapter.encrypt(userOrError.id);
+    return this.returnUserLogged(userIdEncrypted, userOrError);
+  }
 
+  returnUserLogged(userIdEncrypted: string, user: UserEntity): LoginResponse {
     return {
       token: userIdEncrypted,
       user: {
-        id: userOrError.id,
-        name: userOrError.name,
-        email: userOrError.email,
-        imageUrl: userOrError.imageUrl,
-        position: userOrError.position,
-        roleName: userOrError.roleName,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl,
+        position: user.position,
+        billable: user.billable,
+        allocated: user.allocated,
+        roleName: user.roleName,
       },
     };
   }

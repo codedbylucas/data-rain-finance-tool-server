@@ -20,43 +20,57 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
     },
     {
       id: uuid(),
-      name: 'User 01',
-      email: 'user01@mail.com',
+      name: 'Pre Sale',
+      email: 'presale@mail.com',
       password: 'Abcd@1234',
       billable: false,
       position: 'Dev Ops',
       allocated: false,
       role: {
         connect: {
-          name: 'profissional_services',
+          name: 'pre sale',
         },
       },
     },
     {
       id: uuid(),
-      name: 'User 02',
-      email: 'user02@mail.com',
+      name: 'financial',
+      email: 'financial@mail.com',
       password: 'Abcd@1234',
       billable: false,
       position: 'Back-end developer',
       allocated: false,
       role: {
         connect: {
-          name: 'profissional_services',
+          name: 'financial',
         },
       },
     },
     {
       id: uuid(),
-      name: 'User 03',
-      email: 'user03@mail.com',
+      name: 'P.S.',
+      email: 'ps@mail.com',
       password: 'Abcd@1234',
       billable: false,
       position: 'Front-end developer',
       allocated: false,
       role: {
         connect: {
-          name: 'profissional_services',
+          name: 'profissional services',
+        },
+      },
+    },
+    {
+      id: uuid(),
+      name: 'Manager',
+      email: 'manager@mail.com',
+      password: 'Abcd@1234',
+      billable: false,
+      position: 'Front-end developer',
+      allocated: false,
+      role: {
+        connect: {
+          name: 'manager',
         },
       },
     },
@@ -70,7 +84,7 @@ export const user = async (prisma: PrismaClient) => {
     obj.password = await bcrypt.hash(obj.password, 12);
 
     await prisma.users.upsert({
-      where: { id: obj.id },
+      where: { email: obj.email },
       update: {},
       create: {
         ...obj,
