@@ -21,6 +21,7 @@ export class UserRepository {
       email: data.email,
       password: data.password,
       position: data.position,
+      billable: data.billable,
       role: {
         connect: {
           id: data.roleId,

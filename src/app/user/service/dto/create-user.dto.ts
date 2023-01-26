@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
 export class CreateUserDto {
   @Length(2, 70)
@@ -26,6 +33,14 @@ export class CreateUserDto {
     example: 'Cloud DevOps Architect',
   })
   position: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'User is billabel or not',
+    example: true,
+  })
+  billable: boolean;
 
   @IsUUID()
   @ApiProperty({
