@@ -11,6 +11,7 @@ import { UserModule } from './app/user/user.module';
 import { BudgetRequestModule } from './app/budget-request/budget-request.module';
 import { ClientModule } from './app/client/client.module';
 import { RoleModule } from './app/role/role.module';
+import { ProjectModule } from './app/project/project.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RoleModule } from './app/role/role.module';
     ClientModule,
     RoleModule,
     BudgetRequestModule,
+    ProjectModule,
   ],
 })
 export class AppModule {}
