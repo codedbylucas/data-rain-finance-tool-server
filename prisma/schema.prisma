@@ -110,6 +110,7 @@ model Clients {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   budgetRequests BudgetRequest[]
+  projects       Projects[]
 
   @@map("clients")
 }
@@ -160,4 +161,18 @@ model ClientsResponses {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("clients_responses")
+}
+
+model Projects {
+  id          String @id @unique @default(uuid())
+  name        String @db.VarChar(100)
+  description String @db.VarChar(500)
+
+  client   Clients? @relation(fields: [clientId], references: [id])
+  clientId String?  @map("client_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("projects")
 }
