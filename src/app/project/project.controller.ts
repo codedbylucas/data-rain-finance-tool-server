@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CreateProjectResponse } from './protocols/create-project.response';
+import { AddClientToProjectDto } from './service/dto/add-client-to-project.dto';
 import { CreateProjectDto } from './service/dto/create-project.dto';
 import { ProjectService } from './service/project.service';
 
@@ -12,5 +13,10 @@ export class ProjectController {
     @Body() dto: CreateProjectDto,
   ): Promise<CreateProjectResponse> {
     return await this.projectService.createProject(dto);
+  }
+
+  @Post('add-client')
+  async addClientToProject(@Body() dto: AddClientToProjectDto) {
+    return await this.projectService.addClientToProject(dto);
   }
 }
