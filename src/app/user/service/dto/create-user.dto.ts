@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
 
 export class CreateUserDto {
   @Length(2, 70)
@@ -26,4 +26,11 @@ export class CreateUserDto {
     example: 'Cloud DevOps Architect',
   })
   position: string;
+
+  @IsUUID()
+  @ApiProperty({
+    description: 'Id of the role that will be added to the user',
+    example: 'ac06f36e-4b61-4fe8-8fd6-6ad807ac6282',
+  })
+  roleId: string;
 }

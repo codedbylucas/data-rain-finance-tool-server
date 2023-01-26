@@ -4,4 +4,5 @@ export class DbCreateUserProps {
   email: string;
   password: string;
   position: string;
+  roleId: string;
 }

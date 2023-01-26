@@ -16,10 +16,14 @@ export class UserRepository {
 
   async createUser(data: DbCreateUserProps): Promise<UserEntity> {
     const user: Prisma.UsersCreateInput = {
-      ...data,
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      position: data.position,
       role: {
         connect: {
-          name: 'profissional_services',
+          id: data.roleId,
         },
       },
     };

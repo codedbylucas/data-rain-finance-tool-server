@@ -14,7 +14,7 @@ export const roles: Prisma.RolesCreateInput[] = [
   },
   {
     id: uuid(),
-    name: 'pre_sale',
+    name: 'pre sale',
     description: 'Analiza respostas de clientes',
   },
   {
@@ -24,7 +24,7 @@ export const roles: Prisma.RolesCreateInput[] = [
   },
   {
     id: uuid(),
-    name: 'profissional_services',
+    name: 'profissional services',
     description: 'Funcionário alocado em projetos',
   },
 ];
