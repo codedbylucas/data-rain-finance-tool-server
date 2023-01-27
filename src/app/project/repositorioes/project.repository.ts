@@ -3,6 +3,8 @@ import { stringify } from 'querystring';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ProjectEntity } from '../entities/project.entity';
+import { AddClientToProjectResponse } from '../protocols/add-client-to-project.response';
+import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { DbCreateProjectProps } from '../protocols/props/db-create-project.props';
 import { AddClientToProjectDto } from '../service/dto/add-client-to-project.dto';
 
@@ -22,7 +24,9 @@ export class ProjectRepository {
     return projectCreated;
   }
 
-  async addClientToProject(dto: AddClientToProjectDto) {
+  async addClientToProject(
+    dto: AddClientToProjectDto,
+  ): Promise<AddClientToProjectResponse> {
     const clientAddedInProject = await this.prisma.projects
       .update({
         where: { id: dto.projectId },
@@ -61,10 +65,10 @@ export class ProjectRepository {
     return projectOrNull;
   }
 
-  async findAllProjects() {
+  async findAllProjects(): Promise<FindAllProjectsResponse[]> {
     const projectsOrEmpty = await this.prisma.projects
       .findMany({
-        select: { 
+        select: {
           id: true,
           name: true,
           description: true,
@@ -74,6 +78,7 @@ export class ProjectRepository {
               companyName: true,
             },
           },
+          _count: true,
         },
       })
       .catch(serverError);
