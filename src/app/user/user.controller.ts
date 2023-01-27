@@ -29,7 +29,7 @@ import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
 import { AddRoleToUserDto } from './service/dto/add-role-to-user.dto';
 import { CreateUserDto } from './service/dto/create-user.dto';
-import { UpdateOwnUserDto } from './service/dto/update-user.dto';
+import { UpdateOwnUserDto } from './service/dto/update-own-user.dto';
 import { UserService } from './service/user.service';
 
 @Controller('user')

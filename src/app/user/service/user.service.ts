@@ -16,7 +16,7 @@ import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocate
 import { UserRepository } from '../repositories/user.repository';
 import { AddRoleToUserDto } from './dto/add-role-to-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateOwnUserDto } from './dto/update-user.dto';
+import { UpdateOwnUserDto } from './dto/update-own-user.dto';
 
 @Injectable()
 export class UserService {
