@@ -6,8 +6,6 @@ import {
 import { ClientService } from 'src/app/client/service/client.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
-import { ProjectEntity } from '../entities/project.entity';
-import { AddClientToProjectResponse } from '../protocols/add-client-to-project.response';
 import { CreateProjectResponse } from '../protocols/create-project.response';
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { ProjectRepository } from '../repositorioes/project.repository';
@@ -37,21 +35,17 @@ export class ProjectService {
     };
   }
 
-  async addClientToProject(
-    dto: AddClientToProjectDto,
-  ): Promise<AddClientToProjectResponse> {
+  async addClientToProject(dto: AddClientToProjectDto): Promise<void> {
     const project = await this.verifyProjectExist(dto.projectId);
     await this.clienService.verifyClientExist(dto.clientId);
-
-    if (project.client.id === dto.clientId) {
-      throw new BadRequestException(
-        `This project has already been related to this client`,
-      );
+    if (project.client) {
+      if (project.client.id === dto.clientId) {
+        throw new BadRequestException(
+          `This project has already been related to this client`,
+        );
+      }
     }
-
-    const clientAddedInProject =
-      await this.projectRepository.addClientToProject(dto);
-    return clientAddedInProject;
+    await this.projectRepository.addClientToProject(dto);
   }
 
   async addUserToProject(dto: AddUserToProjectDto): Promise<void> {

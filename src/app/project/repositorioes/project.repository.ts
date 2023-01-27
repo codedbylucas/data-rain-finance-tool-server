@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { stringify } from 'querystring';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { ProjectEntity } from '../entities/project.entity';
@@ -9,7 +8,6 @@ import { FindAllProjectsResponse } from '../protocols/find-all-projects.response
 import { DbAddUserToProjectProps } from '../protocols/props/db-add-user-to-project.props';
 import { DbCreateProjectProps } from '../protocols/props/db-create-project.props';
 import { AddClientToProjectDto } from '../service/dto/add-client-to-project.dto';
-import { AddUserToProjectDto } from '../service/dto/add-user-to-project.dto';
 
 @Injectable()
 export class ProjectRepository {
