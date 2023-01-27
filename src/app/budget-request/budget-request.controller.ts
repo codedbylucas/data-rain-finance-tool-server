@@ -27,6 +27,9 @@ export class BudgetRequestController {
   constructor(private readonly budgetRequestService: BudgetRequestService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Create budget request',
+  })
   async createBudgetRequest(
     @Body() dto: CreateBudgetRequestDto,
   ): Promise<void> {
@@ -37,6 +40,9 @@ export class BudgetRequestController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Aproved budget request',
+  })
   async approvedBudgetRequest(
     @RolesAccess([Role.preSale, Role.financial]) user: UserPayload,
     @Body() dto: ApprovedBudgetRequestDto,
@@ -50,6 +56,9 @@ export class BudgetRequestController {
   @Get()
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find all budget requests',
+  })
   async findAllBudgetRequest(
     @RolesAccess([Role.preSale, Role.financial, Role.admin]) user: UserPayload,
   ): Promise<FindAllBudgetRequestsResponse[]> {
@@ -59,6 +68,9 @@ export class BudgetRequestController {
   @Get(':id')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find by id budget request',
+  })
   async findBudgetRequestById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @RolesAccess([Role.preSale, Role.financial, Role.admin])
@@ -68,6 +80,9 @@ export class BudgetRequestController {
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update by id budget request ',
+  })
   async updateBudgetRequest(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdatedBudgetRequestDto,
@@ -76,6 +91,9 @@ export class BudgetRequestController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete by id budget request ',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a Budget Request by id',

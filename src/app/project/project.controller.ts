@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AddClientToProjectResponse } from './protocols/add-client-to-project.response';
 import { CreateProjectResponse } from './protocols/create-project.response';
 import { FindAllProjectsResponse } from './protocols/find-all-projects.response';
@@ -7,10 +8,14 @@ import { CreateProjectDto } from './service/dto/create-project.dto';
 import { ProjectService } from './service/project.service';
 
 @Controller('project')
+@ApiTags('project')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Create project',
+  })
   async createUser(
     @Body() dto: CreateProjectDto,
   ): Promise<CreateProjectResponse> {
@@ -18,6 +23,9 @@ export class ProjectController {
   }
 
   @Post('add-client')
+  @ApiOperation({
+    summary: 'Add client to project',
+  })
   async addClientToProject(
     @Body() dto: AddClientToProjectDto,
   ): Promise<AddClientToProjectResponse> {
@@ -25,6 +33,9 @@ export class ProjectController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Find all projects',
+  })
   async findAllProjects(): Promise<FindAllProjectsResponse[]> {
     return await this.projectService.findAllProjects();
   }
