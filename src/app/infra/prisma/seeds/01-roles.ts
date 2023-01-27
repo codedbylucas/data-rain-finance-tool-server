@@ -24,7 +24,7 @@ export const roles: Prisma.RolesCreateInput[] = [
   },
   {
     id: uuid(),
-    name: 'profissional services',
+    name: 'professional services',
     description: 'Funcionário alocado em projetos',
   },
 ];
