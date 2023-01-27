@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { stringify } from 'querystring';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
@@ -7,6 +8,7 @@ import { AddClientToProjectResponse } from '../protocols/add-client-to-project.r
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { DbCreateProjectProps } from '../protocols/props/db-create-project.props';
 import { AddClientToProjectDto } from '../service/dto/add-client-to-project.dto';
+import { AddUserToProjectDto } from '../service/dto/add-user-to-project.dto';
 
 @Injectable()
 export class ProjectRepository {
@@ -55,6 +57,28 @@ export class ProjectRepository {
     return clientAddedInProject;
   }
 
+  async addUserToProject(dto: AddUserToProjectDto): Promise<void> {
+    const data: Prisma.UsersProjectsCreateInput = {
+      valuePerUserHour: dto.valuePerUserHour,
+      project: {
+        connect: {
+          id: dto.projectId,
+        },
+      },
+      user: {
+        connect: {
+          id: dto.userId,
+        },
+      },
+    };
+
+    await this.prisma.usersProjects
+      .create({
+        data,
+      })
+      .catch(serverError);
+  }
+
   async findProjectById(id: string): Promise<ProjectEntity> {
     const projectOrNull = await this.prisma.projects
       .findUnique({
@@ -84,5 +108,19 @@ export class ProjectRepository {
       .catch(serverError);
 
     return projectsOrEmpty;
+  }
+
+  async verifyRelationshiptUserAndProject(userId: string, projectId: string) {
+    const relation = await this.prisma.usersProjects
+      .findUnique({
+        where: {
+          userId_projectId: {
+            projectId,
+            userId,
+          },
+        },
+      })
+      .catch(serverError);
+    return relation;
   }
 }

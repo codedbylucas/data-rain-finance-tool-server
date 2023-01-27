@@ -4,13 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClientService } from 'src/app/client/service/client.service';
+import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
+import { isContext } from 'vm';
 import { ProjectEntity } from '../entities/project.entity';
 import { AddClientToProjectResponse } from '../protocols/add-client-to-project.response';
 import { CreateProjectResponse } from '../protocols/create-project.response';
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { ProjectRepository } from '../repositorioes/project.repository';
 import { AddClientToProjectDto } from './dto/add-client-to-project.dto';
+import { AddUserToProjectDto } from './dto/add-user-to-project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
 
 @Injectable()
@@ -18,6 +21,7 @@ export class ProjectService {
   constructor(
     private readonly projectRepository: ProjectRepository,
     private readonly clienService: ClientService,
+    private readonly userService: UserService,
   ) {}
 
   async createProject(dto: CreateProjectDto): Promise<CreateProjectResponse> {
@@ -51,6 +55,22 @@ export class ProjectService {
     return clientAddedInProject;
   }
 
+  async addUserToProject(dto: AddUserToProjectDto): Promise<void> {
+    await this.verifyProjectExist(dto.projectId);
+    const user = await this.userService.findUserById(dto.userId);
+    if (
+      user.roleName !== 'professional services' &&
+      user.roleName !== 'manager'
+    ) {
+      throw new BadRequestException(
+        `Only 'professional services' and 'manager' users can be allcated to a project`,
+      );
+    }
+
+    await this.verifyIfUserAllocatedInProjetct(dto.userId, dto.projectId);
+    await this.projectRepository.addUserToProject(dto);
+  }
+
   async findAllProjects(): Promise<FindAllProjectsResponse[]> {
     const projectsOrEmpty = await this.projectRepository.findAllProjects();
     if (projectsOrEmpty.length === 0) {
@@ -65,5 +85,21 @@ export class ProjectService {
       throw new BadRequestException(`Project with id '${id}' not found`);
     }
     return projectOrNull;
+  }
+
+  async verifyIfUserAllocatedInProjetct(
+    userId: string,
+    projectId: string,
+  ): Promise<void> {
+    const relation =
+      await this.projectRepository.verifyRelationshiptUserAndProject(
+        userId,
+        projectId,
+      );
+    if (relation) {
+      throw new BadRequestException(
+        `User is already allocated in this project`,
+      );
+    }
   }
 }

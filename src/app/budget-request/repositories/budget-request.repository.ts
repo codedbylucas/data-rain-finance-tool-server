@@ -128,6 +128,7 @@ export class BudgetRequestRepository {
             select: {
               id: true,
               companyName: true,
+              mainContact: true,
             },
           },
         },

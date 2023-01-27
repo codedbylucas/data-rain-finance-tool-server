@@ -56,7 +56,7 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       allocated: false,
       role: {
         connect: {
-          name: 'profissional services',
+          name: 'professional services',
         },
       },
     },
