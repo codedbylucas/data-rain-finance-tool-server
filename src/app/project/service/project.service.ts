@@ -8,6 +8,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { ProjectEntity } from '../entities/project.entity';
 import { AddClientToProjectResponse } from '../protocols/add-client-to-project.response';
 import { CreateProjectResponse } from '../protocols/create-project.response';
+import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { ProjectRepository } from '../repositorioes/project.repository';
 import { AddClientToProjectDto } from './dto/add-client-to-project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -48,6 +49,14 @@ export class ProjectService {
     const clientAddedInProject =
       await this.projectRepository.addClientToProject(dto);
     return clientAddedInProject;
+  }
+
+  async findAllProjects(): Promise<FindAllProjectsResponse[]> {
+    const projectsOrEmpty = await this.projectRepository.findAllProjects();
+    if (projectsOrEmpty.length === 0) {
+      throw new NotFoundException(`No project found`);
+    }
+    return projectsOrEmpty;
   }
 
   async verifyProjectExist(id: string): Promise<ProjectEntity> {

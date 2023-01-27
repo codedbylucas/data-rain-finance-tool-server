@@ -24,6 +24,8 @@ model Users {
   role     Roles  @relation(fields: [roleName], references: [name])
   roleName String @map("role_name")
 
+  projects UsersProjects[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -171,8 +173,26 @@ model Projects {
   client   Clients? @relation(fields: [clientId], references: [id])
   clientId String?  @map("client_id")
 
+  users UsersProjects[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("projects")
+}
+
+model UsersProjects {
+  id String @id @unique @default(uuid())
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  project   Projects @relation(fields: [projectId], references: [id])
+  projectId String   @map("project_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, projectId])
+  @@map("users_projects")
 }
