@@ -20,7 +20,7 @@ export const roles: Prisma.RolesCreateInput[] = [
   {
     id: uuid(),
     name: 'manager',
-    description: 'Aprova chamado de um profissional services',
+    description: 'Aprova chamado de um professional services',
   },
   {
     id: uuid(),

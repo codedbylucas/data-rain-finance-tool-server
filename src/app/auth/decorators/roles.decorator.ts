@@ -12,7 +12,7 @@ export enum Role {
   financial, // 1
   preSale, // 2
   manager, // 3
-  profissionalServices, // 4
+  professionalServices, // 4
 }
 
 export const RolesAccess = createParamDecorator(
@@ -51,7 +51,7 @@ const rolesName = (roles: Role[]): string[] => {
     if (role === 1) rolesName.push('financial');
     if (role === 2) rolesName.push('pre_sale');
     if (role === 3) rolesName.push('manager');
-    if (role === 4) rolesName.push('profissional_services');
+    if (role === 4) rolesName.push('professional_services');
   });
 
   return rolesName;
