@@ -9,7 +9,7 @@ import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
 import { ProfilePictureProps } from '../protocols/props/insert-profile-picture.props';
 import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
 import { AddRoleToUserDto } from '../service/dto/add-role-to-user.dto';
-import { UpdateUserDto } from '../service/dto/update-user.dto';
+import { UpdateOwnUserDto } from '../service/dto/update-user.dto';
 
 @Injectable()
 export class UserRepository {
@@ -83,7 +83,7 @@ export class UserRepository {
     return users;
   }
 
-  async updateUserById(id: string, data: UpdateUserDto): Promise<UserEntity> {
+  async updateUserById(id: string, data: UpdateOwnUserDto): Promise<UserEntity> {
     const userUpdated = await this.prisma.users
       .update({
         where: { id },

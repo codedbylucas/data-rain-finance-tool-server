@@ -16,7 +16,7 @@ import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocate
 import { UserRepository } from '../repositories/user.repository';
 import { AddRoleToUserDto } from './dto/add-role-to-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateOwnUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -105,7 +105,7 @@ export class UserService {
     return usersOrNull;
   }
 
-  async updateOwnUser(id: string, dto: UpdateUserDto): Promise<void> {
+  async updateOwnUser(id: string, dto: UpdateOwnUserDto): Promise<void> {
     const userOrNull = await this.userRepository.findUserEntityById(id);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);

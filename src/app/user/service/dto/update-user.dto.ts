@@ -8,7 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 
-export class UpdateUserDto {
+export class UpdateOwnUserDto {
   @IsOptional()
   @Length(2, 70)
   @IsString()

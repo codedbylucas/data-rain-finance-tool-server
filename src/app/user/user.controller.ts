@@ -29,7 +29,7 @@ import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
 import { AddRoleToUserDto } from './service/dto/add-role-to-user.dto';
 import { CreateUserDto } from './service/dto/create-user.dto';
-import { UpdateUserDto } from './service/dto/update-user.dto';
+import { UpdateOwnUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
 
 @Controller('user')
@@ -112,7 +112,7 @@ export class UserController {
     return await this.userService.findAllUsers();
   }
 
-  @Patch()
+  @Patch('myself')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
@@ -120,7 +120,7 @@ export class UserController {
   })
   async updateOwnUser(
     @LoggedUser() userId: string,
-    @Body() dto: UpdateUserDto,
+    @Body() dto: UpdateOwnUserDto,
   ): Promise<BadRequestException | void> {
     return await this.userService.updateOwnUser(userId, dto);
   }
