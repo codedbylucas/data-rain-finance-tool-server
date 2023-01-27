@@ -6,6 +6,7 @@ import { serverError } from 'src/app/util/server-error';
 import { ProjectEntity } from '../entities/project.entity';
 import { AddClientToProjectResponse } from '../protocols/add-client-to-project.response';
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
+import { DbAddUserToProjectProps } from '../protocols/props/db-add-user-to-project.props';
 import { DbCreateProjectProps } from '../protocols/props/db-create-project.props';
 import { AddClientToProjectDto } from '../service/dto/add-client-to-project.dto';
 import { AddUserToProjectDto } from '../service/dto/add-user-to-project.dto';
@@ -57,17 +58,18 @@ export class ProjectRepository {
     return clientAddedInProject;
   }
 
-  async addUserToProject(dto: AddUserToProjectDto): Promise<void> {
+  async addUserToProject(props: DbAddUserToProjectProps): Promise<void> {
     const data: Prisma.UsersProjectsCreateInput = {
-      valuePerUserHour: dto.valuePerUserHour,
+      valuePerUserHour: props.valuePerUserHour,
+      containsManager: props.containsManager,
       project: {
         connect: {
-          id: dto.projectId,
+          id: props.projectId,
         },
       },
       user: {
         connect: {
-          id: dto.userId,
+          id: props.userId,
         },
       },
     };
@@ -110,17 +112,14 @@ export class ProjectRepository {
     return projectsOrEmpty;
   }
 
-  async verifyRelationshiptUserAndProject(userId: string, projectId: string) {
-    const relation = await this.prisma.usersProjects
-      .findUnique({
+  async findManyUsersProjectsByProjectId(projectId: string) {
+    const usersProjects = await this.prisma.usersProjects
+      .findMany({
         where: {
-          userId_projectId: {
-            projectId,
-            userId,
-          },
+          projectId: projectId,
         },
       })
       .catch(serverError);
-    return relation;
+    return usersProjects;
   }
 }

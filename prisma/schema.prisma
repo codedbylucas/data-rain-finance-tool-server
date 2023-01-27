@@ -182,8 +182,9 @@ model Projects {
 }
 
 model UsersProjects {
-  id               String @id @unique @default(uuid())
-  valuePerUserHour Float    @map("value_per_user_hour")
+  id               String  @id @unique @default(uuid())
+  valuePerUserHour Float   @map("value_per_user_hour")
+  containsManager  Boolean @default(false)
 
   user   Users  @relation(fields: [userId], references: [id])
   userId String @map("user_id")
