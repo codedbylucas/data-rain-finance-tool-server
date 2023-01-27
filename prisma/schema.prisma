@@ -118,8 +118,7 @@ model Clients {
 }
 
 model BudgetRequest {
-  id String @id @unique @default(uuid())
-
+  id         String @id @unique @default(uuid())
   amount     Float
   totalHours Int    @map("total_hours")
   status     Status @default(request)
@@ -170,7 +169,7 @@ model Projects {
   name        String @db.VarChar(100)
   description String @db.VarChar(500)
 
-  client   Clients? @relation(fields: [clientId], references: [id])
+  client   Clients? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String?  @map("client_id")
 
   users UsersProjects[]
@@ -186,10 +185,10 @@ model UsersProjects {
   valuePerUserHour Float   @map("value_per_user_hour")
   containsManager  Boolean @default(false)
 
-  user   Users  @relation(fields: [userId], references: [id])
+  user   Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
 
-  project   Projects @relation(fields: [projectId], references: [id])
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String   @map("project_id")
 
   createdAt DateTime @default(now()) @map("created_at")

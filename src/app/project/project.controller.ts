@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -63,5 +64,14 @@ export class ProjectController {
   })
   async findProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
     return await this.projectService.findProjectById(id);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete project by id',
+  })
+  async deleteProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.projectService.deleteProjectById(id);
   }
 }

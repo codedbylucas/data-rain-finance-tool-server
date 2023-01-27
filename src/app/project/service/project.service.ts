@@ -36,7 +36,7 @@ export class ProjectService {
   }
 
   async addClientToProject(dto: AddClientToProjectDto): Promise<void> {
-    const project = await this.verifyProjectExist(dto.projectId);
+    const project = await this.findProjectById(dto.projectId);
     await this.clienService.verifyClientExist(dto.clientId);
     if (project.client) {
       if (project.client.id === dto.clientId) {
@@ -49,7 +49,7 @@ export class ProjectService {
   }
 
   async addUserToProject(dto: AddUserToProjectDto): Promise<void> {
-    await this.verifyProjectExist(dto.projectId);
+    await this.findProjectById(dto.projectId);
     const user = await this.userService.findUserById(dto.userId);
 
     if (
@@ -102,12 +102,9 @@ export class ProjectService {
     return projectOrNull;
   }
 
-  async verifyProjectExist(id: string) {
-    const projectOrNull = await this.projectRepository.findProjectById(id);
-    if (!projectOrNull) {
-      throw new BadRequestException(`Project with id '${id}' not found`);
-    }
-    return projectOrNull;
+  async deleteProjectById(id: string) {
+    await this.findProjectById(id);
+    await this.projectRepository.deleteProjectById(id);
   }
 
   async verifyIfUserAllocatedInProjetct(userId: string, projectId: string) {

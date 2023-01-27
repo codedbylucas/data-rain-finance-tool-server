@@ -148,4 +148,8 @@ export class ProjectRepository {
       .catch(serverError);
     return usersProjects;
   }
+
+  async deleteProjectById(id: string): Promise<void> {
+    await this.prisma.projects.delete({ where: { id } }).catch(serverError);
+  }
 }
