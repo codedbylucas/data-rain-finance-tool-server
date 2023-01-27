@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -56,5 +58,13 @@ export class ProjectController {
   })
   async findAllProjects(): Promise<FindAllProjectsResponse[]> {
     return await this.projectService.findAllProjects();
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Find project by id',
+  })
+  async findProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.projectService.findProjectById(id);
   }
 }

@@ -43,7 +43,7 @@ export class ProjectService {
     const project = await this.verifyProjectExist(dto.projectId);
     await this.clienService.verifyClientExist(dto.clientId);
 
-    if (project.clientId === dto.clientId) {
+    if (project.client.id === dto.clientId) {
       throw new BadRequestException(
         `This project has already been related to this client`,
       );
@@ -100,7 +100,15 @@ export class ProjectService {
     return projectsOrEmpty;
   }
 
-  async verifyProjectExist(id: string): Promise<ProjectEntity> {
+  async findProjectById(id: string) {
+    const projectOrNull = await this.projectRepository.findProjectById(id);
+    if (!projectOrNull) {
+      throw new NotFoundException(`Project with Id '${id}' not found`);
+    }
+    return projectOrNull;
+  }
+
+  async verifyProjectExist(id: string) {
     const projectOrNull = await this.projectRepository.findProjectById(id);
     if (!projectOrNull) {
       throw new BadRequestException(`Project with id '${id}' not found`);

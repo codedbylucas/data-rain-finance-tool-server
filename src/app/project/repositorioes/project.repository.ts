@@ -81,10 +81,38 @@ export class ProjectRepository {
       .catch(serverError);
   }
 
-  async findProjectById(id: string): Promise<ProjectEntity> {
+  async findProjectById(id: string) {
     const projectOrNull = await this.prisma.projects
       .findUnique({
         where: { id },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          client: {
+            select: {
+              id: true,
+              email: true,
+              companyName: true,
+              phone: true,
+              mainContact: true,
+            },
+          },
+          users: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  position: true,
+                  roleName: true,
+                  billable: true,
+                },
+              },
+              valuePerUserHour: true,
+            },
+          },
+        },
       })
       .catch(serverError);
 
