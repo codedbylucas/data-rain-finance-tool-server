@@ -5,10 +5,11 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
+import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
+import { ProfilePictureProps } from '../protocols/props/insert-profile-picture.props';
+import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
 import { AddRoleToUserDto } from '../service/dto/add-role-to-user.dto';
 import { UpdateUserDto } from '../service/dto/update-user.dto';
-import { ProfilePictureProps } from '../protocols/props/insert-profile-picture.props';
-import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
 
 @Injectable()
 export class UserRepository {
@@ -87,6 +88,20 @@ export class UserRepository {
       .update({
         where: { id },
         data,
+      })
+      .catch(serverError);
+    return userUpdated;
+  }
+
+  async updateUserAllocated(
+    props: UpdateUserAllocatedProps,
+  ): Promise<UserEntity> {
+    const userUpdated = await this.prisma.users
+      .update({
+        where: { id: props.id },
+        data: {
+          allocated: props.allocated,
+        },
       })
       .catch(serverError);
     return userUpdated;

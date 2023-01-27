@@ -12,6 +12,7 @@ import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
+import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
 import { UserRepository } from '../repositories/user.repository';
 import { AddRoleToUserDto } from './dto/add-role-to-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -160,6 +161,13 @@ export class UserService {
     }
     const roleAddedToUser = await this.userRepository.updateUserRole(dto);
     return roleAddedToUser;
+  }
+
+  async updateUserAllocated(
+    props: UpdateUserAllocatedProps,
+  ): Promise<UserEntity> {
+    const userUpdated = await this.userRepository.updateUserAllocated(props);
+    return userUpdated;
   }
 
   async sendEmails(users: UserEntity[]): Promise<void> {

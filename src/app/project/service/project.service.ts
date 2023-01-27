@@ -85,6 +85,11 @@ export class ProjectService {
       ...dto,
       containsManager: contains,
     });
+
+    await this.userService.updateUserAllocated({
+      id: user.id,
+      allocated: true,
+    });
   }
 
   async findAllProjects(): Promise<FindAllProjectsResponse[]> {
