@@ -50,6 +50,14 @@ export class ProjectService {
     return clientAddedInProject;
   }
 
+  async findAllProjects() {
+    const projectsOrEmpty = await this.projectRepository.findAllProjects();
+    if (projectsOrEmpty.length === 0) {
+      throw new NotFoundException(`No project found`);
+    }
+    return projectsOrEmpty;
+  }
+
   async verifyProjectExist(id: string): Promise<ProjectEntity> {
     const projectOrNull = await this.projectRepository.findProjectById(id);
     if (!projectOrNull) {

@@ -60,4 +60,24 @@ export class ProjectRepository {
 
     return projectOrNull;
   }
+
+  async findAllProjects() {
+    const projectsOrEmpty = await this.prisma.projects
+      .findMany({
+        select: { 
+          id: true,
+          name: true,
+          description: true,
+          client: {
+            select: {
+              id: true,
+              companyName: true,
+            },
+          },
+        },
+      })
+      .catch(serverError);
+
+    return projectsOrEmpty;
+  }
 }
