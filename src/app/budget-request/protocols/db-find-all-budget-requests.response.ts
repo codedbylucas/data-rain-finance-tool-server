@@ -8,5 +8,6 @@ export interface DbFindAllBudgetRequestsResponse {
   client: {
     id: string;
     companyName: string;
+    mainContact: string;
   };
 }

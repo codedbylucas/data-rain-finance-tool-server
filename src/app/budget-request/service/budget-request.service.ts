@@ -203,6 +203,7 @@ export class BudgetRequestService {
         client: {
           id: budgetRequest.client.id,
           companyName: budgetRequest.client.companyName,
+          mainContact: budgetRequest.client.mainContact,
         },
       }),
     );
