@@ -8,8 +8,10 @@ import { FindUserResponse } from '../protocols/find-user-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
 import { ProfilePictureProps } from '../protocols/props/insert-profile-picture.props';
 import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
-import { AddRoleToUserDto } from '../service/dto/add-role-to-user.dto';
+import { UpdateUserDto } from '../service/dto/update-user.dto';
 import { UpdateOwnUserDto } from '../service/dto/update-own-user.dto';
+import { bindCallback } from 'rxjs';
+import { DbCreateTeamProps } from 'src/app/team/protocols/props/db-create-team.props';
 
 @Injectable()
 export class UserRepository {
@@ -83,10 +85,7 @@ export class UserRepository {
     return users;
   }
 
-  async updateUserById(
-    id: string,
-    data: UpdateOwnUserDto,
-  ): Promise<UserEntity> {
+  async updateOwnUser(id: string, data: UpdateOwnUserDto): Promise<UserEntity> {
     const userUpdated = await this.prisma.users
       .update({
         where: { id },
@@ -129,21 +128,17 @@ export class UserRepository {
     await this.prisma.users.delete({ where: { id } }).catch(serverError);
   }
 
-  async updateUserRole(dto: AddRoleToUserDto) {
-    const data: Prisma.UsersUpdateInput = {
-      role: {
-        connect: {
-          id: dto.roleId,
-        },
-      },
-    };
-    const roleAddedToUser = await this.prisma.users
+  async updateUserById(id: string, dto: UpdateUserDto): Promise<void> {
+    let data: Prisma.UsersUpdateInput = this.createUpdateData(dto);
+
+    await this.prisma.users
       .update({
-        where: { id: dto.userId },
+        where: { id },
         data,
         select: {
           id: true,
           name: true,
+          billable: true,
           role: {
             select: {
               id: true,
@@ -153,7 +148,34 @@ export class UserRepository {
         },
       })
       .catch(serverError);
-    return roleAddedToUser;
+  }
+
+  createUpdateData(dto: UpdateUserDto): Prisma.UsersUpdateInput {
+    let data: Prisma.UsersUpdateInput = {};
+    if (dto.roleId && (dto.billable || !dto.billable)) {
+      data = {
+        billable: dto.billable,
+        role: {
+          connect: {
+            id: dto.roleId,
+          },
+        },
+      };
+    } else if (dto.roleId) {
+      data = {
+        role: {
+          connect: {
+            id: dto.roleId,
+          },
+        },
+      };
+    } else {
+      data = {
+        billable: dto.billable,
+      };
+    }
+
+    return data;
   }
 
   private readonly findUserSelect = {

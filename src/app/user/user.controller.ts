@@ -27,7 +27,7 @@ import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
-import { AddRoleToUserDto } from './service/dto/add-role-to-user.dto';
+import { UpdateUserDto } from './service/dto/update-user.dto';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateOwnUserDto } from './service/dto/update-own-user.dto';
 import { UserService } from './service/user.service';
@@ -139,8 +139,14 @@ export class UserController {
     await this.userService.deleteUserById(id);
   }
 
-  @Post('/update-role')
-  async addRoleToUser(@Body() dto: AddRoleToUserDto) {
-    return await this.userService.updateUserRole(dto);
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Update a user by id',
+  })
+  async updateUserById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateUserDto,
+  ): Promise<void> {
+    return await this.userService.updateUserById(id, dto);
   }
 }
