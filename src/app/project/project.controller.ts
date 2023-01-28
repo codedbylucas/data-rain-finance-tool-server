@@ -1,13 +1,15 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AddClientToProjectResponse } from './protocols/add-client-to-project.response';
 import { CreateProjectResponse } from './protocols/create-project.response';
 import { FindAllProjectsResponse } from './protocols/find-all-projects.response';
 import { AddClientToProjectDto } from './service/dto/add-client-to-project.dto';
@@ -35,9 +37,7 @@ export class ProjectController {
   @ApiOperation({
     summary: 'Add client to project',
   })
-  async addClientToProject(
-    @Body() dto: AddClientToProjectDto,
-  ): Promise<AddClientToProjectResponse> {
+  async addClientToProject(@Body() dto: AddClientToProjectDto): Promise<void> {
     return await this.projectService.addClientToProject(dto);
   }
 
@@ -56,5 +56,22 @@ export class ProjectController {
   })
   async findAllProjects(): Promise<FindAllProjectsResponse[]> {
     return await this.projectService.findAllProjects();
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Find project by id',
+  })
+  async findProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.projectService.findProjectById(id);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete project by id',
+  })
+  async deleteProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.projectService.deleteProjectById(id);
   }
 }

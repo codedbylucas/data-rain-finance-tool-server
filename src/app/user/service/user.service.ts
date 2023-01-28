@@ -12,9 +12,10 @@ import { UserEntity } from '../entities/user.entity';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
+import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
 import { UserRepository } from '../repositories/user.repository';
-import { AddRoleToUserDto } from './dto/add-role-to-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateOwnUserDto } from './dto/update-own-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -104,7 +105,7 @@ export class UserService {
     return usersOrNull;
   }
 
-  async updateOwnUser(id: string, dto: UpdateUserDto): Promise<void> {
+  async updateOwnUser(id: string, dto: UpdateOwnUserDto): Promise<void> {
     const userOrNull = await this.userRepository.findUserEntityById(id);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
@@ -134,10 +135,10 @@ export class UserService {
         ...dto,
         password: hashedPassword,
       };
-      await this.userRepository.updateUserById(userOrNull.id, data);
+      await this.userRepository.updateOwnUser(userOrNull.id, data);
       return;
     }
-    await this.userRepository.updateUserById(userOrNull.id, dto);
+    await this.userRepository.updateOwnUser(userOrNull.id, dto);
   }
 
   async deleteUserById(id: string): Promise<void> {
@@ -152,14 +153,29 @@ export class UserService {
     await this.userRepository.deleteUserById(id);
   }
 
-  async updateUserRole(dto: AddRoleToUserDto) {
-    await this.findUserById(dto.userId);
-    const roleOrNull = await this.roleService.findRoleById(dto.roleId);
-    if (roleOrNull.name === 'admin') {
-      throw new BadRequestException(`Invalid operation`);
+  async updateUserById(id: string, dto: UpdateUserDto) {
+    if (dto.roleId && (dto.billable || !dto.billable)) {
+      throw new BadRequestException(`Role Id or billable must be informed`);
     }
-    const roleAddedToUser = await this.userRepository.updateUserRole(dto);
+    await this.findUserById(id);
+    if (dto.roleId) {
+      const roleOrNull = await this.roleService.findRoleById(dto.roleId);
+      if (roleOrNull) {
+        if (roleOrNull.name === 'admin') {
+          throw new BadRequestException(`Invalid operation`);
+        }
+      }
+    }
+
+    const roleAddedToUser = await this.userRepository.updateUserById(id, dto);
     return roleAddedToUser;
+  }
+
+  async updateUserAllocated(
+    props: UpdateUserAllocatedProps,
+  ): Promise<UserEntity> {
+    const userUpdated = await this.userRepository.updateUserAllocated(props);
+    return userUpdated;
   }
 
   async sendEmails(users: UserEntity[]): Promise<void> {

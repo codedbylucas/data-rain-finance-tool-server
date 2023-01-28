@@ -6,9 +6,6 @@ import {
 import { ClientService } from 'src/app/client/service/client.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
-import { isContext } from 'vm';
-import { ProjectEntity } from '../entities/project.entity';
-import { AddClientToProjectResponse } from '../protocols/add-client-to-project.response';
 import { CreateProjectResponse } from '../protocols/create-project.response';
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { ProjectRepository } from '../repositorioes/project.repository';
@@ -38,26 +35,23 @@ export class ProjectService {
     };
   }
 
-  async addClientToProject(
-    dto: AddClientToProjectDto,
-  ): Promise<AddClientToProjectResponse> {
-    const project = await this.verifyProjectExist(dto.projectId);
+  async addClientToProject(dto: AddClientToProjectDto): Promise<void> {
+    const project = await this.findProjectById(dto.projectId);
     await this.clienService.verifyClientExist(dto.clientId);
-
-    if (project.clientId === dto.clientId) {
-      throw new BadRequestException(
-        `This project has already been related to this client`,
-      );
+    if (project.client) {
+      if (project.client.id === dto.clientId) {
+        throw new BadRequestException(
+          `This project has already been related to this client`,
+        );
+      }
     }
-
-    const clientAddedInProject =
-      await this.projectRepository.addClientToProject(dto);
-    return clientAddedInProject;
+    await this.projectRepository.addClientToProject(dto);
   }
 
   async addUserToProject(dto: AddUserToProjectDto): Promise<void> {
-    await this.verifyProjectExist(dto.projectId);
+    await this.findProjectById(dto.projectId);
     const user = await this.userService.findUserById(dto.userId);
+
     if (
       user.roleName !== 'professional services' &&
       user.roleName !== 'manager'
@@ -66,9 +60,30 @@ export class ProjectService {
         `Only 'professional services' and 'manager' users can be allcated to a project`,
       );
     }
+    const usersProjects = await this.verifyIfUserAllocatedInProjetct(
+      dto.userId,
+      dto.projectId,
+    );
 
-    await this.verifyIfUserAllocatedInProjetct(dto.userId, dto.projectId);
-    await this.projectRepository.addUserToProject(dto);
+    if (usersProjects.length > 0) {
+      if (usersProjects[0].containsManager && user.roleName === 'manager') {
+        throw new BadRequestException('A project can contain only one manager');
+      }
+    }
+    let contains = false;
+    if (user.roleName === 'manager') {
+      contains = true;
+    }
+
+    await this.projectRepository.addUserToProject({
+      ...dto,
+      containsManager: contains,
+    });
+
+    await this.userService.updateUserAllocated({
+      id: user.id,
+      allocated: true,
+    });
   }
 
   async findAllProjects(): Promise<FindAllProjectsResponse[]> {
@@ -79,27 +94,29 @@ export class ProjectService {
     return projectsOrEmpty;
   }
 
-  async verifyProjectExist(id: string): Promise<ProjectEntity> {
+  async findProjectById(id: string) {
     const projectOrNull = await this.projectRepository.findProjectById(id);
     if (!projectOrNull) {
-      throw new BadRequestException(`Project with id '${id}' not found`);
+      throw new NotFoundException(`Project with Id '${id}' not found`);
     }
     return projectOrNull;
   }
 
-  async verifyIfUserAllocatedInProjetct(
-    userId: string,
-    projectId: string,
-  ): Promise<void> {
-    const relation =
-      await this.projectRepository.verifyRelationshiptUserAndProject(
-        userId,
-        projectId,
-      );
-    if (relation) {
-      throw new BadRequestException(
-        `User is already allocated in this project`,
-      );
+  async deleteProjectById(id: string) {
+    await this.findProjectById(id);
+    await this.projectRepository.deleteProjectById(id);
+  }
+
+  async verifyIfUserAllocatedInProjetct(userId: string, projectId: string) {
+    const usersProjects =
+      await this.projectRepository.findManyUsersProjectsByProjectId(projectId);
+    for (const item of usersProjects) {
+      if (item.userId === userId && item.projectId === projectId) {
+        throw new BadRequestException(
+          `User is already allocated in this project`,
+        );
+      }
     }
+    return usersProjects;
   }
 }

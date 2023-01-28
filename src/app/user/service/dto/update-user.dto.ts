@@ -1,60 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { IsBoolean, IsOptional, IsUUID } from 'class-validator';
 
 export class UpdateUserDto {
+  @IsBoolean()
   @IsOptional()
-  @Length(2, 70)
-  @IsString()
   @ApiProperty({
-    description: 'The first name of the User',
-    example: 'Lucas',
+    description: 'User is billabel or not',
+    example: true,
   })
-  name: string;
+  billable?: boolean;
 
-  @IsOptional()
-  @IsEmail()
-  @Length(3, 100)
-  @ApiProperty({
-    description: 'The email of the User',
-    example: 'email@mail.com',
-  })
-  email: string;
-
+  @IsUUID()
   @IsOptional()
   @ApiProperty({
-    description: 'Current password of User',
-    example: 'Abcd@1234',
+    description: 'Id of the role that will be added to the user',
+    example: 'ac06f36e-4b61-4fe8-8fd6-6ad807ac6282',
   })
-  currentPassword: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(8, 50)
-  @ApiProperty({
-    description: 'The new password of the User',
-    example: 'Abcd@1234',
-  })
-  @Matches(
-    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$/,
-    {
-      message: 'Password too weak',
-    },
-  )
-  password: string;
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty({
-    description: 'User new password confirmation',
-    example: 'Abcd@1234',
-  })
-  confirmPassword: string;
+  roleId?: string;
 }
