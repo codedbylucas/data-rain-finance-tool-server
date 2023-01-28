@@ -68,27 +68,27 @@ export class ProjectService {
       dto.userId,
       dto.projectId,
     );
-    if (usersProjects.length === 0 && user.roleName !== 'manager') {
+    if (!project.containsManager && user.roleName !== 'manager') {
       throw new BadRequestException(
-        'The first user to be added to the project must be a manager',
+        'This project does not contain a manager, add one before adding a new professional services',
       );
     }
-
     if (usersProjects.length > 0) {
-      if (usersProjects[0].containsManager && user.roleName === 'manager') {
+      if (project.containsManager && user.roleName === 'manager') {
         throw new BadRequestException('A project can contain only one manager');
       }
     }
 
-    let contains = false;
-    if (user.roleName === 'manager') {
-      contains = true;
-    }
-
     await this.projectRepository.addUserToProject({
       ...dto,
-      containsManager: contains,
     });
+
+    if (user.roleName === 'manager') {
+      await this.projectRepository.updateContainsManagerInProject({
+        id: project.id,
+        containsManager: true,
+      });
+    }
 
     await this.userService.updateUserAllocated({
       id: user.id,
@@ -115,6 +115,22 @@ export class ProjectService {
   async deleteProjectById(id: string) {
     await this.findProjectById(id);
     await this.projectRepository.deleteProjectById(id);
+  }
+
+  async removeUserFromProject(
+    projectId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.findProjectById(projectId);
+    const user = await this.userService.findUserById(userId);
+    await this.projectRepository.removeUserFromProject(projectId, userId);
+
+    if (user.roleName === 'manager') {
+      await this.projectRepository.updateContainsManagerInProject({
+        id: projectId,
+        containsManager: false,
+      });
+    }
   }
 
   async verifyIfUserAllocatedInProjetct(userId: string, projectId: string) {

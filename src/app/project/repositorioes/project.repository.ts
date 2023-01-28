@@ -7,6 +7,7 @@ import { AddClientToProjectResponse } from '../protocols/add-client-to-project.r
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
 import { DbAddUserToProjectProps } from '../protocols/props/db-add-user-to-project.props';
 import { DbCreateProjectProps } from '../protocols/props/db-create-project.props';
+import { DbUpdateContainsManagerInProjectProps } from '../protocols/props/db-update-contains-manager-in-project.props';
 import { AddClientToProjectDto } from '../service/dto/add-client-to-project.dto';
 
 @Injectable()
@@ -59,7 +60,6 @@ export class ProjectRepository {
   async addUserToProject(props: DbAddUserToProjectProps): Promise<void> {
     const data: Prisma.UsersProjectsCreateInput = {
       valuePerUserHour: props.valuePerUserHour,
-      containsManager: props.containsManager,
       project: {
         connect: {
           id: props.projectId,
@@ -87,6 +87,7 @@ export class ProjectRepository {
           id: true,
           name: true,
           description: true,
+          containsManager: true,
           client: {
             select: {
               id: true,
@@ -105,6 +106,7 @@ export class ProjectRepository {
                   position: true,
                   roleName: true,
                   billable: true,
+                  imageUrl: true,
                 },
               },
               valuePerUserHour: true,
@@ -124,6 +126,7 @@ export class ProjectRepository {
           id: true,
           name: true,
           description: true,
+          containsManager: true,
           client: {
             select: {
               id: true,
@@ -151,5 +154,35 @@ export class ProjectRepository {
 
   async deleteProjectById(id: string): Promise<void> {
     await this.prisma.projects.delete({ where: { id } }).catch(serverError);
+  }
+
+  async removeUserFromProject(
+    projectId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.prisma.usersProjects
+      .delete({
+        where: {
+          userId_projectId: {
+            projectId,
+            userId,
+          },
+        },
+      })
+      .catch(serverError);
+  }
+
+  async updateContainsManagerInProject(
+    props: DbUpdateContainsManagerInProjectProps,
+  ): Promise<ProjectEntity> {
+    const projectUpdated = await this.prisma.projects
+      .update({
+        where: { id: props.id },
+        data: {
+          containsManager: props.containsManager,
+        },
+      })
+      .catch(serverError);
+    return projectUpdated;
   }
 }

@@ -165,9 +165,10 @@ model ClientsResponses {
 }
 
 model Projects {
-  id          String @id @unique @default(uuid())
-  name        String @db.VarChar(100)
-  description String @db.VarChar(500)
+  id              String  @id @unique @default(uuid())
+  name            String  @db.VarChar(100)
+  description     String  @db.VarChar(500)
+  containsManager Boolean @default(false)
 
   client   Clients? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String?  @map("client_id")
@@ -181,9 +182,8 @@ model Projects {
 }
 
 model UsersProjects {
-  id               String  @id @unique @default(uuid())
-  valuePerUserHour Float   @map("value_per_user_hour")
-  containsManager  Boolean @default(false)
+  id               String @id @unique @default(uuid())
+  valuePerUserHour Float  @map("value_per_user_hour")
 
   user   Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
