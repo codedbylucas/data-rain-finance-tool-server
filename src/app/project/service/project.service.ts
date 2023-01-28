@@ -37,10 +37,13 @@ export class ProjectService {
 
   async addClientToProject(dto: AddClientToProjectDto): Promise<void> {
     const project = await this.findProjectById(dto.projectId);
+    if (project.client) {
+      throw new BadRequestException(`This project already contains a customer`);
+    }
     await this.clienService.verifyClientExist(dto.clientId);
     if (project.client) {
       if (project.client.id === dto.clientId) {
-        throw new BadRequestException(
+        throw new BadRequestException( 
           `This project has already been related to this client`,
         );
       }
