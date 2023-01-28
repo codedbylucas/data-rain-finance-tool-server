@@ -74,4 +74,16 @@ export class ProjectController {
   async deleteProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
     return await this.projectService.deleteProjectById(id);
   }
+
+  @Delete('/remove-user/:projectId/:userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Remove user from project',
+  })
+  async removeUserFromProject(
+    @Param('projectId', new ParseUUIDPipe()) projectId: string,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+  ): Promise<void> {
+    return await this.projectService.removeUserFromProject(projectId, userId);
+  }
 }
