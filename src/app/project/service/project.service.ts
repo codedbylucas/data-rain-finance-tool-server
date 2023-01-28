@@ -49,9 +49,13 @@ export class ProjectService {
   }
 
   async addUserToProject(dto: AddUserToProjectDto): Promise<void> {
-    await this.findProjectById(dto.projectId);
+    const project = await this.findProjectById(dto.projectId);
     const user = await this.userService.findUserById(dto.userId);
-
+    if (!project.client) {
+      throw new BadRequestException(
+        `Add a customer before adding a user to the project`,
+      );
+    }
     if (
       user.roleName !== 'professional services' &&
       user.roleName !== 'manager'
@@ -64,12 +68,18 @@ export class ProjectService {
       dto.userId,
       dto.projectId,
     );
+    if (usersProjects.length === 0 && user.roleName !== 'manager') {
+      throw new BadRequestException(
+        'The first user to be added to the project must be a manager',
+      );
+    }
 
     if (usersProjects.length > 0) {
       if (usersProjects[0].containsManager && user.roleName === 'manager') {
         throw new BadRequestException('A project can contain only one manager');
       }
     }
+
     let contains = false;
     if (user.roleName === 'manager') {
       contains = true;
