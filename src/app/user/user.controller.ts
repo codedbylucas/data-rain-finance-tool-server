@@ -10,6 +10,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -21,15 +22,16 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { LoggedUser } from '../auth/decorators/logged-user.decorator';
-import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
+import { FindaManyUsersByQueryParamResponse } from './protocols/find-many-users-by-query-param.response';
 import { FindUserResponse } from './protocols/find-user-response';
 import { ProfilePictureResponse } from './protocols/profile-picture-response';
-import { UpdateUserDto } from './service/dto/update-user.dto';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateOwnUserDto } from './service/dto/update-own-user.dto';
+import { UpdateUserDto } from './service/dto/update-user.dto';
 import { UserService } from './service/user.service';
 
 @Controller('user')
@@ -148,5 +150,40 @@ export class UserController {
     @Body() dto: UpdateUserDto,
   ): Promise<void> {
     return await this.userService.updateUserById(id, dto);
+  }
+
+  @Get('/manager/search')
+  @ApiOperation({
+    summary: 'Find managers by query param',
+  })
+  @ApiQuery({
+    name: 'parameter',
+    required: false,
+    explode: false,
+    type: String,
+  })
+  async findManyMangers(
+    @Query('parameter') query: string,
+  ): Promise<FindaManyUsersByQueryParamResponse> {
+    return await this.userService.findaManyUsersByQueryParam(query, 'manager');
+  }
+
+  @Get('/professional-services/search')
+  @ApiOperation({
+    summary: 'Find profesisonal services by query param',
+  })
+  @ApiQuery({
+    name: 'parameter',
+    required: false,
+    explode: false,
+    type: String,
+  })
+  async findManyProfessionalServices(
+    @Query('parameter') query: string,
+  ): Promise<FindaManyUsersByQueryParamResponse> {
+    return await this.userService.findaManyUsersByQueryParam(
+      query,
+      'professional services',
+    );
   }
 }

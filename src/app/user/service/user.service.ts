@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import sharp from 'sharp';
@@ -9,6 +13,8 @@ import { MailService } from 'src/app/infra/mail/mail.service';
 import { RoleService } from 'src/app/role/service/role.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
+import { DbFindManyUsersByQueryParam } from '../protocols/db-find-many-manger.response';
+import { FindaManyUsersByQueryParamResponse } from '../protocols/find-many-users-by-query-param.response';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
@@ -34,6 +40,7 @@ export class UserService {
     if (userOrNull) {
       throw new BadRequestException(`User email already exists`);
     }
+    await this.roleService.findRoleById(dto.roleId);
 
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
     const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
@@ -176,6 +183,67 @@ export class UserService {
   ): Promise<UserEntity> {
     const userUpdated = await this.userRepository.updateUserAllocated(props);
     return userUpdated;
+  }
+
+  async findaManyUsersByQueryParam(
+    data: string,
+    roleName: string,
+  ): Promise<FindaManyUsersByQueryParamResponse> {
+    if (!data) {
+      throw new BadRequestException(`Parameter not informed`);
+    }
+    let usersByNameAndEmail: DbFindManyUsersByQueryParam = null;
+
+    if (roleName === 'manager') {
+      usersByNameAndEmail = await this.userRepository.findManyUsersByQueryParam(
+        data,
+        'manager',
+      );
+    }
+    if (roleName === 'professional services') {
+      usersByNameAndEmail = await this.userRepository.findManyUsersByQueryParam(
+        data,
+        'professional services',
+      );
+    }
+
+    const usersByNameIds = usersByNameAndEmail.usersByNameOrEmpty.map(
+      (user) => user.id,
+    );
+
+    if (usersByNameIds.length > 0) {
+      for (const id of usersByNameIds) {
+        let index: number = null;
+        for (
+          let i = 0;
+          i < usersByNameAndEmail.usersByEmailOrEmpty.length;
+          i++
+        ) {
+          let userExist = null;
+          if (usersByNameAndEmail?.usersByEmailOrEmpty[i].id === id) {
+            index = i;
+            userExist = usersByNameAndEmail.usersByEmailOrEmpty[i];
+          }
+          if (userExist) {
+            usersByNameAndEmail.usersByEmailOrEmpty.splice(index, 1);
+          }
+        }
+      }
+    }
+
+    let users = [];
+    for (let user of usersByNameAndEmail?.usersByNameOrEmpty) {
+      users.push(user);
+    }
+    for (let user of usersByNameAndEmail?.usersByEmailOrEmpty) {
+      users.push(user);
+    }
+
+    if (users.length === 0) {
+      throw new NotFoundException(`None a user manager starts with '${data}'`);
+    }
+
+    return { users };
   }
 
   async sendEmails(users: UserEntity[]): Promise<void> {
