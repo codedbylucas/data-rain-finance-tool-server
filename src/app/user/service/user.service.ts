@@ -40,6 +40,7 @@ export class UserService {
     if (userOrNull) {
       throw new BadRequestException(`User email already exists`);
     }
+    await this.roleService.findRoleById(dto.roleId);
 
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
     const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
@@ -194,15 +195,16 @@ export class UserService {
     let usersByNameAndEmail: DbFindManyUsersByQueryParam = null;
 
     if (roleName === 'manager') {
-      usersByNameAndEmail =
-        await this.userRepository.findManyUsersByQueryParam(data, 'manager');
+      usersByNameAndEmail = await this.userRepository.findManyUsersByQueryParam(
+        data,
+        'manager',
+      );
     }
     if (roleName === 'professional services') {
-      usersByNameAndEmail =
-        await this.userRepository.findManyUsersByQueryParam(
-          data,
-          'professional services',
-        );
+      usersByNameAndEmail = await this.userRepository.findManyUsersByQueryParam(
+        data,
+        'professional services',
+      );
     }
 
     const usersByNameIds = usersByNameAndEmail.usersByNameOrEmpty.map(
