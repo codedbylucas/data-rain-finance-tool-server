@@ -90,6 +90,7 @@ export class ProjectRepository {
           name: true,
           description: true,
           containsManager: true,
+          summedTimeValueOfAllUsers: true,
           client: {
             select: {
               id: true,
@@ -105,6 +106,7 @@ export class ProjectRepository {
                 select: {
                   id: true,
                   name: true,
+                  email: true,
                   position: true,
                   roleName: true,
                   billable: true,
@@ -205,5 +207,16 @@ export class ProjectRepository {
       .catch(serverError);
 
     return projectUpdated;
+  }
+
+  async updateProjectAmount(id: string, value: number): Promise<void> {
+    await this.prisma.projects
+      .update({
+        where: { id },
+        data: {
+          summedTimeValueOfAllUsers: value,
+        },
+      })
+      .catch(serverError);
   }
 }
