@@ -168,8 +168,8 @@ model Projects {
   id                        String  @id @unique @default(uuid())
   name                      String  @db.VarChar(100)
   description               String  @db.VarChar(500)
-  containsManager           Boolean @default(false)
-  summedTimeValueOfAllUsers Float   @default(0)
+  containsManager           Boolean @default(false) @map("contains_manager")
+  summedTimeValueOfAllUsers Float   @default(0) @map("summed_time_value_of_all_users")
 
   client   Clients? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String?  @map("client_id")
@@ -197,4 +197,15 @@ model UsersProjects {
 
   @@unique([userId, projectId])
   @@map("users_projects")
+}
+
+model NormalHours {
+  id        String    @id @unique @default(uuid())
+  date      String
+  entry     DateTime
+  exitBreak DateTime? @map("exit_break")
+  backBreak DateTime? @map("back_break")
+  exit      DateTime?
+
+  @@map("normal_hours")
 }
