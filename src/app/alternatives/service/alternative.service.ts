@@ -86,6 +86,7 @@ export class AlternativeService {
     alternativeId: string,
     dto: UpdateAlternativeDto,
   ): Promise<void> {
+    await this.verifyAlternativeExist(alternativeId)
     if (dto.description) {
       await this.alternativeRepository.updateAlternativeById(
         alternativeId,
