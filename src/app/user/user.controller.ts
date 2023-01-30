@@ -152,7 +152,7 @@ export class UserController {
     return await this.userService.updateUserById(id, dto);
   }
 
-  @Get('/manager/search')
+  @Get('/managers/search')
   @ApiOperation({
     summary: 'Find managers by query param',
   })
