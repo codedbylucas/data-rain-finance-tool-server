@@ -8,10 +8,12 @@ import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateProjectResponse } from '../protocols/create-project.response';
 import { FindAllProjectsResponse } from '../protocols/find-all-projects.response';
+import { UpdateProjectResponse } from '../protocols/update-project.response';
 import { ProjectRepository } from '../repositorioes/project.repository';
 import { AddClientToProjectDto } from './dto/add-client-to-project.dto';
 import { AddUserToProjectDto } from './dto/add-user-to-project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectService {
@@ -43,7 +45,7 @@ export class ProjectService {
     await this.clienService.verifyClientExist(dto.clientId);
     if (project.client) {
       if (project.client.id === dto.clientId) {
-        throw new BadRequestException( 
+        throw new BadRequestException(
           `This project has already been related to this client`,
         );
       }
@@ -113,6 +115,21 @@ export class ProjectService {
       throw new NotFoundException(`Project with Id '${id}' not found`);
     }
     return projectOrNull;
+  }
+
+  async updateProjectById(
+    id: string,
+    dto: UpdateProjectDto,
+  ): Promise<UpdateProjectResponse> {
+    if (!dto.description && !dto.name) {
+      throw new BadRequestException(`Name or descripton must be informed`);
+    }
+    await this.findProjectById(id);
+    const projectUpdated = await this.projectRepository.updateProjectById(
+      id,
+      dto,
+    );
+    return projectUpdated;
   }
 
   async deleteProjectById(id: string) {

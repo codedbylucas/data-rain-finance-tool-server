@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -15,6 +16,7 @@ import { FindAllProjectsResponse } from './protocols/find-all-projects.response'
 import { AddClientToProjectDto } from './service/dto/add-client-to-project.dto';
 import { AddUserToProjectDto } from './service/dto/add-user-to-project.dto';
 import { CreateProjectDto } from './service/dto/create-project.dto';
+import { UpdateProjectDto } from './service/dto/update-project.dto';
 import { ProjectService } from './service/project.service';
 
 @Controller('project')
@@ -64,6 +66,17 @@ export class ProjectController {
   })
   async findProjectById(@Param('id', new ParseUUIDPipe()) id: string) {
     return await this.projectService.findProjectById(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Update project by id',
+  })
+  async updateProjectById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateProjectDto,
+  ) {
+    return await this.projectService.updateProjectById(id, dto);
   }
 
   @Delete(':id')
