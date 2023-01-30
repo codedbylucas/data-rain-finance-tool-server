@@ -165,10 +165,11 @@ model ClientsResponses {
 }
 
 model Projects {
-  id              String  @id @unique @default(uuid())
-  name            String  @db.VarChar(100)
-  description     String  @db.VarChar(500)
-  containsManager Boolean @default(false)
+  id                        String  @id @unique @default(uuid())
+  name                      String  @db.VarChar(100)
+  description               String  @db.VarChar(500)
+  containsManager           Boolean @default(false)
+  summedTimeValueOfAllUsers Float   @default(0)
 
   client   Clients? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String?  @map("client_id")

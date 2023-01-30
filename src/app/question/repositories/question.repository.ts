@@ -73,14 +73,12 @@ export class QuestionRepository {
   }
 
   async verifyRelation(dto: { questionId: string; alternativeId: string }) {
-    const questionOrNull = await this.prisma.questions
+    await this.prisma.questions
       .findUnique({
         where: { id: dto.questionId },
         select: { alternatives: { where: { id: dto.alternativeId } } },
       })
       .catch(serverError);
-
-    console.log(questionOrNull);
   }
 
   async findRelationshipBetweenQuestionAndAlternative(

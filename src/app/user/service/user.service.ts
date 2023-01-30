@@ -161,7 +161,7 @@ export class UserService {
   }
 
   async updateUserById(id: string, dto: UpdateUserDto) {
-    if (!dto.roleId && (dto.billable || !dto.billable)) {
+    if (!dto.roleId && (dto.billable === null || dto.billable === undefined)) {
       throw new BadRequestException(`Role Id or billable must be informed`);
     }
     await this.findUserById(id);

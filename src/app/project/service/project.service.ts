@@ -78,15 +78,25 @@ export class ProjectService {
         'This project does not contain a manager, add one before adding a new professional services',
       );
     }
+
+    let summedTimeValueOfAllUsers = 0;
     if (usersProjects.length > 0) {
       if (project.containsManager && user.roleName === 'manager') {
         throw new BadRequestException('A project can contain only one manager');
       }
+      usersProjects.forEach((user) => {
+        summedTimeValueOfAllUsers += user.valuePerUserHour;
+      });
     }
-
     await this.projectRepository.addUserToProject({
       ...dto,
     });
+
+    summedTimeValueOfAllUsers += dto.valuePerUserHour;
+    await this.projectRepository.updateProjectAmount(
+      dto.projectId,
+      summedTimeValueOfAllUsers,
+    );
 
     if (user.roleName === 'manager') {
       await this.projectRepository.updateContainsManagerInProject({
@@ -144,6 +154,19 @@ export class ProjectService {
     await this.findProjectById(projectId);
     const user = await this.userService.findUserById(userId);
     await this.projectRepository.removeUserFromProject(projectId, userId);
+
+    const usersInProject =
+      await this.projectRepository.findManyUsersProjectsByProjectId(projectId);
+    let summedTimeValueOfAllUsers = 0;
+    if (usersInProject.length > 0) {
+      usersInProject.forEach((user) => {
+        summedTimeValueOfAllUsers += user.valuePerUserHour;
+      });
+    }
+    await this.projectRepository.updateProjectAmount(
+      projectId,
+      summedTimeValueOfAllUsers,
+    );
 
     if (user.roleName === 'manager') {
       await this.projectRepository.updateContainsManagerInProject({
