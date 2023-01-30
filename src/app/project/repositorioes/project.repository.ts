@@ -8,7 +8,9 @@ import { FindAllProjectsResponse } from '../protocols/find-all-projects.response
 import { DbAddUserToProjectProps } from '../protocols/props/db-add-user-to-project.props';
 import { DbCreateProjectProps } from '../protocols/props/db-create-project.props';
 import { DbUpdateContainsManagerInProjectProps } from '../protocols/props/db-update-contains-manager-in-project.props';
+import { UpdateProjectResponse } from '../protocols/update-project.response';
 import { AddClientToProjectDto } from '../service/dto/add-client-to-project.dto';
+import { UpdateProjectDto } from '../service/dto/update-project.dto';
 
 @Injectable()
 export class ProjectRepository {
@@ -183,6 +185,25 @@ export class ProjectRepository {
         },
       })
       .catch(serverError);
+    return projectUpdated;
+  }
+
+  async updateProjectById(
+    id: string,
+    dto: UpdateProjectDto,
+  ): Promise<UpdateProjectResponse> {
+    const projectUpdated = await this.prisma.projects
+      .update({
+        where: { id },
+        data: { ...dto },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
+      })
+      .catch(serverError);
+
     return projectUpdated;
   }
 }
