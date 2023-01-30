@@ -12,6 +12,7 @@ import { BudgetRequestModule } from './app/budget-request/budget-request.module'
 import { ClientModule } from './app/client/client.module';
 import { RoleModule } from './app/role/role.module';
 import { ProjectModule } from './app/project/project.module';
+import { NormalHourModule } from './app/normal-hour/normal-hour.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ProjectModule } from './app/project/project.module';
     RoleModule,
     BudgetRequestModule,
     ProjectModule,
+    NormalHourModule,
   ],
 })
 export class AppModule {}
