@@ -4,14 +4,13 @@ import { UpdateUserFirstAccesProps } from 'src/app/auth/protocols/props/update-u
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
+import { DbFindManyUsersByQueryParam } from '../protocols/db-find-many-manger.response';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
 import { ProfilePictureProps } from '../protocols/props/insert-profile-picture.props';
 import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
-import { UpdateUserDto } from '../service/dto/update-user.dto';
 import { UpdateOwnUserDto } from '../service/dto/update-own-user.dto';
-import { bindCallback } from 'rxjs';
-import { DbCreateTeamProps } from 'src/app/team/protocols/props/db-create-team.props';
+import { UpdateUserDto } from '../service/dto/update-user.dto';
 
 @Injectable()
 export class UserRepository {
@@ -176,6 +175,57 @@ export class UserRepository {
     }
 
     return data;
+  }
+
+  async findManyUsersByQueryParam(
+    data: string,
+    roleName: string,
+  ): Promise<DbFindManyUsersByQueryParam> {
+    const usersByNameOrEmpty = await this.prisma.users
+      .findMany({
+        where: {
+          name: {
+            startsWith: data,
+            mode: 'insensitive',
+          },
+          AND: {
+            roleName,
+          },
+        },
+
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      })
+      .catch(serverError);
+
+    const usersByEmailOrEmpty = await this.prisma.users
+      .findMany({
+        where: {
+          email: {
+            startsWith: data,
+            mode: 'insensitive',
+          },
+          AND: {
+            roleName,
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      })
+      .catch(serverError);
+
+    const users = {
+      usersByNameOrEmpty,
+      usersByEmailOrEmpty,
+    };
+
+    return users;
   }
 
   private readonly findUserSelect = {
