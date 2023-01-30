@@ -49,7 +49,6 @@ export class ClientService {
       ...dto,
       id: createUuid(),
     });
-    console.log(clientCreated);
     return {
       id: clientCreated.id,
       companyName: clientCreated.companyName,
