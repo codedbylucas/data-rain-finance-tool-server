@@ -16,7 +16,7 @@ export enum Role {
 }
 
 export const RolesAccess = createParamDecorator(
-  (roles: Role[], ctx: ExecutionContext) => {
+  (roles: Role[], ctx: ExecutionContext): UserPayload => {
     const request = ctx.switchToHttp().getRequest();
     const user: UserPayload = request.user;
     if (!user) {
@@ -49,9 +49,9 @@ const rolesName = (roles: Role[]): string[] => {
   roles.forEach((role) => {
     if (role === 0) rolesName.push('admin');
     if (role === 1) rolesName.push('financial');
-    if (role === 2) rolesName.push('pre_sale');
+    if (role === 2) rolesName.push('pre sale');
     if (role === 3) rolesName.push('manager');
-    if (role === 4) rolesName.push('professional_services');
+    if (role === 4) rolesName.push('professional services');
   });
 
   return rolesName;

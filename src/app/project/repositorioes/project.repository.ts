@@ -219,4 +219,43 @@ export class ProjectRepository {
       })
       .catch(serverError);
   }
+
+  async findUserProjects(userId: string) {
+    const userProjectsOrEmpty = await this.prisma.usersProjects
+      .findMany({
+        where: { userId },
+        select: {
+          id: true,
+          project: {
+            select: {
+              name: true,
+              description: true,
+              client: {
+                select: {
+                  companyName: true,
+                },
+              },
+              users: {
+                where: {
+                  user: {
+                    roleName: 'manager',
+                  },
+                },
+                select: {
+                  user: {
+                    select: {
+                      name: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+
+    return userProjectsOrEmpty;
+  }
 }

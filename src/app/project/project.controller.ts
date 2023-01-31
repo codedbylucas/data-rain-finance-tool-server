@@ -9,8 +9,12 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
+import { UserPayload } from '../auth/protocols/user-payload';
 import { CreateProjectResponse } from './protocols/create-project.response';
 import { FindAllProjectsResponse } from './protocols/find-all-projects.response';
 import { AddClientToProjectDto } from './service/dto/add-client-to-project.dto';
@@ -50,6 +54,19 @@ export class ProjectController {
   })
   async addUserToProject(@Body() dto: AddUserToProjectDto): Promise<void> {
     return await this.projectService.addUserToProject(dto);
+  }
+
+  @Get('/user')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find user projects by token',
+  })
+  async findUserProjects(
+    @RolesAccess([Role.professionalServices, Role.manager])
+    payload: UserPayload,
+  ) {
+    return await this.projectService.findUserProjects(payload.userId);
   }
 
   @Get()
