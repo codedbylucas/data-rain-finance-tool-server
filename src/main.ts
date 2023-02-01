@@ -26,6 +26,7 @@ async function bootstrap() {
     .addTag('client')
     .addTag('budget-request')
     .addTag('project')
+    .addTag('normal-hour')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

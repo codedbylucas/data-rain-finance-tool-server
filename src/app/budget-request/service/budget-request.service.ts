@@ -14,6 +14,7 @@ import { UserService } from 'src/app/user/service/user.service';
 import { checkHasDuplicates } from 'src/app/util/check-has-duplicates-in-array';
 import { checkIfItsUiid } from "src/app/util/check-if-it's-uiid";
 import { createUuid } from 'src/app/util/create-uuid';
+import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { BudgetRequestEntity } from '../entities/budget-request.entity';
 import { FindAllBudgetRequestsResponse } from '../protocols/find-all-budget-requests-response';
 import { DbCreateClientResponsesProps } from '../protocols/props/db-create-client-responses.props';
@@ -198,8 +199,8 @@ export class BudgetRequestService {
       (budgetRequest) => ({
         id: budgetRequest.id,
         status: budgetRequest.status,
-        createdAt: this.formattedCurrentDate(budgetRequest.createdAt),
-        updatedAt: this.formattedCurrentDate(budgetRequest.updatedAt),
+        createdAt: formattedCurrentDate(budgetRequest.createdAt),
+        updatedAt: formattedCurrentDate(budgetRequest.updatedAt),
         client: {
           id: budgetRequest.client.id,
           companyName: budgetRequest.client.companyName,
@@ -222,8 +223,8 @@ export class BudgetRequestService {
       ['formResponses']: budgetRequestOrNull['clientsResponses'],
     })['clientsResponses'];
     Object.assign(budgetRequestOrNull, budgetRequestOrNull, {
-      createdAt: this.formattedCurrentDate(budgetRequestOrNull.createdAt),
-      updatedAt: this.formattedCurrentDate(budgetRequestOrNull.updatedAt),
+      createdAt: formattedCurrentDate(budgetRequestOrNull.createdAt),
+      updatedAt: formattedCurrentDate(budgetRequestOrNull.updatedAt),
     });
 
     return budgetRequestOrNull;
@@ -272,15 +273,6 @@ export class BudgetRequestService {
       throw new BadRequestException(`Budget request with id '${id}' not found`);
     }
     return budgetRequstOrNull;
-  }
-
-  formattedCurrentDate(data: Date) {
-    const day = data.getDate().toString(),
-      dayformatted = day.length == 1 ? '0' + day : day,
-      month = (data.getMonth() + 1).toString(),
-      monthformatted = month.length == 1 ? '0' + month : month,
-      yearformatted = data.getFullYear();
-    return dayformatted + '/' + monthformatted + '/' + yearformatted;
   }
 
   returnStatusThatUserHasPermission(roleName: string): Status {

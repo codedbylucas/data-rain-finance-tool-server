@@ -188,4 +188,45 @@ export class ProjectService {
     }
     return usersProjects;
   }
+
+  async findUserProjects(userId: string) {
+    await this.userService.findUserById(userId);
+    const userProjectsOrEmpty = await this.projectRepository.findUserProjects(
+      userId,
+    );
+
+    if (userProjectsOrEmpty.length === 0) {
+      throw new NotFoundException(`User is not in any project`);
+    }
+
+    const userProjects = userProjectsOrEmpty.map((userProject) => ({
+      project: {
+        id: userProject.project.id,
+        name: userProject.project.name,
+        description: userProject.project.description,
+      },
+      client: {
+        companyName: userProject.project.client?.companyName,
+      },
+      manager: {
+        name: userProject.project.users[0].user?.name,
+        email: userProject.project.users[0].user?.email,
+      },
+    }));
+
+    return userProjects;
+  }
+
+  async verifyRelationUserAndProject(userId: string, projectId: string) {
+    const userProjectOrNull = await this.projectRepository.findUserProjectById(
+      userId,
+      projectId,
+    );
+    if (!userProjectOrNull) {
+      throw new BadRequestException(
+        `Relationship between user and project not found`,
+      );
+    }
+    return userProjectOrNull;
+  }
 }

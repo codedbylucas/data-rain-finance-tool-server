@@ -219,4 +219,60 @@ export class ProjectRepository {
       })
       .catch(serverError);
   }
+
+  async findUserProjects(userId: string) {
+    const userProjectsOrEmpty = await this.prisma.usersProjects
+      .findMany({
+        where: { userId },
+        select: {
+          id: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              client: {
+                select: {
+                  companyName: true,
+                },
+              },
+              users: {
+                where: {
+                  user: {
+                    roleName: 'manager',
+                  },
+                },
+                select: {
+                  user: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+
+    return userProjectsOrEmpty;
+  }
+
+  async findUserProjectById(userId: string, projectId: string) {
+    const userProjectOrNull = await this.prisma.usersProjects
+      .findUnique({
+        where: {
+          userId_projectId: {
+            userId,
+            projectId,
+          },
+        },
+      })
+      .catch(serverError);
+
+    return userProjectOrNull;
+  }
 }
