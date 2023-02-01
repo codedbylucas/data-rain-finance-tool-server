@@ -152,7 +152,7 @@ export class BudgetRequestService {
       dto.budgetRequestId,
     );
     const user = await this.userService.findUserById(userId);
-    if (budgetRequest.verifyByPreSaleId && user.roleName === 'pre_sale') {
+    if (budgetRequest.verifyByPreSaleId && user.roleName === 'pre sale') {
       throw new BadRequestException(
         'Budget request has already been validaded by pre sale',
       );
@@ -168,10 +168,10 @@ export class BudgetRequestService {
       );
     }
 
-    if (user.roleName === 'pre_sale') {
+    if (user.roleName === 'pre sale') {
       await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
         ...dto,
-        verify_by_pre_sale_id: userId,
+        verifyByPreSaleId: userId,
         status: Status.review,
       });
       return;
@@ -179,7 +179,7 @@ export class BudgetRequestService {
     if (user.roleName === 'financial') {
       await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
         ...dto,
-        verify_by_financial_id: userId,
+        verifyByFinancialId: userId,
         status: Status.approved,
       });
       return;
@@ -277,7 +277,7 @@ export class BudgetRequestService {
 
   returnStatusThatUserHasPermission(roleName: string): Status {
     let status: Status;
-    if (roleName === 'pre_sale') {
+    if (roleName === 'pre sale') {
       status = Status.request;
     } else if (roleName === 'financial') {
       status = Status.review;

@@ -144,7 +144,7 @@ export class BudgetRequestRepository {
     props: DbAprrovedByPreSaleBudgetRequestProps,
   ): Promise<void> {
     const data: Prisma.BudgetRequestUpdateInput = {
-      verifyByPreSaleId: props.verify_by_pre_sale_id,
+      verifyByPreSaleId: props.verifyByPreSaleId,
       status: props.status,
     };
     await this.prisma.budgetRequest
@@ -159,7 +159,7 @@ export class BudgetRequestRepository {
     props: DbAprrovedByPreSaleBudgetRequestProps,
   ): Promise<void> {
     const data: Prisma.BudgetRequestUpdateInput = {
-      verifyByFinancialId: props.verify_by_financial_id,
+      verifyByFinancialId: props.verifyByFinancialId,
       status: props.status,
     };
     await this.prisma.budgetRequest
