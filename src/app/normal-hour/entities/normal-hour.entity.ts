@@ -5,4 +5,5 @@ export class NormalHourEntity {
   exitBreak?: Date;
   backBreack?: Date;
   exit?: Date;
+  userProjectId: string;
 }

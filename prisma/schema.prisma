@@ -195,6 +195,8 @@ model UsersProjects {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  normalHours NormalHours[]
+
   @@unique([userId, projectId])
   @@map("users_projects")
 }
@@ -206,6 +208,9 @@ model NormalHours {
   exitBreak DateTime? @map("exit_break")
   backBreak DateTime? @map("back_break")
   exit      DateTime?
+
+  userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
+  userProjectId String        @map("user_project_id")
 
   @@map("normal_hours")
 }

@@ -200,8 +200,8 @@ export class ProjectService {
     }
 
     const userProjects = userProjectsOrEmpty.map((userProject) => ({
-      userProjectId: userProject.id,
       project: {
+        id: userProject.project.id,
         name: userProject.project.name,
         description: userProject.project.description,
       },
@@ -215,5 +215,18 @@ export class ProjectService {
     }));
 
     return userProjects;
+  }
+
+  async verifyRelationUserAndProject(userId: string, projectId: string) {
+    const userProjectOrNull = await this.projectRepository.findUserProjectById(
+      userId,
+      projectId,
+    );
+    if (!userProjectOrNull) {
+      throw new BadRequestException(
+        `Relationship between user and project not found`,
+      );
+    }
+    return userProjectOrNull;
   }
 }
