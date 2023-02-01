@@ -3,10 +3,7 @@ import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
-import {
-  DayTimeStatus,
-  DayTimeStatusEnum,
-} from '../protocols/day-time-status';
+import { DayTimeStatus, DayTimeStatusEnum } from '../protocols/day-time-status';
 import { NormalHourRepository } from '../repositories/normal-hour.repository';
 
 @Injectable()
@@ -18,6 +15,12 @@ export class NormalHourService {
   ) {}
 
   async sendTime(userId: string, projectId: string) {
+    const user = await this.userService.findUserById(userId);
+    if (!user.billable) {
+      throw new BadRequestException(
+        `User who is not billable cannot access this route`,
+      );
+    }
     await this.projectService.findProjectById(projectId);
     const userProject = await this.projectService.verifyRelationUserAndProject(
       userId,
