@@ -151,8 +151,8 @@ export class ProjectService {
     projectId: string,
     userId: string,
   ): Promise<void> {
-    await this.findProjectById(projectId);
     const user = await this.userService.findUserById(userId);
+    await this.verifyRelationUserAndProject(userId, projectId);
     await this.projectRepository.removeUserFromProject(projectId, userId);
 
     const usersInProject =
