@@ -2,8 +2,8 @@ export class NormalHourEntity {
   id: string;
   date: string;
   entry: Date;
-  exitBreak?: Date;
-  backBreack?: Date;
+  exitToBreak?: Date;
+  backFromTheBreak?: Date;
   exit?: Date;
   userProjectId: string;
 }

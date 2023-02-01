@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { NormalHourEntity } from '../entities/normal-hour.entity';
-import { DbCreateNormalHour } from '../props/db-create-normal-hour.props';
+import { DbCreateNormalHour } from '../protocols/props/db-create-normal-hour.props';
 
 @Injectable()
 export class NormalHourRepository {

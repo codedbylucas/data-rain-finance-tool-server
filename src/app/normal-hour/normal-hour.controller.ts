@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -31,5 +33,22 @@ export class NormalHourController {
     @Body() dto: SendTimeDto,
   ) {
     return await this.normalHourService.sendTime(payload.userId, dto.projectId);
+  }
+
+  @Get(':projectId')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find weather status in the day',
+  })
+  async findWeatherStatusInTheDay(
+    @RolesAccess([Role.professionalServices, Role.manager])
+    payload: UserPayload,
+    @Param('projectId') projectId: string,
+  ) {
+    return await this.normalHourService.findWeatherStatusInTheDay(
+      payload.userId,
+      projectId,
+    );
   }
 }
