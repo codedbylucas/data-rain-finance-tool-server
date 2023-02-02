@@ -18,7 +18,12 @@ export class RequestSendOvertimeRepository {
       requestDate: props.requestDate,
       userProject: {
         connect: {
-          id: props.userProjectsId,
+          id: props.userProjectId,
+        },
+      },
+      manager: {
+        connect: {
+          id: props.managerId,
         },
       },
     };
