@@ -63,18 +63,18 @@ export class NormalHourService {
 
 
     const date = formattedCurrentDate(new Date());
-    const normalHourOrNull =
+    const normalHourOrEmpty =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
         userProject.id,
         date,
       );
 
-    if (normalHourOrNull.length === 0) {
+    if (normalHourOrEmpty.length === 0) {
       return {
         status: new DayTimeStatus(DayTimeStatusEnum.entry).returnStatus(),
       };
     }
-    const normalHour = normalHourOrNull[0];
+    const normalHour = normalHourOrEmpty[0];
     if (normalHour.entry && !normalHour.exitToBreak) {
       return {
         normalHourId: normalHour.id,
