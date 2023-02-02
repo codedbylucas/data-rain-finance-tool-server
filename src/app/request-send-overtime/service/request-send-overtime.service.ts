@@ -9,6 +9,7 @@ import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
+import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
 import { RequestSendOvertimeRepository } from '../repositories/request-send-overtime.repository';
 import { AskPermissionToSendOvertimeDto } from './dto/ask-permission-to-send-overtime.dto';
 
@@ -91,6 +92,7 @@ export class RequestSendOvertimeService {
     const requestSendOvertimes = requestSendOvertimeOrEmpty.map((item) => ({
       requestSendOvertimeId: item.id,
       requestDescription: item.requestDescription,
+      approvalSatus: item.approvalSatus,
       project: {
         name: item.userProject.project.name,
         description: item.userProject.project.description,
@@ -104,5 +106,36 @@ export class RequestSendOvertimeService {
       },
     }));
     return requestSendOvertimes;
+  }
+
+  async changeStatusOfRequestSendOvertime(
+    id: string,
+    props: ChangeStatusOfRequestSendOvertimeProps,
+  ) {
+    const requestSendOvertimeOrNull = await this.verifyRequestSendOvertimeExist(
+      id,
+    );
+    if (requestSendOvertimeOrNull.approvalSatus !== 'analyze') {
+      throw new BadRequestException(
+        `It is only possible to change the status of a request to send overtime if it is under review`,
+      );
+    }
+    await this.requestSendOvertimeRepository.changeStatusOfRequestSendOvertime(
+      id,
+      props,
+    );
+  }
+
+  async verifyRequestSendOvertimeExist(
+    id: string,
+  ): Promise<RequestSendOvertimeEntity> {
+    const requestSendOvertimeOrNull =
+      await this.requestSendOvertimeRepository.findRequestSendOvertimeById(id);
+    if (!requestSendOvertimeOrNull) {
+      throw new BadRequestException(
+        `Request to send hours with id does not exist`,
+      );
+    }
+    return requestSendOvertimeOrNull;
   }
 }

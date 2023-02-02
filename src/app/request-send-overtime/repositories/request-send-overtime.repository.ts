@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { ApprovalStatus, Prisma, RequestSendOvertime } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { DbAskPermissionToSendOvertime } from '../protocols/db-create-request-send-overtime.props';
+import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
 
 @Injectable()
 export class RequestSendOvertimeRepository {
@@ -46,15 +47,25 @@ export class RequestSendOvertimeRepository {
     return requestSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertimeByManagerId(
-    managerId: string,
-  ) {
+  async findRequestSendOvertimeById(
+    id: string,
+  ): Promise<RequestSendOvertimeEntity> {
+    const requestSendOvertimeOrNull = await this.prisma.requestSendOvertime
+      .findUnique({
+        where: { id },
+      })
+      .catch(serverError);
+    return requestSendOvertimeOrNull;
+  }
+
+  async findAllRequestSendOvertimeByManagerId(managerId: string) {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
-        where: { managerId },
+        where: { managerId, AND: { approvalSatus: ApprovalStatus.analyze } },
         select: {
           id: true,
           requestDescription: true,
+          approvalSatus: true,
           userProject: {
             select: {
               project: {
@@ -80,5 +91,22 @@ export class RequestSendOvertimeRepository {
       })
       .catch(serverError);
     return allRequestsSendOvertimeOrEmpty;
+  }
+
+  async changeStatusOfRequestSendOvertime(
+    id: string,
+    props: ChangeStatusOfRequestSendOvertimeProps,
+  ): Promise<void> {
+    const data: Prisma.RequestSendOvertimeUpdateInput = {
+      ...props,
+    };
+    await this.prisma.requestSendOvertime
+      .update({
+        where: {
+          id,
+        },
+        data,
+      })
+      .catch(serverError);
   }
 }

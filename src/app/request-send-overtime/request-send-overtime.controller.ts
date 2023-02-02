@@ -9,8 +9,10 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApprovalStatus } from '@prisma/client';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { AprroveAndReproveRequestSendOvertimeDto } from './service/dto/aprrove-and-reprove-request-send-overtime.dto';
 import { AskPermissionToSendOvertimeDto } from './service/dto/ask-permission-to-send-overtime.dto';
 import { RequestSendOvertimeService } from './service/request-send-overtime.service';
 
@@ -50,6 +52,40 @@ export class RequestSendOvertimeController {
   ) {
     return await this.requestSendOvertimeService.findAllRequestSendOvertimeByManagerId(
       payload.userId,
+    );
+  }
+
+  @Post('approve')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Approve request send overtime',
+  })
+  async approveRequestSendOvertime(
+    @RolesAccess([Role.manager]) payload: UserPayload,
+    @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
+  ) {
+    return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
+      dto.requestSendOvertimeId,
+      { approvalSatus: ApprovalStatus.approved, authorizationDate: new Date() },
+    );
+  }
+
+  @Post('reprove')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Reprove request send overtime',
+  })
+  async reproveRequestSendOvertime(
+    @RolesAccess([Role.manager]) payload: UserPayload,
+    @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
+  ) {
+    return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
+      dto.requestSendOvertimeId,
+      { approvalSatus: ApprovalStatus.reproved, disapprovalDate: new Date() },
     );
   }
 }
