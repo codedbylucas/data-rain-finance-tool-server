@@ -209,8 +209,8 @@ export class ProjectService {
         companyName: userProject.project.client?.companyName,
       },
       manager: {
-        name: userProject.project.users[0].user?.name,
-        email: userProject.project.users[0].user?.email,
+        name: userProject.project.users[0]?.user?.name,
+        email: userProject.project.users[0]?.user?.email,
       },
     }));
 
