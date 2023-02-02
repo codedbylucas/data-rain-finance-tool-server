@@ -61,6 +61,7 @@ export class NormalHourService {
       projectId,
     );
 
+
     const date = formattedCurrentDate(new Date());
     const normalHourOrNull =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
@@ -76,13 +77,13 @@ export class NormalHourService {
     const normalHour = normalHourOrNull[0];
     if (normalHour.entry && !normalHour.exitToBreak) {
       return {
-        normalHourId: normalHour[0].id,
+        normalHourId: normalHour.id,
         status: new DayTimeStatus(DayTimeStatusEnum.exitToBreak).returnStatus(),
       };
     }
     if (normalHour.exitToBreak && !normalHour.backFromTheBreak) {
       return {
-        normalHourId: normalHour[0].id,
+        normalHourId: normalHour.id,
         status: new DayTimeStatus(
           DayTimeStatusEnum.backFromTheBreak,
         ).returnStatus(),
@@ -90,7 +91,7 @@ export class NormalHourService {
     }
     if (normalHour.backFromTheBreak && !normalHour.exit) {
       return {
-        normalHourId: normalHour[0].id,
+        normalHourId: normalHour.id,
         status: new DayTimeStatus(DayTimeStatusEnum.exit).returnStatus(),
       };
     }
