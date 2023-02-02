@@ -218,7 +218,7 @@ model NormalHours {
 
 model RequestSendOvertime {
   id                    String  @id @unique @default(uuid())
-  requestDescription    String  @map("request_description") @db.VarChar(500)
+  requestDescription    String  @map("request_description") @db.VarChar(200)
   authorizedByManagerId String? @map("authorized_by_manager_id")
   authorizationDate     String? @map("authorization_date")
 
