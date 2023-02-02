@@ -3,6 +3,7 @@ import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
+import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { RequestSendOvertimeRepository } from '../repositories/request-send-overtime.repository';
 import { AskPermissionToSendOvertimeDto } from './dto/ask-permission-to-send-overtime.dto';
 
@@ -17,7 +18,7 @@ export class RequestSendOvertimeService {
   async askPermissionToSendOvertime(
     userId: string,
     dto: AskPermissionToSendOvertimeDto,
-  ) {
+  ): Promise<void> {
     const userOrError = await this.userService.findUserById(userId);
     if (!userOrError.billable) {
       throw new BadRequestException(`Only billable user is authorized`);
@@ -46,21 +47,18 @@ export class RequestSendOvertimeService {
       requestDate,
     );
 
-    const askPermissionToSendOvertimeCreated =
-      await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
-        id: createUuid(),
-        requestDescription: dto.requestDescription,
-        userProjectsId: userProjectOrError.id,
-        requestDate,
-      });
-
-    return askPermissionToSendOvertimeCreated;
+    await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
+      id: createUuid(),
+      requestDescription: dto.requestDescription,
+      userProjectsId: userProjectOrError.id,
+      requestDate,
+    });
   }
 
   async checkIfUserHasAlreadyPlacedAnOrder(
     userProjectId: string,
     date: string,
-  ) {
+  ): Promise<RequestSendOvertimeEntity[]> {
     const requestSendOvertimeOrEmpty =
       await this.requestSendOvertimeRepository.findRequestSendOvertime(
         userProjectId,

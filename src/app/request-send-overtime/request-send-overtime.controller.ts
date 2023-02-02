@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
@@ -15,6 +22,7 @@ export class RequestSendOvertimeController {
   @Post()
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
   async askPermissionToSendOvertime(
     @RolesAccess([Role.professionalServices]) payload: UserPayload,
     @Body() dto: AskPermissionToSendOvertimeDto,

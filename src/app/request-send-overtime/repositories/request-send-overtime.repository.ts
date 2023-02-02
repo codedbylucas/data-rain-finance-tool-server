@@ -9,7 +9,9 @@ import { DbAskPermissionToSendOvertime } from '../protocols/db-create-request-se
 export class RequestSendOvertimeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async askPermissionToSendOvertime(props: DbAskPermissionToSendOvertime) {
+  async askPermissionToSendOvertime(
+    props: DbAskPermissionToSendOvertime,
+  ): Promise<RequestSendOvertimeEntity> {
     const data: Prisma.RequestSendOvertimeCreateInput = {
       id: props.id,
       requestDescription: props.requestDescription,
@@ -27,7 +29,10 @@ export class RequestSendOvertimeRepository {
     return askPermissionToSendOvertimeCreated;
   }
 
-  async findRequestSendOvertime(userProjectId: string, date: string) {
+  async findRequestSendOvertime(
+    userProjectId: string,
+    date: string,
+  ): Promise<RequestSendOvertimeEntity[]> {
     const requestSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
         where: { userProjectId, AND: { requestDate: date } },
