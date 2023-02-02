@@ -48,7 +48,7 @@ export class RequestSendOvertimeController {
       'Fetch all requests to post overtime on projects that the manager is',
   })
   async findAllRequestSendOvertimeByManagerId(
-    @RolesAccess([Role.manager]) payload: UserPayload,
+    @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
   ) {
     return await this.requestSendOvertimeService.findAllRequestSendOvertimeByManagerId(
       payload.userId,
