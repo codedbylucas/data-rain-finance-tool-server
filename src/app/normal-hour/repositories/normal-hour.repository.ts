@@ -4,6 +4,7 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { NormalHourEntity } from '../entities/normal-hour.entity';
 import { DbCreateNormalHour } from '../protocols/props/db-create-normal-hour.props';
+import { DbUpdateNormalHourProps } from '../protocols/props/db-update-normal-hour.props';
 
 @Injectable()
 export class NormalHourRepository {
@@ -46,5 +47,23 @@ export class NormalHourRepository {
       .catch(serverError);
 
     return normalHour;
+  }
+
+  async findNormalHourById(id: string): Promise<NormalHourEntity> {
+    const normalHour = await this.prisma.normalHours
+      .findUnique({
+        where: { id },
+      })
+      .catch(serverError);
+    return normalHour;
+  }
+
+  async updateNormalHour(id: string, props: DbUpdateNormalHourProps) {
+    await this.prisma.normalHours
+      .update({
+        where: { id },
+        data: props,
+      })
+      .catch(serverError);
   }
 }

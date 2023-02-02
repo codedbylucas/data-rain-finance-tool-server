@@ -195,6 +195,8 @@ export class ProjectService {
       userId,
     );
 
+    console.log(userProjectsOrEmpty)
+
     if (userProjectsOrEmpty.length === 0) {
       throw new NotFoundException(`User is not in any project`);
     }
@@ -209,8 +211,8 @@ export class ProjectService {
         companyName: userProject.project.client?.companyName,
       },
       manager: {
-        name: userProject.project.users[0].user?.name,
-        email: userProject.project.users[0].user?.email,
+        name: userProject.project.users[0]?.user?.name,
+        email: userProject.project.users[0]?.user?.email,
       },
     }));
 
