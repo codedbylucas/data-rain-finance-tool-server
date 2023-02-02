@@ -219,11 +219,15 @@ model NormalHours {
 model RequestSendOvertime {
   id                    String  @id @unique @default(uuid())
   requestDescription    String  @map("request_description") @db.VarChar(200)
+  requestDate           String  @map("request_date")
   authorizedByManagerId String? @map("authorized_by_manager_id")
   authorizationDate     String? @map("authorization_date")
 
   userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
   userProjectId String        @map("user_project_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("request_send_overtime")
 }

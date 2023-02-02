@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
 
-export class CreateRequestSendOvertimeDto {
+export class AskPermissionToSendOvertimeDto {
   @IsUUID()
   @IsNotEmpty()
   @ApiProperty({
@@ -16,7 +16,7 @@ export class CreateRequestSendOvertimeDto {
   @Length(2, 200)
   @ApiProperty({
     description: 'Order description to post overtime',
-    example: 'ac06f36e-4b61-4fe8-8fd6-6ad807ac6282',
+    example: 'I need to do overtime to restart the server',
   })
   requestDescription: string;
 }
