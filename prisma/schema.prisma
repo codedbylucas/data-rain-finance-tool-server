@@ -195,7 +195,8 @@ model UsersProjects {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  normalHours NormalHours[]
+  normalHours         NormalHours[]
+  requestSendOvertime RequestSendOvertime[]
 
   @@unique([userId, projectId])
   @@map("users_projects")
@@ -213,4 +214,16 @@ model NormalHours {
   userProjectId String        @map("user_project_id")
 
   @@map("normal_hours")
+}
+
+model RequestSendOvertime {
+  id                    String  @id @unique @default(uuid())
+  requestDescription    String  @map("request_description") @db.VarChar(500)
+  authorizedByManagerId String? @map("authorized_by_manager_id")
+  authorizationDate     String? @map("authorization_date")
+
+  userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
+  userProjectId String        @map("user_project_id")
+
+  @@map("request_send_overtime")
 }
