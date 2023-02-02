@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -34,6 +35,21 @@ export class RequestSendOvertimeController {
     return await this.requestSendOvertimeService.askPermissionToSendOvertime(
       payload.userId,
       dto,
+    );
+  }
+
+  @Get()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Fetch all requests to post overtime on projects that the manager is',
+  })
+  async findAllRequestSendOvertimeByManagerId(
+    @RolesAccess([Role.manager]) payload: UserPayload,
+  ) {
+    return await this.requestSendOvertimeService.findAllRequestSendOvertimeByManagerId(
+      payload.userId,
     );
   }
 }
