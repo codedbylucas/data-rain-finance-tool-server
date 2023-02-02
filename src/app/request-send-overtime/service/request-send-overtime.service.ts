@@ -80,11 +80,20 @@ export class RequestSendOvertimeService {
     return requestSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertimeByManagerId(managerId: string) {
-    const requestSendOvertimeOrEmpty =
-      await this.requestSendOvertimeRepository.findAllRequestSendOvertimeByManagerId(
-        managerId,
-      );
+  async findAllRequestSendOvertimeByManagerId(userId: string) {
+    const userOrNull = await this.userService.findUserById(userId);
+    let requestSendOvertimeOrEmpty = null;
+
+    if (userOrNull.roleName === 'admin') {
+      requestSendOvertimeOrEmpty =
+        await this.requestSendOvertimeRepository.findAllRequestSendOvertimeById();
+    } else if (userOrNull.roleName === 'manager') {
+      requestSendOvertimeOrEmpty =
+        await this.requestSendOvertimeRepository.findAllRequestSendOvertimeByManagerId(
+          userId,
+        );
+    }
+
     if (requestSendOvertimeOrEmpty.length === 0) {
       throw new NotFoundException(`No request to post overtime was found`);
     }

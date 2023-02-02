@@ -93,6 +93,41 @@ export class RequestSendOvertimeRepository {
     return allRequestsSendOvertimeOrEmpty;
   }
 
+  async findAllRequestSendOvertimeById() { 
+    const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
+      .findMany({
+        where: { approvalSatus: ApprovalStatus.analyze },
+        select: {
+          id: true,
+          requestDescription: true,
+          approvalSatus: true,
+          userProject: {
+            select: {
+              project: {
+                select: {
+                  name: true,
+                  description: true,
+                  client: {
+                    select: {
+                      companyName: true,
+                    },
+                  },
+                },
+              },
+              user: {
+                select: {
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+    return allRequestsSendOvertimeOrEmpty;
+  }
+
   async changeStatusOfRequestSendOvertime(
     id: string,
     props: ChangeStatusOfRequestSendOvertimeProps,

@@ -10,6 +10,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApprovalStatus } from '@prisma/client';
+import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
 import { AprroveAndReproveRequestSendOvertimeDto } from './service/dto/aprrove-and-reprove-request-send-overtime.dto';
@@ -48,7 +49,7 @@ export class RequestSendOvertimeController {
       'Fetch all requests to post overtime on projects that the manager is',
   })
   async findAllRequestSendOvertimeByManagerId(
-    @RolesAccess([Role.manager]) payload: UserPayload,
+    @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
   ) {
     return await this.requestSendOvertimeService.findAllRequestSendOvertimeByManagerId(
       payload.userId,
