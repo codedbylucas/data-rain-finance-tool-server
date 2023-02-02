@@ -25,7 +25,7 @@ export class RequestSendOvertimeController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    description: 'Create an order to be able to send overtime',
+    summary: 'Create an order to be able to send overtime',
   })
   async askPermissionToSendOvertime(
     @RolesAccess([Role.professionalServices]) payload: UserPayload,

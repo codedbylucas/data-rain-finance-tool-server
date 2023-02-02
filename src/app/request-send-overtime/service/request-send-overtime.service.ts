@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ApprovalStatus } from '@prisma/client';
 import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
@@ -50,8 +51,10 @@ export class RequestSendOvertimeService {
     await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
       id: createUuid(),
       requestDescription: dto.requestDescription,
-      userProjectsId: userProjectOrError.id,
+      userProjectId: userProjectOrError.id,
       requestDate,
+      managerId: projectManager.user.id,
+      approvalSatus: ApprovalStatus.analyze,
     });
   }
 

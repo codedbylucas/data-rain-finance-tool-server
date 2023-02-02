@@ -24,7 +24,8 @@ model Users {
   role     Roles  @relation(fields: [roleName], references: [name])
   roleName String @map("role_name")
 
-  projects UsersProjects[]
+  projects            UsersProjects[]
+  requestSendOvertime RequestSendOvertime[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -217,17 +218,27 @@ model NormalHours {
 }
 
 model RequestSendOvertime {
-  id                    String  @id @unique @default(uuid())
-  requestDescription    String  @map("request_description") @db.VarChar(200)
-  requestDate           String  @map("request_date")
-  authorizedByManagerId String? @map("authorized_by_manager_id")
-  authorizationDate     String? @map("authorization_date")
+  id                 String         @id @unique @default(uuid())
+  requestDescription String         @map("request_description") @db.VarChar(200)
+  requestDate        String         @map("request_date")
+  approvalSatus      ApprovalStatus @default(analyze) @map("approval_status")
+  authorizationDate  DateTime?      @map("authorization_date")
+  disapprovalDate    DateTime?      @map("disapproval_date")
 
   userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
   userProjectId String        @map("user_project_id")
+
+  manager   Users  @relation(fields: [managerId], references: [id])
+  managerId String @map("manager_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("request_send_overtime")
+}
+
+enum ApprovalStatus {
+  approved
+  analyze
+  reproved
 }
