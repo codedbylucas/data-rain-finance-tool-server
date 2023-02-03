@@ -8,7 +8,7 @@ export class RequestSendOvertimeEntity extends BaseEntity {
   approvalSatus: ApprovalStatus;
   userProjectId: string;
   managerId: string;
+  validatedByUserId?: string;
   overtime?: OvertimeEntity;
-  disapprovalDate?: Date;
-  authorizationDate?: Date;
+  validation_date?: Date;
 }

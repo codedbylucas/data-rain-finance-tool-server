@@ -46,7 +46,7 @@ export class RequestSendOvertimeController {
   @ApiBearerAuth()
   @ApiOperation({
     summary:
-      'Fetch all requests to post overtime on projects that the manager is',
+      'Find all requests to submit overtime that are under review',
   })
   async findAllRequestSendOvertimeByManagerId(
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
@@ -64,12 +64,16 @@ export class RequestSendOvertimeController {
     summary: 'Approve request send overtime',
   })
   async approveRequestSendOvertime(
-    @RolesAccess([Role.manager]) payload: UserPayload,
+    @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
     @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
   ) {
     return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
       dto.requestSendOvertimeId,
-      { approvalSatus: ApprovalStatus.approved, authorizationDate: new Date() },
+      {
+        approvalSatus: ApprovalStatus.approved,
+        validationDate: new Date(),
+        validatedByUserId: payload.userId,
+      },
     );
   }
 
@@ -81,12 +85,16 @@ export class RequestSendOvertimeController {
     summary: 'Reprove request send overtime',
   })
   async reproveRequestSendOvertime(
-    @RolesAccess([Role.manager]) payload: UserPayload,
+    @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
     @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
   ) {
     return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
       dto.requestSendOvertimeId,
-      { approvalSatus: ApprovalStatus.reproved, disapprovalDate: new Date() },
+      {
+        approvalSatus: ApprovalStatus.reproved,
+        validationDate: new Date(),
+        validatedByUserId: payload.userId,
+      },
     );
   }
 }

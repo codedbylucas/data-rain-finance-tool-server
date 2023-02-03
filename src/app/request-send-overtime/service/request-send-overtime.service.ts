@@ -86,7 +86,7 @@ export class RequestSendOvertimeService {
 
     if (userOrNull.roleName === 'admin') {
       requestSendOvertimeOrEmpty =
-        await this.requestSendOvertimeRepository.findAllRequestSendOvertimeById();
+        await this.requestSendOvertimeRepository.findAllRequestSendOvertimeInAnalyze();
     } else if (userOrNull.roleName === 'manager') {
       requestSendOvertimeOrEmpty =
         await this.requestSendOvertimeRepository.findAllRequestSendOvertimeByManagerId(

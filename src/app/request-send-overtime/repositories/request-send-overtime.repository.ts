@@ -99,7 +99,7 @@ export class RequestSendOvertimeRepository {
     return allRequestsSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertimeById() {
+  async findAllRequestSendOvertimeInAnalyze() {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
         where: { approvalSatus: ApprovalStatus.analyze },

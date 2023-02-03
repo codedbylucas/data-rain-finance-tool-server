@@ -222,8 +222,8 @@ model RequestSendOvertime {
   requestDescription String         @map("request_description") @db.VarChar(200)
   requestDate        String         @map("request_date")
   approvalSatus      ApprovalStatus @default(analyze) @map("approval_status")
-  authorizationDate  DateTime?      @map("authorization_date")
-  disapprovalDate    DateTime?      @map("disapproval_date")
+  validationDate     DateTime?      @map("validation_date")
+  validatedByUserId  String?        @map("validated_by_user_id")
 
   userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
   userProjectId String        @map("user_project_id")
