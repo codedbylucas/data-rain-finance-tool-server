@@ -32,7 +32,7 @@ export class NormalHourController {
     @RolesAccess([Role.professionalServices, Role.manager])
     payload: UserPayload,
     @Body() dto: SendTimeDto,
-  ) {
+  ): Promise<void> {
     return await this.normalHourService.sendTime(payload.userId, dto.projectId);
   }
 

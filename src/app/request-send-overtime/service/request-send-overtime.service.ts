@@ -86,7 +86,7 @@ export class RequestSendOvertimeService {
 
     if (userOrNull.roleName === 'admin') {
       requestSendOvertimeOrEmpty =
-        await this.requestSendOvertimeRepository.findAllRequestSendOvertimeById();
+        await this.requestSendOvertimeRepository.findAllRequestSendOvertimeInAnalyze();
     } else if (userOrNull.roleName === 'manager') {
       requestSendOvertimeOrEmpty =
         await this.requestSendOvertimeRepository.findAllRequestSendOvertimeByManagerId(
@@ -135,9 +135,7 @@ export class RequestSendOvertimeService {
     );
   }
 
-  async verifyRequestSendOvertimeExist(
-    id: string,
-  ): Promise<RequestSendOvertimeEntity> {
+  async verifyRequestSendOvertimeExist(id: string) {
     const requestSendOvertimeOrNull =
       await this.requestSendOvertimeRepository.findRequestSendOvertimeById(id);
     if (!requestSendOvertimeOrNull) {

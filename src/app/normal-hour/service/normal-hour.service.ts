@@ -3,7 +3,10 @@ import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
-import { DayTimeStatus, DayTimeStatusEnum } from '../protocols/day-time-status';
+import {
+  DayTimeStatusEnum,
+  DayTimeStatusNormalHour,
+} from '../protocols/day-time-status-normal-hour';
 import { NormalHourRepository } from '../repositories/normal-hour.repository';
 
 @Injectable()
@@ -14,7 +17,7 @@ export class NormalHourService {
     private readonly userService: UserService,
   ) {}
 
-  async sendTime(userId: string, projectId: string) {
+  async sendTime(userId: string, projectId: string): Promise<void> {
     const user = await this.userService.findUserById(userId);
     if (!user.billable) {
       throw new BadRequestException(
@@ -39,14 +42,12 @@ export class NormalHourService {
         `User has already started working on this date`,
       );
     }
-    const normalHourCreated = await this.normalHourRepository.sendTime({
+    await this.normalHourRepository.sendTime({
       id: createUuid(),
       date,
       entry: new Date(),
       userProjectId: userProject.id,
     });
-
-    return normalHourCreated;
   }
 
   async findWeatherStatusInTheDay(userId: string, projectId: string) {
@@ -61,7 +62,6 @@ export class NormalHourService {
       projectId,
     );
 
-
     const date = formattedCurrentDate(new Date());
     const normalHourOrEmpty =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
@@ -71,20 +71,24 @@ export class NormalHourService {
 
     if (normalHourOrEmpty.length === 0) {
       return {
-        status: new DayTimeStatus(DayTimeStatusEnum.entry).returnStatus(),
+        status: new DayTimeStatusNormalHour(
+          DayTimeStatusEnum.entry,
+        ).returnStatus(),
       };
     }
     const normalHour = normalHourOrEmpty[0];
     if (normalHour.entry && !normalHour.exitToBreak) {
       return {
         normalHourId: normalHour.id,
-        status: new DayTimeStatus(DayTimeStatusEnum.exitToBreak).returnStatus(),
+        status: new DayTimeStatusNormalHour(
+          DayTimeStatusEnum.exitToBreak,
+        ).returnStatus(),
       };
     }
     if (normalHour.exitToBreak && !normalHour.backFromTheBreak) {
       return {
         normalHourId: normalHour.id,
-        status: new DayTimeStatus(
+        status: new DayTimeStatusNormalHour(
           DayTimeStatusEnum.backFromTheBreak,
         ).returnStatus(),
       };
@@ -92,7 +96,9 @@ export class NormalHourService {
     if (normalHour.backFromTheBreak && !normalHour.exit) {
       return {
         normalHourId: normalHour.id,
-        status: new DayTimeStatus(DayTimeStatusEnum.exit).returnStatus(),
+        status: new DayTimeStatusNormalHour(
+          DayTimeStatusEnum.exit,
+        ).returnStatus(),
       };
     }
     if (normalHour.exit) {
