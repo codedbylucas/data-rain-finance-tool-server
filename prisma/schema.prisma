@@ -211,7 +211,7 @@ model NormalHours {
   backFromTheBreak DateTime? @map("back_break")
   exit             DateTime?
 
-  userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
+  userProject   UsersProjects @relation(fields: [userProjectId], references: [id], onDelete: Cascade)
   userProjectId String        @map("user_project_id")
 
   @@map("normal_hours")
@@ -225,11 +225,11 @@ model RequestSendOvertime {
   validationDate     DateTime?      @map("validation_date")
   validatedByUserId  String?        @map("validated_by_user_id")
 
-  userProject   UsersProjects @relation(fields: [userProjectId], references: [id])
+  userProject   UsersProjects @relation(fields: [userProjectId], references: [id], onDelete: Cascade)
   userProjectId String        @map("user_project_id")
 
-  manager   Users  @relation(fields: [managerId], references: [id])
-  managerId String @map("manager_id")
+  manager   Users?  @relation(fields: [managerId], references: [id], onDelete: SetNull)
+  managerId String? @map("manager_id")
 
   overtime Overtimes?
 
@@ -251,8 +251,8 @@ model Overtimes {
   entry DateTime
   exit  DateTime?
 
-  requestSendOvertime   RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id])
-  requestSendOvertimeId String           @unique @map("request_send_overtime_id")
+  requestSendOvertime   RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id], onDelete: Cascade)
+  requestSendOvertimeId String              @unique @map("request_send_overtime_id")
 
   @@map("overtimes")
 }
