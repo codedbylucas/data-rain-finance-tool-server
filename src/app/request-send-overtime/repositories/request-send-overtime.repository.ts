@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ApprovalStatus, Prisma, RequestSendOvertime } from '@prisma/client';
+import { ApprovalStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
@@ -47,12 +47,18 @@ export class RequestSendOvertimeRepository {
     return requestSendOvertimeOrEmpty;
   }
 
-  async findRequestSendOvertimeById(
-    id: string,
-  ): Promise<RequestSendOvertimeEntity> {
+  async findRequestSendOvertimeById(id: string) {
     const requestSendOvertimeOrNull = await this.prisma.requestSendOvertime
       .findUnique({
         where: { id },
+        include: {
+          overtime: true,
+          userProject: {
+            select: {
+              user: true,
+            },
+          },
+        },
       })
       .catch(serverError);
     return requestSendOvertimeOrNull;
@@ -93,7 +99,7 @@ export class RequestSendOvertimeRepository {
     return allRequestsSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertimeById() { 
+  async findAllRequestSendOvertimeById() {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
         where: { approvalSatus: ApprovalStatus.analyze },

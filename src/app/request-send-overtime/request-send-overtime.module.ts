@@ -18,5 +18,6 @@ import { RequestSendOvertimeService } from './service/request-send-overtime.serv
   ],
   providers: [RequestSendOvertimeService, RequestSendOvertimeRepository],
   controllers: [RequestSendOvertimeController],
+  exports: [RequestSendOvertimeService],
 })
 export class RequestSendOvertimeModule {}

@@ -135,9 +135,7 @@ export class RequestSendOvertimeService {
     );
   }
 
-  async verifyRequestSendOvertimeExist(
-    id: string,
-  ): Promise<RequestSendOvertimeEntity> {
+  async verifyRequestSendOvertimeExist(id: string) {
     const requestSendOvertimeOrNull =
       await this.requestSendOvertimeRepository.findRequestSendOvertimeById(id);
     if (!requestSendOvertimeOrNull) {

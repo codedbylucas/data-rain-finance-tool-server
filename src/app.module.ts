@@ -13,6 +13,7 @@ import { RequestSendOvertimeModule } from './app/request-send-overtime/request-s
 import { RoleModule } from './app/role/role.module';
 import { TeamModule } from './app/team/team.module';
 import { UserModule } from './app/user/user.module';
+import { OvertimeModule } from './app/overtime/overtime.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './app/user/user.module';
     ProjectModule,
     NormalHourModule,
     RequestSendOvertimeModule,
+    OvertimeModule,
   ],
 })
 export class AppModule {}
