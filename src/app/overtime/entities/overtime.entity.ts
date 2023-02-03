@@ -3,5 +3,5 @@ export class OvertimeEntity {
   date: string;
   entry: Date;
   exit?: Date;
-  requestSendOvertimeId?: string;
+  requestSendOvertimeId: string;
 }

@@ -1,4 +1,4 @@
-export class DayTimeStatus {
+export class DayTimeStatusNormalHour {
   constructor(private readonly status: DayTimeStatusEnum) {}
   returnStatus(): IDayTImeStatus {
     if (this.status === 0) {

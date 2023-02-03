@@ -251,8 +251,8 @@ model Overtimes {
   entry DateTime
   exit  DateTime?
 
-  requestSendOvertime   RequestSendOvertime? @relation(fields: [requestSendOvertimeId], references: [id])
-  requestSendOvertimeId String?              @unique @map("request_send_overtime_id")
+  requestSendOvertime   RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id])
+  requestSendOvertimeId String           @unique @map("request_send_overtime_id")
 
   @@map("overtimes")
 }
