@@ -19,6 +19,7 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addTag('auth')
     .addTag('user')
+    .addTag('position')
     .addTag('role')
     .addTag('team')
     .addTag('question')

@@ -152,23 +152,23 @@ export class BudgetRequestService {
       dto.budgetRequestId,
     );
     const user = await this.userService.findUserById(userId);
-    if (budgetRequest.verifyByPreSaleId && user.roleName === 'pre sale') {
+    if (budgetRequest.verifyByPreSaleId && user.role.name === 'pre sale') {
       throw new BadRequestException(
         'Budget request has already been validaded by pre sale',
       );
     }
-    if (budgetRequest.verifyByFinancialId && user.roleName === 'financial') {
+    if (budgetRequest.verifyByFinancialId && user.role.name === 'financial') {
       throw new BadRequestException(
         'Budget request has already been validaded by financial',
       );
     }
-    if (!budgetRequest.verifyByPreSaleId && user.roleName === 'financial') {
+    if (!budgetRequest.verifyByPreSaleId && user.role.name === 'financial') {
       throw new BadRequestException(
         'A budget request needs to be validated first by the pre-sale',
       );
     }
 
-    if (user.roleName === 'pre sale') {
+    if (user.role.name === 'pre sale') {
       await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
         ...dto,
         verifyByPreSaleId: userId,
@@ -176,7 +176,7 @@ export class BudgetRequestService {
       });
       return;
     }
-    if (user.roleName === 'financial') {
+    if (user.role.name === 'financial') {
       await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
         ...dto,
         verifyByFinancialId: userId,

@@ -62,8 +62,8 @@ export class ProjectService {
       );
     }
     if (
-      user.roleName !== 'professional services' &&
-      user.roleName !== 'manager'
+      user.role.name !== 'professional services' &&
+      user.role.name !== 'manager'
     ) {
       throw new BadRequestException(
         `Only 'professional services' and 'manager' users can be allcated to a project`,
@@ -73,7 +73,7 @@ export class ProjectService {
       dto.userId,
       dto.projectId,
     );
-    if (!project.containsManager && user.roleName !== 'manager') {
+    if (!project.containsManager && user.role.name !== 'manager') {
       throw new BadRequestException(
         'This project does not contain a manager, add one before adding a new professional services',
       );
@@ -81,7 +81,7 @@ export class ProjectService {
 
     let summedTimeValueOfAllUsers = 0;
     if (usersProjects.length > 0) {
-      if (project.containsManager && user.roleName === 'manager') {
+      if (project.containsManager && user.role.name === 'manager') {
         throw new BadRequestException('A project can contain only one manager');
       }
       usersProjects.forEach((user) => {
@@ -98,7 +98,7 @@ export class ProjectService {
       summedTimeValueOfAllUsers,
     );
 
-    if (user.roleName === 'manager') {
+    if (user.role.name === 'manager') {
       await this.projectRepository.updateContainsManagerInProject({
         id: project.id,
         containsManager: true,
@@ -168,7 +168,7 @@ export class ProjectService {
       summedTimeValueOfAllUsers,
     );
 
-    if (user.roleName === 'manager') {
+    if (user.role.name === 'manager') {
       await this.projectRepository.updateContainsManagerInProject({
         id: projectId,
         containsManager: false,

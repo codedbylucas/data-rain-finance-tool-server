@@ -107,8 +107,16 @@ export class ProjectRepository {
                   id: true,
                   name: true,
                   email: true,
-                  position: true,
-                  roleName: true,
+                  position: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                  role: {
+                    select: {
+                      name: true,
+                    },
+                  },
                   billable: true,
                   imageUrl: true,
                 },
@@ -239,7 +247,9 @@ export class ProjectRepository {
               users: {
                 where: {
                   user: {
-                    roleName: 'manager',
+                    role: {
+                      name: 'manager',
+                    },
                   },
                 },
                 select: {

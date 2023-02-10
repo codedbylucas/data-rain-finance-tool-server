@@ -39,7 +39,7 @@ export class RequestSendOvertimeService {
       );
 
     const projectManager = projectOrError.users.find(
-      (userProject) => userProject.user.roleName === 'manager',
+      (userProject) => userProject.user.role.name === 'manager',
     );
     if (!projectManager) {
       throw new BadRequestException(
@@ -84,10 +84,10 @@ export class RequestSendOvertimeService {
     const userOrNull = await this.userService.findUserById(userId);
     let requestSendOvertimeOrEmpty = null;
 
-    if (userOrNull.roleName === 'admin') {
+    if (userOrNull.role.name === 'admin') {
       requestSendOvertimeOrEmpty =
         await this.requestSendOvertimeRepository.findAllRequestSendOvertimeInAnalyze();
-    } else if (userOrNull.roleName === 'manager') {
+    } else if (userOrNull.role.name === 'manager') {
       requestSendOvertimeOrEmpty =
         await this.requestSendOvertimeRepository.findAllRequestSendOvertimeByManagerId(
           userId,

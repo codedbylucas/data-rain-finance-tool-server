@@ -20,11 +20,11 @@ model Users {
   allocated      Boolean @default(false)
   validatedEmail Boolean @default(false) @map("validated_email")
 
-  role     Roles  @relation(fields: [roleName], references: [name])
-  roleName String @map("role_name")
+  role   Roles  @relation(fields: [roleId], references: [name])
+  roleId String @map("role_name")
 
-  position     Positions @relation(fields: [positionName], references: [name])
-  positionName String
+  position   Positions @relation(fields: [positionId], references: [name])
+  positionId String
 
   projects            UsersProjects[]
   requestSendOvertime RequestSendOvertime[]

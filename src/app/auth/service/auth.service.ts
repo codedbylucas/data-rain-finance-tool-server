@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
 import { UserEntity } from 'src/app/user/entities/user.entity';
+import { FindAllUserDataResponse } from 'src/app/user/protocols/db-find-all-user-data.response';
 import { UserRepository } from 'src/app/user/repositories/user.repository';
 import { BcryptAdapter } from '../../infra/criptography/bcrypt/bcrypt.adapter';
 import { JwtAdapter } from '../../infra/criptography/jwt/jwt.adapter';
@@ -21,7 +22,7 @@ export class AuthService {
     private readonly cryptr: CryptrService,
   ) {}
 
-  async validateUser(dto: LoginDto): Promise<UserEntity> {
+  async validateUser(dto: LoginDto): Promise<FindAllUserDataResponse> {
     const { password, email } = dto;
     const userOrNull = await this.userRepository.findUserByEmail(email);
     if (!userOrNull) {
@@ -57,7 +58,7 @@ export class AuthService {
     }
     delete dto.confirmPassword;
 
-    const userOrError = await this.userRepository.findUserEntityById(
+    const userOrError = await this.userRepository.findAllUserDataById(
       decryptToken,
     );
     if (!userOrError) {
@@ -78,7 +79,10 @@ export class AuthService {
     return this.returnUserLogged(userIdEncrypted, userOrError);
   }
 
-  returnUserLogged(userIdEncrypted: string, user: UserEntity): LoginResponse {
+  returnUserLogged(
+    userIdEncrypted: string,
+    user: FindAllUserDataResponse,
+  ): LoginResponse {
     return {
       token: userIdEncrypted,
       user: {
@@ -86,10 +90,10 @@ export class AuthService {
         name: user.name,
         email: user.email,
         imageUrl: user.imageUrl,
-        positionName: user.positionName,
         billable: user.billable,
         allocated: user.allocated,
-        roleName: user.roleName,
+        role: { name: user.role.name },
+        position: { name: user.position.name },
       },
     };
   }

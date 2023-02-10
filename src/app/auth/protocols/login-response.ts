@@ -5,9 +5,13 @@ export interface LoginResponse {
     name: string;
     email: string;
     imageUrl: string;
-    positionName: string;
     billable: boolean;
     allocated: boolean;
-    roleName: string;
+    role: {
+      name: string;
+    };
+    position: {
+      name: string;
+    };
   };
 }
