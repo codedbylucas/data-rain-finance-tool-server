@@ -4,8 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
-import { IsUUID } from 'class-validator';
-import { toASCII } from 'punycode';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { UserPayload } from 'src/app/auth/protocols/user-payload';
 import { ClientService } from 'src/app/client/service/client.service';
@@ -204,7 +202,7 @@ export class BudgetRequestService {
         client: {
           id: budgetRequest.client.id,
           companyName: budgetRequest.client.companyName,
-          mainContact: budgetRequest.client.mainContact,
+          primaryContactName: budgetRequest.client.primaryContactName,
         },
       }),
     );

@@ -2,11 +2,13 @@ export interface FindClientByIdResponse {
   id: string;
   email: string;
   phone: string;
-  mainContact: string;
+  primaryContactName: string;
   companyName: string;
-  technicalContact?: string;
-  technicalContactPhone?: string;
-  technicalContactEmail?: string;
+  technicalContact?: {
+    name: string;
+    email: string;
+    phone: string;
+  };
   budgetRequests: {
     clientsResponses: {
       responseDetails: string;

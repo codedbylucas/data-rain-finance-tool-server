@@ -3,11 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { checkIfEmailIsValid } from 'src/app/util/check-if-email-is-valid';
 import { createUuid } from 'src/app/util/create-uuid';
 import { CreateClienteResponse } from '../protocols/create-client-response';
 import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
+import { DbCreateTechnicalContactProps } from '../protocols/props/db-create-client-technical-contact.props';
 import { ClientRepository } from '../repositories/client.repository';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -17,24 +17,10 @@ export class ClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
   async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
-    dto.phone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
-    if (dto.technicalContactPhone) {
-      dto.technicalContactPhone = dto.technicalContactPhone
-        .replace(/\s/g, '')
-        .replace(/[^0-9]/g, '');
-    }
-
     if (!dto.technicalContact) {
       delete dto.technicalContact;
     }
-    if (!dto.technicalContactPhone) {
-      delete dto.technicalContactPhone;
-    }
-    if (!dto.technicalContactEmail) {
-      delete dto.technicalContactEmail;
-    } else {
-      checkIfEmailIsValid(dto.technicalContactEmail);
-    }
+    dto.phone = dto.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
 
     const clientOrNull = await this.clientRepository.findClientByEmail(
       dto.email,
@@ -46,9 +32,21 @@ export class ClientService {
       };
     }
     const clientCreated = await this.clientRepository.createClient({
-      ...dto,
       id: createUuid(),
+      companyName: dto.companyName,
+      email: dto.email,
+      phone: dto.phone,
+      primaryContactName: dto.primaryContactName,
     });
+
+    if (dto.technicalContact) {
+      await this.createClientTechnicalContact({
+        id: createUuid(),
+        ...dto.technicalContact,
+        clientId: clientCreated.id,
+      });
+    }
+
     return {
       id: clientCreated.id,
       companyName: clientCreated.companyName,
@@ -97,7 +95,7 @@ export class ClientService {
         delete dto.email;
       }
     }
-    await this.clientRepository.updateClientById(id, dto);
+    await this.clientRepository.updateClientById(id, { ...dto });
   }
 
   async deleteClientById(id: string): Promise<void> {
@@ -111,5 +109,19 @@ export class ClientService {
       throw new BadRequestException(`Client with id '${id}' not found`);
     }
     return clientOrNull;
+  }
+
+  async createClientTechnicalContact(
+    data: DbCreateTechnicalContactProps,
+  ): Promise<void> {
+    data.phone = data.phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
+
+    await this.clientRepository.createClientTechnicalContact({
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      clientId: data.clientId,
+    });
   }
 }

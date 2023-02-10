@@ -113,22 +113,35 @@ model AlternativesTeams {
 }
 
 model Clients {
-  id                    String  @id @unique @default(uuid())
-  email                 String  @unique @db.VarChar(100)
-  phone                 String  @db.VarChar(16)
-  companyName           String  @map("company_name") @db.VarChar(100)
-  mainContact           String  @map("mail_contact") @db.VarChar(100)
-  technicalContact      String? @map("technical_contact") @db.VarChar(100)
-  technicalContactPhone String? @map("technical_contact_phone") @db.VarChar(16)
-  technicalContactEmail String? @map("technical_contact_email") @db.VarChar(100)
+  id                 String @id @unique @default(uuid())
+  email              String @unique @db.VarChar(100)
+  phone              String @db.VarChar(16)
+  companyName        String @map("company_name") @db.VarChar(100)
+  primaryContactName String @map("primary_contact_name") @db.VarChar(100)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  budgetRequests BudgetRequest[]
-  projects       Projects[]
+  budgetRequests   BudgetRequest[]
+  projects         Projects[]
+  technicalContact ClientTechnicalContacts?
 
   @@map("clients")
+}
+
+model ClientTechnicalContacts {
+  id    String @id @unique @default(uuid())
+  name  String @db.VarChar(100)
+  email String @db.VarChar(100)
+  phone String @db.VarChar(16)
+
+  client   Clients @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String  @unique @map("client_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("client_technical_contacts")
 }
 
 model BudgetRequest {

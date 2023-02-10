@@ -97,7 +97,7 @@ export class ProjectRepository {
               email: true,
               companyName: true,
               phone: true,
-              mainContact: true,
+              primaryContactName: true,
             },
           },
           users: {
