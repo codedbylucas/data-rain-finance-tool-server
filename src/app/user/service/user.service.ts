@@ -10,6 +10,7 @@ import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter'
 import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
 import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
+import { PositionService } from 'src/app/position/services/position.service';
 import { RoleService } from 'src/app/role/service/role.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
@@ -32,6 +33,7 @@ export class UserService {
     private readonly mailService: MailService,
     private readonly cryptrService: CryptrService,
     private readonly roleService: RoleService,
+    private readonly positionService: PositionService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -41,6 +43,7 @@ export class UserService {
       throw new BadRequestException(`User email already exists`);
     }
     await this.roleService.findRoleById(dto.roleId);
+    await this.positionService.findPositionById(dto.positionId);
 
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
     const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);

@@ -86,7 +86,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         imageUrl: user.imageUrl,
-        position: user.position,
+        positionName: user.positionName,
         billable: user.billable,
         allocated: user.allocated,
         roleName: user.roleName,

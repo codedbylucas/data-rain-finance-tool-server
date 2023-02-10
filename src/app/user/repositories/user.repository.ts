@@ -22,7 +22,11 @@ export class UserRepository {
       name: data.name,
       email: data.email,
       password: data.password,
-      position: data.position,
+      position: {
+        connect: {
+          id: data.positionId,
+        },
+      },
       billable: data.billable,
       role: {
         connect: {
@@ -235,7 +239,7 @@ export class UserRepository {
     imageUrl: true,
     billable: true,
     allocated: true,
-    position: true,
+    positionName: true,
     roleName: true,
   };
 }

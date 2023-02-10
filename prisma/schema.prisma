@@ -16,13 +16,15 @@ model Users {
   email          String  @unique @db.VarChar(100)
   password       String
   imageUrl       String? @map("image_url")
-  position       String  @db.VarChar(200)
   billable       Boolean @default(false)
   allocated      Boolean @default(false)
   validatedEmail Boolean @default(false) @map("validated_email")
 
   role     Roles  @relation(fields: [roleName], references: [name])
   roleName String @map("role_name")
+
+  position     Positions @relation(fields: [positionName], references: [name])
+  positionName String
 
   projects            UsersProjects[]
   requestSendOvertime RequestSendOvertime[]
@@ -42,6 +44,17 @@ model Roles {
   users       Users[]
 
   @@map("roles")
+}
+
+model Positions {
+  id   String @id @unique @default(uuid())
+  name String @unique
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  users     Users[]
+
+  @@map("positions")
 }
 
 model Teams {

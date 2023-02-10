@@ -5,7 +5,7 @@ export interface LoginResponse {
     name: string;
     email: string;
     imageUrl: string;
-    position: string;
+    positionName: string;
     billable: boolean;
     allocated: boolean;
     roleName: string;
