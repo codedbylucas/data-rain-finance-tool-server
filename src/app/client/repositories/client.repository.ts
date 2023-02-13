@@ -8,7 +8,11 @@ import { FindAllClientsResponse } from '../protocols/find-all-clients-response';
 import { FindClientByIdResponse } from '../protocols/find-client-by-id-response';
 import { DbCreateTechnicalContactProps } from '../protocols/props/db-create-client-technical-contact.props';
 import { DbCreateClientProps } from '../protocols/props/db-create-client.props';
-import { UpdateClientDto } from '../service/dto/update-client.dto';
+import { DbUpdateClientProps } from '../protocols/props/db-update-client.props';
+import {
+  UpdateClientDto,
+  UpdateTechnicalContactDto,
+} from '../service/dto/update-client.dto';
 
 @Injectable()
 export class ClientRepository {
@@ -124,11 +128,24 @@ export class ClientRepository {
     return clientOrNull;
   }
 
-  async updateClientById(id: string, dto: UpdateClientDto): Promise<void> {
+  async updateClientById(id: string, dto: DbUpdateClientProps): Promise<void> {
     const data: Prisma.ClientsUpdateInput = { ...dto };
     await this.prisma.clients
       .update({
         where: { id },
+        data,
+      })
+      .catch(serverError);
+  }
+
+  async updateClientTechnicalContactById(
+    clientId: string,
+    dto: UpdateTechnicalContactDto,
+  ) {
+    const data: Prisma.ClientTechnicalContactsUpdateInput = { ...dto };
+    await this.prisma.clientTechnicalContacts
+      .update({
+        where: { clientId },
         data,
       })
       .catch(serverError);

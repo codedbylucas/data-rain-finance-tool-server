@@ -95,6 +95,39 @@ export class ClientService {
         delete dto.email;
       }
     }
+
+    if (dto.technicalContact) {
+      if (clientOrError.technicalContact) {
+        if (dto.technicalContact.phone) {
+          dto.technicalContact.phone = dto.technicalContact.phone
+            .replace(/\s/g, '')
+            .replace(/[^0-9]/g, '');
+        }
+        await this.clientRepository.updateClientTechnicalContactById(id, {
+          ...dto.technicalContact,
+        });
+      } else {
+        if (
+          !dto.technicalContact.email ||
+          !dto.technicalContact.name ||
+          !dto.technicalContact.phone
+        ) {
+          throw new BadRequestException(
+            `Client has no technical contact, fill in all fields to add`,
+          );
+        }
+
+        await this.createClientTechnicalContact({
+          id: createUuid(),
+          name: dto.technicalContact.name,
+          email: dto.technicalContact.email,
+          phone: dto.technicalContact.phone,
+          clientId: id,
+        });
+      }
+    }
+
+    delete dto.technicalContact;
     await this.clientRepository.updateClientById(id, { ...dto });
   }
 
