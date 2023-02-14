@@ -70,7 +70,17 @@ export class RequestSendOvertimeRepository {
   ): Promise<DbRequestSendOvertimeResponse[]> {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
-        where: { managerId, AND: { approvalSatus: ApprovalStatus.analyze } },
+        where: {
+          managerId,
+          AND: { approvalSatus: ApprovalStatus.analyze },
+          NOT: {
+            userProject: {
+              user: {
+                id: managerId,
+              },
+            },
+          },
+        },
         select: this.selectRequestSendOvertime,
       })
       .catch(serverError);
