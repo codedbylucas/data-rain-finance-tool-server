@@ -49,15 +49,6 @@ export class NormalHourRepository {
     return normalHour;
   }
 
-  async findNormalHourById(id: string): Promise<NormalHourEntity> {
-    const normalHour = await this.prisma.normalHours
-      .findUnique({
-        where: { id },
-      })
-      .catch(serverError);
-    return normalHour;
-  }
-
   async updateNormalHour(id: string, props: DbUpdateNormalHourProps) {
     await this.prisma.normalHours
       .update({

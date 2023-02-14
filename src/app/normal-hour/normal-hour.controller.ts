@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { FindHoursPostedInTheDayResposne } from './protocols/find-hours-posted-in-the-day.response';
 import { SendTimeDto } from './service/dto/send-time.dto';
 import { NormalHourService } from './service/normal-hour.service';
 
@@ -46,8 +47,8 @@ export class NormalHourController {
     @RolesAccess([Role.professionalServices, Role.manager])
     payload: UserPayload,
     @Param('projectId') projectId: string,
-  ) {
-    return await this.normalHourService.findWeatherStatusInTheDay(
+  ): Promise<FindHoursPostedInTheDayResposne> {
+    return await this.normalHourService.findHorsPostedInTheDay(
       payload.userId,
       projectId,
     );

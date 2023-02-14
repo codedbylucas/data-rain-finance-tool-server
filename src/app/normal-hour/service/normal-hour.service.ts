@@ -3,10 +3,8 @@ import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
-import {
-  DayTimeStatusEnum,
-  DayTimeStatusNormalHour,
-} from '../protocols/day-time-status-normal-hour';
+import { formattedCurrentTime } from 'src/app/util/formatted-current-time';
+import { FindHoursPostedInTheDayResposne } from '../protocols/find-hours-posted-in-the-day.response';
 import { NormalHourRepository } from '../repositories/normal-hour.repository';
 import { SendTimeDto } from './dto/send-time.dto';
 
@@ -78,7 +76,10 @@ export class NormalHourService {
     });
   }
 
-  async findWeatherStatusInTheDay(userId: string, projectId: string) {
+  async findHorsPostedInTheDay(
+    userId: string,
+    projectId: string,
+  ): Promise<FindHoursPostedInTheDayResposne> {
     const user = await this.userService.findUserById(userId);
     if (!user.billable) {
       throw new BadRequestException(
@@ -98,39 +99,15 @@ export class NormalHourService {
       );
 
     if (!normalHourOrNull) {
-      return {
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.entry,
-        ).returnStatus(),
-      };
+      throw new BadRequestException(`No time was sent on the day`);
     }
 
-    if (normalHourOrNull.entry && !normalHourOrNull.exitToBreak) {
-      return {
-        normalHourId: normalHourOrNull.id,
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.exitToBreak,
-        ).returnStatus(),
-      };
-    }
-    if (normalHourOrNull.exitToBreak && !normalHourOrNull.backFromTheBreak) {
-      return {
-        normalHourId: normalHourOrNull.id,
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.backFromTheBreak,
-        ).returnStatus(),
-      };
-    }
-    if (normalHourOrNull.backFromTheBreak && !normalHourOrNull.exit) {
-      return {
-        normalHourId: normalHourOrNull.id,
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.exit,
-        ).returnStatus(),
-      };
-    }
-    if (normalHourOrNull.exit) {
-      throw new BadRequestException(`User has already finished work`);
-    }
+    return {
+      date: normalHourOrNull.date,
+      entry: formattedCurrentTime(normalHourOrNull.entry),
+      exitToBreak: formattedCurrentTime(normalHourOrNull.exitToBreak),
+      backFromTheBreak: formattedCurrentTime(normalHourOrNull.backFromTheBreak),
+      exit: formattedCurrentTime(normalHourOrNull.exit),
+    };
   }
 }
