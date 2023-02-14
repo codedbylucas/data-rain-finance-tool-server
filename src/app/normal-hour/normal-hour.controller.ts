@@ -52,23 +52,4 @@ export class NormalHourController {
       projectId,
     );
   }
-
-  // @Patch(':normalHourId/:projectId')
-  // @UseGuards(AuthGuard())
-  // @ApiBearerAuth()
-  // @ApiOperation({
-  //   summary: `Update the user's regular timestamp`,
-  // })
-  // async updateNormalHour(
-  //   @RolesAccess([Role.professionalServices, Role.manager])
-  //   payload: UserPayload,
-  //   @Param('normalHourId') normalHourId: string,
-  //   @Param('projectId') projectId: string,
-  // ) {
-  //   return await this.normalHourService.updateNormalHour(
-  //     payload.userId,
-  //     normalHourId,
-  //     projectId,
-  //   );
-  // }
 }
