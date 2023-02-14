@@ -10,9 +10,9 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApprovalStatus } from '@prisma/client';
-import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { FindRequestSendOvertimeResponse } from './protocols/find-request-send-overtime.response';
 import { AprroveAndReproveRequestSendOvertimeDto } from './service/dto/aprrove-and-reprove-request-send-overtime.dto';
 import { AskPermissionToSendOvertimeDto } from './service/dto/ask-permission-to-send-overtime.dto';
 import { RequestSendOvertimeService } from './service/request-send-overtime.service';
@@ -45,12 +45,11 @@ export class RequestSendOvertimeController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary:
-      'Find all requests to submit overtime that are under review',
+    summary: 'Find all requests to submit overtime that are under review',
   })
-  async findAllRequestSendOvertimeByManagerId(
+  async findAllRequestSendOvertime(
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
-  ) {
+  ): Promise<FindRequestSendOvertimeResponse[]> {
     return await this.requestSendOvertimeService.findAllRequestSendOvertime(
       payload.userId,
     );

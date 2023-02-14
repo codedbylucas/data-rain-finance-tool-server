@@ -10,6 +10,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
+import { FindRequestSendOvertimeResponse } from '../protocols/find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
 import { RequestSendOvertimeRepository } from '../repositories/request-send-overtime.repository';
 import { AskPermissionToSendOvertimeDto } from './dto/ask-permission-to-send-overtime.dto';
@@ -81,7 +82,9 @@ export class RequestSendOvertimeService {
     return requestSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertime(userId: string) {
+  async findAllRequestSendOvertime(
+    userId: string,
+  ): Promise<FindRequestSendOvertimeResponse[]> {
     const userOrNull = await this.userService.findUserById(userId);
     let requestSendOvertimeOrEmpty: DbRequestSendOvertimeResponse[] = null;
 
