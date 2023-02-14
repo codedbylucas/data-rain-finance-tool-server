@@ -4,6 +4,7 @@ import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { DbAskPermissionToSendOvertime } from '../protocols/db-create-request-send-overtime.props';
+import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
 
 @Injectable()
@@ -64,71 +65,25 @@ export class RequestSendOvertimeRepository {
     return requestSendOvertimeOrNull;
   }
 
-  async findAllRequestSendOvertimeByManagerId(managerId: string) {
+  async findAllRequestSendOvertimeByManagerId(
+    managerId: string,
+  ): Promise<DbRequestSendOvertimeResponse[]> {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
         where: { managerId, AND: { approvalSatus: ApprovalStatus.analyze } },
-        select: {
-          id: true,
-          requestDescription: true,
-          approvalSatus: true,
-          userProject: {
-            select: {
-              project: {
-                select: {
-                  name: true,
-                  description: true,
-                  client: {
-                    select: {
-                      companyName: true,
-                    },
-                  },
-                },
-              },
-              user: {
-                select: {
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-          },
-        },
+        select: this.selectRequestSendOvertime,
       })
       .catch(serverError);
     return allRequestsSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertimeInAnalyze() {
+  async findAllRequestSendOvertimeInAnalyze(): Promise<
+    DbRequestSendOvertimeResponse[]
+  > {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
         where: { approvalSatus: ApprovalStatus.analyze },
-        select: {
-          id: true,
-          requestDescription: true,
-          approvalSatus: true,
-          userProject: {
-            select: {
-              project: {
-                select: {
-                  name: true,
-                  description: true,
-                  client: {
-                    select: {
-                      companyName: true,
-                    },
-                  },
-                },
-              },
-              user: {
-                select: {
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-          },
-        },
+        select: this.selectRequestSendOvertime,
       })
       .catch(serverError);
     return allRequestsSendOvertimeOrEmpty;
@@ -150,4 +105,31 @@ export class RequestSendOvertimeRepository {
       })
       .catch(serverError);
   }
+
+  private selectRequestSendOvertime = {
+    id: true,
+    requestDescription: true,
+    approvalSatus: true,
+    userProject: {
+      select: {
+        project: {
+          select: {
+            name: true,
+            description: true,
+            client: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    },
+  };
 }

@@ -51,7 +51,7 @@ export class RequestSendOvertimeController {
   async findAllRequestSendOvertimeByManagerId(
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
   ) {
-    return await this.requestSendOvertimeService.findAllRequestSendOvertimeByManagerId(
+    return await this.requestSendOvertimeService.findAllRequestSendOvertime(
       payload.userId,
     );
   }
