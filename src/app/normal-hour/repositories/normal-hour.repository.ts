@@ -34,12 +34,12 @@ export class NormalHourRepository {
   async findNormalHourByProjectIdAndDate(
     userProjectId: string,
     date: string,
-  ): Promise<NormalHourEntity[]> {
+  ): Promise<NormalHourEntity> {
     const normalHour = await this.prisma.normalHours
-      .findMany({
+      .findUnique({
         where: {
-          userProjectId,
-          AND: {
+          userProjectId_date: {
+            userProjectId,
             date,
           },
         },

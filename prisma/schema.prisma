@@ -240,6 +240,7 @@ model NormalHours {
   userProject   UsersProjects @relation(fields: [userProjectId], references: [id], onDelete: Cascade)
   userProjectId String        @map("user_project_id")
 
+  @@unique([userProjectId, date])
   @@map("normal_hours")
 }
 

@@ -8,6 +8,7 @@ import {
   DayTimeStatusNormalHour,
 } from '../protocols/day-time-status-normal-hour';
 import { NormalHourRepository } from '../repositories/normal-hour.repository';
+import { SendTimeDto } from './dto/send-time.dto';
 
 @Injectable()
 export class NormalHourService {
@@ -17,31 +18,58 @@ export class NormalHourService {
     private readonly userService: UserService,
   ) {}
 
-  async sendTime(userId: string, projectId: string): Promise<void> {
+  async sendTime(userId: string, dto: SendTimeDto): Promise<void> {
     const user = await this.userService.findUserById(userId);
     if (!user.billable) {
       throw new BadRequestException(
         `User who is not billable cannot access this route`,
       );
     }
-    await this.projectService.findProjectById(projectId);
     const userProject = await this.projectService.verifyRelationUserAndProject(
       userId,
-      projectId,
+      dto.projectId,
     );
     const date = formattedCurrentDate(new Date());
 
-    const normalHour =
+    const normalHouOrNull =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
         userProject.id,
         date,
       );
 
-    if (normalHour.length > 0) {
-      throw new BadRequestException(
-        `User has already started working on this date`,
-      );
+    if (normalHouOrNull) {
+      if (normalHouOrNull.entry && !normalHouOrNull.exitToBreak) {
+        return await this.normalHourRepository.updateNormalHour(
+          normalHouOrNull.id,
+          {
+            exitToBreak: new Date(),
+          },
+        );
+      }
+
+      if (normalHouOrNull.exitToBreak && !normalHouOrNull.backFromTheBreak) {
+        return await this.normalHourRepository.updateNormalHour(
+          normalHouOrNull.id,
+          {
+            backFromTheBreak: new Date(),
+          },
+        );
+      }
+
+      if (normalHouOrNull.backFromTheBreak && !normalHouOrNull.exit) {
+        return await this.normalHourRepository.updateNormalHour(
+          normalHouOrNull.id,
+          {
+            exit: new Date(),
+          },
+        );
+      }
+
+      if (normalHouOrNull.exit) {
+        throw new BadRequestException(`Work routine completed`);
+      }
     }
+
     await this.normalHourRepository.sendTime({
       id: createUuid(),
       date,
@@ -63,83 +91,45 @@ export class NormalHourService {
     );
 
     const date = formattedCurrentDate(new Date());
-    const normalHourOrEmpty =
+    const normalHourOrNull =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
         userProject.id,
         date,
       );
 
-    if (normalHourOrEmpty.length === 0) {
+    if (!normalHourOrNull) {
       return {
         status: new DayTimeStatusNormalHour(
           DayTimeStatusEnum.entry,
         ).returnStatus(),
       };
     }
-    const normalHour = normalHourOrEmpty[0];
-    if (normalHour.entry && !normalHour.exitToBreak) {
+
+    if (normalHourOrNull.entry && !normalHourOrNull.exitToBreak) {
       return {
-        normalHourId: normalHour.id,
+        normalHourId: normalHourOrNull.id,
         status: new DayTimeStatusNormalHour(
           DayTimeStatusEnum.exitToBreak,
         ).returnStatus(),
       };
     }
-    if (normalHour.exitToBreak && !normalHour.backFromTheBreak) {
+    if (normalHourOrNull.exitToBreak && !normalHourOrNull.backFromTheBreak) {
       return {
-        normalHourId: normalHour.id,
+        normalHourId: normalHourOrNull.id,
         status: new DayTimeStatusNormalHour(
           DayTimeStatusEnum.backFromTheBreak,
         ).returnStatus(),
       };
     }
-    if (normalHour.backFromTheBreak && !normalHour.exit) {
+    if (normalHourOrNull.backFromTheBreak && !normalHourOrNull.exit) {
       return {
-        normalHourId: normalHour.id,
+        normalHourId: normalHourOrNull.id,
         status: new DayTimeStatusNormalHour(
           DayTimeStatusEnum.exit,
         ).returnStatus(),
       };
     }
-    if (normalHour.exit) {
-      throw new BadRequestException(`User has already finished work`);
-    }
-  }
-
-  async updateNormalHour(
-    userId: string,
-    normalHourId: string,
-    projectId: string,
-  ) {
-    await this.projectService.verifyRelationUserAndProject(userId, projectId);
-    const normalHour = await this.normalHourRepository.findNormalHourById(
-      normalHourId,
-    );
-    if (!normalHour) {
-      throw new BadRequestException(
-        `Noraml hour with id '${normalHourId} not found'`,
-      );
-    }
-
-    if (normalHour.entry && !normalHour.exitToBreak) {
-      await this.normalHourRepository.updateNormalHour(normalHourId, {
-        exitToBreak: new Date(),
-      });
-      return;
-    }
-    if (normalHour.exitToBreak && !normalHour.backFromTheBreak) {
-      await this.normalHourRepository.updateNormalHour(normalHourId, {
-        backFromTheBreak: new Date(),
-      });
-      return;
-    }
-    if (normalHour.backFromTheBreak && !normalHour.exit) {
-      await this.normalHourRepository.updateNormalHour(normalHourId, {
-        exit: new Date(),
-      });
-      return;
-    }
-    if (normalHour.exit) {
+    if (normalHourOrNull.exit) {
       throw new BadRequestException(`User has already finished work`);
     }
   }
