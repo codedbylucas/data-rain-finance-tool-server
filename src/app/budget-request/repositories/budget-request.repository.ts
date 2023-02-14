@@ -65,6 +65,7 @@ export class BudgetRequestRepository {
           totalHours: true,
           createdAt: true,
           updatedAt: true,
+          notes: true,
           client: {
             select: {
               id: true,
@@ -140,31 +141,16 @@ export class BudgetRequestRepository {
     return budgetRequestsOrEmpty;
   }
 
-  async aprrovedByPreSaleBudgetRequest(
+  async aprrovedBudgetRequest(
+    id: string,
     props: DbAprrovedByPreSaleBudgetRequestProps,
   ): Promise<void> {
     const data: Prisma.BudgetRequestUpdateInput = {
-      verifyByPreSaleId: props.verifyByPreSaleId,
-      status: props.status,
+      ...props,
     };
     await this.prisma.budgetRequest
       .update({
-        where: { id: props.budgetRequestId },
-        data,
-      })
-      .catch(serverError);
-  }
-
-  async aprrovedByFinancialBudgetRequest(
-    props: DbAprrovedByPreSaleBudgetRequestProps,
-  ): Promise<void> {
-    const data: Prisma.BudgetRequestUpdateInput = {
-      verifyByFinancialId: props.verifyByFinancialId,
-      status: props.status,
-    };
-    await this.prisma.budgetRequest
-      .update({
-        where: { id: props.budgetRequestId },
+        where: { id },
         data,
       })
       .catch(serverError);

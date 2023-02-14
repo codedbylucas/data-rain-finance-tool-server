@@ -145,10 +145,11 @@ model ClientTechnicalContacts {
 }
 
 model BudgetRequest {
-  id         String @id @unique @default(uuid())
+  id         String  @id @unique @default(uuid())
   amount     Float
-  totalHours Int    @map("total_hours")
-  status     Status @default(request)
+  totalHours Int     @map("total_hours")
+  status     Status  @default(request)
+  notes      String? @db.VarChar(300)
 
   client   Clients @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId String  @map("client_id")

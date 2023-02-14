@@ -166,20 +166,27 @@ export class BudgetRequestService {
       );
     }
 
+    delete dto.budgetRequestId;
     if (user.role.name === 'pre sale') {
-      await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
-        ...dto,
-        verifyByPreSaleId: userId,
-        status: Status.review,
-      });
+      await this.budgetRequestRepository.aprrovedBudgetRequest(
+        budgetRequest.id,
+        {
+          ...dto,
+          verifyByPreSaleId: userId,
+          status: Status.review,
+        },
+      );
       return;
     }
     if (user.role.name === 'financial') {
-      await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
-        ...dto,
-        verifyByFinancialId: userId,
-        status: Status.approved,
-      });
+      await this.budgetRequestRepository.aprrovedBudgetRequest(
+        budgetRequest.id,
+        {
+          ...dto,
+          verifyByFinancialId: userId,
+          status: Status.approved,
+        },
+      );
       return;
     }
   }
