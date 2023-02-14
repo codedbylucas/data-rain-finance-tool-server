@@ -133,6 +133,14 @@ export class RequestSendOvertimeService {
         `It is only possible to change the status of a request to send overtime if it is under review`,
       );
     }
+    if (
+      requestSendOvertimeOrNull.userProject.user.id === props.validatedByUserId
+    ) {
+      throw new BadRequestException(
+        `Unable to approve/reprove own request to send overtime`,
+      );
+    }
+
     await this.requestSendOvertimeRepository.changeStatusOfRequestSendOvertime(
       id,
       props,
