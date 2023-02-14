@@ -32,7 +32,8 @@ export class RequestSendOvertimeController {
     summary: 'Create an order to be able to send overtime',
   })
   async askPermissionToSendOvertime(
-    @RolesAccess([Role.professionalServices]) payload: UserPayload,
+    @RolesAccess([Role.professionalServices, Role.manager])
+    payload: UserPayload,
     @Body() dto: AskPermissionToSendOvertimeDto,
   ) {
     return await this.requestSendOvertimeService.askPermissionToSendOvertime(
