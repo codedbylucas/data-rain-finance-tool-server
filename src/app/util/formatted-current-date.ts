@@ -2,7 +2,6 @@ export const formattedCurrentDate = (dateTime: Date): string => {
   if (!dateTime) {
     return null;
   }
-  const formattedDate = dateTime.toLocaleString('pt-br');
-  const dateSplit = formattedDate.split(' ');
-  return dateSplit[0];
+  const formattedDate = dateTime.toLocaleDateString('pt-br');
+  return formattedDate;
 };
