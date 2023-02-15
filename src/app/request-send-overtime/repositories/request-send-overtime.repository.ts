@@ -18,6 +18,7 @@ export class RequestSendOvertimeRepository {
       id: props.id,
       requestDescription: props.requestDescription,
       requestDate: props.requestDate,
+      dateToSendTime: props.dateToSendTime,
       userProject: {
         connect: {
           id: props.userProjectId,

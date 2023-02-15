@@ -249,6 +249,7 @@ model RequestSendOvertime {
   id                 String         @id @unique @default(uuid())
   requestDescription String         @map("request_description") @db.VarChar(200)
   requestDate        String         @map("request_date")
+  dateToSendTime     String
   approvalSatus      ApprovalStatus @default(analyze) @map("approval_status")
   validationDate     DateTime?      @map("validation_date")
   validatedByUserId  String?        @map("validated_by_user_id")
