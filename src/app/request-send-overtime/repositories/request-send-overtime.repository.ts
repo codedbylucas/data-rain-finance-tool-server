@@ -121,6 +121,7 @@ export class RequestSendOvertimeRepository {
     id: true,
     requestDescription: true,
     approvalSatus: true,
+    dateToSendTime: true,
     userProject: {
       select: {
         project: {

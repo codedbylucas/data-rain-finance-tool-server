@@ -108,6 +108,7 @@ export class RequestSendOvertimeService {
     const requestSendOvertimes = requestSendOvertimeOrEmpty.map((item) => ({
       requestSendOvertimeId: item.id,
       requestDescription: item.requestDescription,
+      dateToSendTime: item.dateToSendTime,
       approvalSatus: item.approvalSatus,
       project: {
         name: item.userProject.project.name,
