@@ -3,10 +3,12 @@ import { ProjectService } from 'src/app/project/service/project.service';
 import { RequestSendOvertimeService } from 'src/app/request-send-overtime/service/request-send-overtime.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
+import { formattedCurrentTime } from 'src/app/util/formatted-current-time';
 import {
   DayTimeStatusOvertime,
   DayTimeStatusOvertimeEnum,
 } from '../protocols/day-time-status-overtime';
+import { FindOvertimePostedInTheDayResponse } from '../protocols/find-overtime-posted-in-the-day.response';
 import { OvertimeRepository } from '../repositories/overtime.repository';
 import { CreateOvertimeDto } from './dto/create-overtime.dto';
 
@@ -62,7 +64,10 @@ export class OvertimeService {
     }
   }
 
-  async findStatusToSendOvertime(userId: string, projectId: string) {
+  async findOvertimePostedInTheDay(
+    userId: string,
+    projectId: string,
+  ): Promise<FindOvertimePostedInTheDayResponse> {
     const userProject = await this.projectService.verifyRelationUserAndProject(
       userId,
       projectId,
@@ -89,30 +94,13 @@ export class OvertimeService {
       );
 
     if (!overtimeOrnull) {
-      return {
-        requestSendOvertimeId: requestSendOvertime.id,
-        status: new DayTimeStatusOvertime(
-          DayTimeStatusOvertimeEnum.entry,
-        ).returnStatus(),
-      };
+      throw new BadRequestException(`Overtime has not yet been sent`);
     }
 
-    if (overtimeOrnull.entry && !overtimeOrnull.exit) {
-      return {
-        requestSendOvertimeId: requestSendOvertime.id,
-        status: new DayTimeStatusOvertime(
-          DayTimeStatusOvertimeEnum.exit,
-        ).returnStatus(),
-      };
-    }
-
-    if (overtimeOrnull.entry && overtimeOrnull.exit) {
-      return {
-        requestSendOvertimeId: requestSendOvertime.id,
-        status: new DayTimeStatusOvertime(
-          DayTimeStatusOvertimeEnum.finished,
-        ).returnStatus(),
-      };
-    }
+    return {
+      date: overtimeOrnull.date,
+      entry: formattedCurrentTime(overtimeOrnull.entry),
+      exit: formattedCurrentTime(overtimeOrnull.exit),
+    };
   }
 }

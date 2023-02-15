@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { FindOvertimePostedInTheDayResponse } from './protocols/find-overtime-posted-in-the-day.response';
 import { CreateOvertimeDto } from './service/dto/create-overtime.dto';
 import { OvertimeService } from './service/overtime.service';
 
@@ -36,7 +37,7 @@ export class OvertimeController {
     return await this.overtimeService.createOvertime(payload.userId, dto);
   }
 
-  @Get(':projectId')
+  @Get('/status/:projectId')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
@@ -48,8 +49,8 @@ export class OvertimeController {
     payload: UserPayload,
     @Param('projectId', new ParseUUIDPipe())
     projectId: string,
-  ) {
-    return await this.overtimeService.findStatusToSendOvertime(
+  ): Promise<FindOvertimePostedInTheDayResponse> {
+    return await this.overtimeService.findOvertimePostedInTheDay(
       payload.userId,
       projectId,
     );
