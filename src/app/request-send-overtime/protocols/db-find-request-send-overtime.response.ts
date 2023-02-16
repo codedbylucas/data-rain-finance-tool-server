@@ -5,7 +5,6 @@ export interface DbRequestSendOvertimeResponse {
   requestDescription: string;
   approvalSatus: ApprovalStatus;
   dateToSendTime: {
-    id: string;
     day: number;
     month: number;
     year: number;

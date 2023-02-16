@@ -1,9 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
-import { DateToSendTimePartialEntity } from '../request-send-overtime/entities/date-to-send-time.entity';
+import { DateToSendTimeEntity } from '../request-send-overtime/entities/date-to-send-time.entity';
 
-export const formatDataStringToObject = (
+export const formatDateStringToObject = (
   date: string,
-): DateToSendTimePartialEntity => {
+): DateToSendTimeEntity => {
   if (!date.includes('/')) {
     throw new BadRequestException(`Badly formatted date to send time`);
   }

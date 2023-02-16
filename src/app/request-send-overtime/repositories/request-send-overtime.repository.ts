@@ -20,7 +20,6 @@ export class RequestSendOvertimeRepository {
       requestDate: props.requestDate,
       dateToSendTime: {
         create: {
-          id: props.dateToSendTime.id,
           day: props.dateToSendTime.day,
           month: props.dateToSendTime.month,
           year: props.dateToSendTime.year,
@@ -130,7 +129,6 @@ export class RequestSendOvertimeRepository {
     approvalSatus: true,
     dateToSendTime: {
       select: {
-        id: true,
         day: true,
         month: true,
         year: true,

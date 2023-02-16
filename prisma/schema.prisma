@@ -259,8 +259,7 @@ model RequestSendOvertime {
   manager   Users?  @relation(fields: [managerId], references: [id], onDelete: SetNull)
   managerId String? @map("manager_id")
 
-  dateToSendTime   DateToSendTime @relation(fields: [dateToSendTimeId], references: [id], onDelete: Cascade)
-  dateToSendTimeId String         @unique
+  dateToSendTime DateToSendTime?
 
   overtime Overtimes?
 
@@ -271,12 +270,12 @@ model RequestSendOvertime {
 }
 
 model DateToSendTime {
-  id    String @id @unique @default(uuid())
   day   Int
   month Int
   year  Int
 
-  requestSendOvertime RequestSendOvertime?
+  requestSendOvertime RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id], onDelete: Cascade)
+  requestSendOvertimeId String @unique
 
   @@map("date_to_send_time")
 }

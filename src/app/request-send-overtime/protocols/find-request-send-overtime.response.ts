@@ -3,12 +3,7 @@ import { ApprovalStatus } from '@prisma/client';
 export interface FindRequestSendOvertimeResponse {
   requestSendOvertimeId: string;
   requestDescription: string;
-  dateToSendTime: {
-    id: string;
-    day: number;
-    month: number;
-    year: number;
-  };
+  dateToSendTime: string;
   approvalSatus: ApprovalStatus;
   project: {
     name: string;
