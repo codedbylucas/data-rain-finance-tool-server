@@ -6,6 +6,11 @@ export interface DbAskPermissionToSendOvertime {
   userProjectId: string;
   managerId: string;
   requestDate: string;
-  dateToSendTime: string;
   approvalSatus: ApprovalStatus;
+  dateToSendTime: {
+    id: string;
+    day: number;
+    month: number;
+    year: number;
+  };
 }

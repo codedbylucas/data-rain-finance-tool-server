@@ -249,7 +249,6 @@ model RequestSendOvertime {
   id                 String         @id @unique @default(uuid())
   requestDescription String         @map("request_description") @db.VarChar(200)
   requestDate        String         @map("request_date")
-  dateToSendTime     String
   approvalSatus      ApprovalStatus @default(analyze) @map("approval_status")
   validationDate     DateTime?      @map("validation_date")
   validatedByUserId  String?        @map("validated_by_user_id")
@@ -260,12 +259,26 @@ model RequestSendOvertime {
   manager   Users?  @relation(fields: [managerId], references: [id], onDelete: SetNull)
   managerId String? @map("manager_id")
 
+  dateToSendTime   DateToSendTime @relation(fields: [dateToSendTimeId], references: [id], onDelete: Cascade)
+  dateToSendTimeId String         @unique
+
   overtime Overtimes?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("request_send_overtime")
+}
+
+model DateToSendTime {
+  id    String @id @unique @default(uuid())
+  day   Int
+  month Int
+  year  Int
+
+  requestSendOvertime RequestSendOvertime?
+
+  @@map("date_to_send_time")
 }
 
 enum ApprovalStatus {

@@ -7,6 +7,7 @@ import { ApprovalStatus } from '@prisma/client';
 import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
+import { formatDataStringToObject } from 'src/app/util/format-data-string-to-object';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { validateDateFormat } from 'src/app/util/validate-date-format';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
@@ -58,6 +59,8 @@ export class RequestSendOvertimeService {
       requestDate,
     );
 
+    const dateObject = formatDataStringToObject(dto.dateToSendTime);
+
     await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
       id: createUuid(),
       requestDescription: dto.requestDescription,
@@ -65,7 +68,10 @@ export class RequestSendOvertimeService {
       requestDate,
       managerId: projectManager.user.id,
       approvalSatus: ApprovalStatus.analyze,
-      dateToSendTime: dto.dateToSendTime,
+      dateToSendTime: {
+        id: createUuid(),
+        ...dateObject,
+      },
     });
   }
 

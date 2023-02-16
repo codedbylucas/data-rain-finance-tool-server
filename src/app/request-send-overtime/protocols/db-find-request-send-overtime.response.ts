@@ -4,7 +4,12 @@ export interface DbRequestSendOvertimeResponse {
   id: string;
   requestDescription: string;
   approvalSatus: ApprovalStatus;
-  dateToSendTime: string;
+  dateToSendTime: {
+    id: string;
+    day: number;
+    month: number;
+    year: number;
+  };
   userProject: {
     project: {
       name: string;

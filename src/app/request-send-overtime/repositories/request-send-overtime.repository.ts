@@ -18,7 +18,14 @@ export class RequestSendOvertimeRepository {
       id: props.id,
       requestDescription: props.requestDescription,
       requestDate: props.requestDate,
-      dateToSendTime: props.dateToSendTime,
+      dateToSendTime: {
+        create: {
+          id: props.dateToSendTime.id,
+          day: props.dateToSendTime.day,
+          month: props.dateToSendTime.month,
+          year: props.dateToSendTime.year,
+        },
+      },
       userProject: {
         connect: {
           id: props.userProjectId,
@@ -121,7 +128,14 @@ export class RequestSendOvertimeRepository {
     id: true,
     requestDescription: true,
     approvalSatus: true,
-    dateToSendTime: true,
+    dateToSendTime: {
+      select: {
+        id: true,
+        day: true,
+        month: true,
+        year: true,
+      },
+    },
     userProject: {
       select: {
         project: {
