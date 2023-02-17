@@ -1,5 +1,39 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsEmail,
+  IsObject,
+  IsOptional,
+  IsString,
+  Length,
+  ValidateNested,
+} from 'class-validator';
+
+export class TechnicalContactDto {
+  @Length(2, 100)
+  @IsString()
+  @ApiProperty({
+    description: 'Technical contact name',
+    example: 'João Silva',
+  })
+  name: string;
+
+  @IsEmail()
+  @Length(3, 100)
+  @ApiProperty({
+    description: 'Technical contact email',
+    example: 'contactTechnical@mail.com',
+  })
+  email: string;
+
+  @Length(8, 16)
+  @IsString()
+  @ApiProperty({
+    description: 'Technical contact phone',
+    example: '(11) 9 9933-9933',
+  })
+  phone: string;
+}
 
 export class CreateClientDto {
   @IsEmail()
@@ -26,36 +60,20 @@ export class CreateClientDto {
   })
   companyName: string;
 
-  @IsOptional()
   @Length(2, 100)
   @IsString()
   @ApiProperty({
-    description: 'Main customer contact',
+    description: 'Primary customer contact',
     example: 'Adailton',
   })
-  mainContact: string;
+  primaryContactName: string;
 
   @IsOptional()
-  @IsString()
+  @IsObject()
+  @ValidateNested({ each: true })
+  @Type(() => TechnicalContactDto)
   @ApiProperty({
-    description: 'Technical customer contact',
-    example: 'José',
+    type: TechnicalContactDto,
   })
-  technicalContact?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    description: 'Technical contact phone',
-    example: '(21) 9 8933-9933',
-  })
-  technicalContactPhone?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    description: 'Technical contact email',
-    example: 'technical@mail.com',
-  })
-  technicalContactEmail?: string;
+  technicalContact?: TechnicalContactDto;
 }

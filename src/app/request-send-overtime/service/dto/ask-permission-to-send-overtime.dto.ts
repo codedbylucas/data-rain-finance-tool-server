@@ -13,6 +13,14 @@ export class AskPermissionToSendOvertimeDto {
 
   @IsString()
   @IsNotEmpty()
+  @ApiProperty({
+    description: 'Date that the overtime will be performed',
+    example: '23/02/2023',
+  })
+  dateToSendTime: string;
+
+  @IsString()
+  @IsNotEmpty()
   @Length(2, 200)
   @ApiProperty({
     description: 'Order description to post overtime',

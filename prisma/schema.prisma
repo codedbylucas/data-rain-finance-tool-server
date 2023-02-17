@@ -16,13 +16,15 @@ model Users {
   email          String  @unique @db.VarChar(100)
   password       String
   imageUrl       String? @map("image_url")
-  position       String  @db.VarChar(200)
   billable       Boolean @default(false)
   allocated      Boolean @default(false)
   validatedEmail Boolean @default(false) @map("validated_email")
 
-  role     Roles  @relation(fields: [roleName], references: [name])
-  roleName String @map("role_name")
+  role   Roles  @relation(fields: [roleId], references: [name])
+  roleId String @map("role_name")
+
+  position   Positions @relation(fields: [positionId], references: [name])
+  positionId String
 
   projects            UsersProjects[]
   requestSendOvertime RequestSendOvertime[]
@@ -42,6 +44,17 @@ model Roles {
   users       Users[]
 
   @@map("roles")
+}
+
+model Positions {
+  id   String @id @unique @default(uuid())
+  name String @unique
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  users     Users[]
+
+  @@map("positions")
 }
 
 model Teams {
@@ -100,29 +113,43 @@ model AlternativesTeams {
 }
 
 model Clients {
-  id                    String  @id @unique @default(uuid())
-  email                 String  @unique @db.VarChar(100)
-  phone                 String  @db.VarChar(16)
-  companyName           String  @map("company_name") @db.VarChar(100)
-  mainContact           String  @map("mail_contact") @db.VarChar(100)
-  technicalContact      String? @map("technical_contact") @db.VarChar(100)
-  technicalContactPhone String? @map("technical_contact_phone") @db.VarChar(16)
-  technicalContactEmail String? @map("technical_contact_email") @db.VarChar(100)
+  id                 String @id @unique @default(uuid())
+  email              String @unique @db.VarChar(100)
+  phone              String @db.VarChar(16)
+  companyName        String @map("company_name") @db.VarChar(100)
+  primaryContactName String @map("primary_contact_name") @db.VarChar(100)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  budgetRequests BudgetRequest[]
-  projects       Projects[]
+  budgetRequests   BudgetRequest[]
+  projects         Projects[]
+  technicalContact ClientTechnicalContacts?
 
   @@map("clients")
 }
 
+model ClientTechnicalContacts {
+  id    String @id @unique @default(uuid())
+  name  String @db.VarChar(100)
+  email String @db.VarChar(100)
+  phone String @db.VarChar(16)
+
+  client   Clients @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String  @unique @map("client_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("client_technical_contacts")
+}
+
 model BudgetRequest {
-  id         String @id @unique @default(uuid())
+  id         String  @id @unique @default(uuid())
   amount     Float
-  totalHours Int    @map("total_hours")
-  status     Status @default(request)
+  totalHours Int     @map("total_hours")
+  status     Status  @default(request)
+  notes      String? @db.VarChar(300)
 
   client   Clients @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId String  @map("client_id")
@@ -214,6 +241,7 @@ model NormalHours {
   userProject   UsersProjects @relation(fields: [userProjectId], references: [id], onDelete: Cascade)
   userProjectId String        @map("user_project_id")
 
+  @@unique([userProjectId, date])
   @@map("normal_hours")
 }
 
@@ -231,12 +259,25 @@ model RequestSendOvertime {
   manager   Users?  @relation(fields: [managerId], references: [id], onDelete: SetNull)
   managerId String? @map("manager_id")
 
+  dateToSendTime DateToSendTime?
+
   overtime Overtimes?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("request_send_overtime")
+}
+
+model DateToSendTime {
+  day   Int
+  month Int
+  year  Int
+
+  requestSendOvertime RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id], onDelete: Cascade)
+  requestSendOvertimeId String @unique
+
+  @@map("date_to_send_time")
 }
 
 enum ApprovalStatus {

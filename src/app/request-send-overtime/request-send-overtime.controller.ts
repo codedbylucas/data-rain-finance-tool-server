@@ -4,15 +4,18 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApprovalStatus } from '@prisma/client';
-import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { AllRequestSendOvertimeUserStatusResponse } from './protocols/all-requests-send-overtime-user-status.response';
+import { FindRequestSendOvertimeResponse } from './protocols/find-request-send-overtime.response';
 import { AprroveAndReproveRequestSendOvertimeDto } from './service/dto/aprrove-and-reprove-request-send-overtime.dto';
 import { AskPermissionToSendOvertimeDto } from './service/dto/ask-permission-to-send-overtime.dto';
 import { RequestSendOvertimeService } from './service/request-send-overtime.service';
@@ -24,7 +27,7 @@ export class RequestSendOvertimeController {
     private readonly requestSendOvertimeService: RequestSendOvertimeService,
   ) {}
 
-  @Post()
+  @Post('/user')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
@@ -32,7 +35,8 @@ export class RequestSendOvertimeController {
     summary: 'Create an order to be able to send overtime',
   })
   async askPermissionToSendOvertime(
-    @RolesAccess([Role.professionalServices]) payload: UserPayload,
+    @RolesAccess([Role.professionalServices, Role.manager])
+    payload: UserPayload,
     @Body() dto: AskPermissionToSendOvertimeDto,
   ) {
     return await this.requestSendOvertimeService.askPermissionToSendOvertime(
@@ -45,14 +49,30 @@ export class RequestSendOvertimeController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary:
-      'Find all requests to submit overtime that are under review',
+    summary: 'Find all requests to submit overtime that are under review',
   })
-  async findAllRequestSendOvertimeByManagerId(
+  async findAllRequestSendOvertime(
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
-  ) {
-    return await this.requestSendOvertimeService.findAllRequestSendOvertimeByManagerId(
+  ): Promise<FindRequestSendOvertimeResponse[]> {
+    return await this.requestSendOvertimeService.findAllRequestSendOvertime(
       payload.userId,
+    );
+  }
+
+  @Get('/user/status/:projectId')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find all requests to submit user overtime on project',
+  })
+  async findAllRequestsSendOvertimeUserStatus(
+    @RolesAccess([Role.manager, Role.professionalServices])
+    payload: UserPayload,
+    @Param('projectId', new ParseUUIDPipe()) projectId: string,
+  ): Promise<AllRequestSendOvertimeUserStatusResponse[]> {
+    return await this.requestSendOvertimeService.findAllRequestsSendOvertimeUserStatus(
+      payload.userId,
+      projectId,
     );
   }
 

@@ -3,11 +3,10 @@ import { ProjectService } from 'src/app/project/service/project.service';
 import { UserService } from 'src/app/user/service/user.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
-import {
-  DayTimeStatusEnum,
-  DayTimeStatusNormalHour,
-} from '../protocols/day-time-status-normal-hour';
+import { formattedCurrentTime } from 'src/app/util/formatted-current-time';
+import { FindHoursPostedInTheDayResposne } from '../protocols/find-hours-posted-in-the-day.response';
 import { NormalHourRepository } from '../repositories/normal-hour.repository';
+import { SendTimeDto } from './dto/send-time.dto';
 
 @Injectable()
 export class NormalHourService {
@@ -17,31 +16,58 @@ export class NormalHourService {
     private readonly userService: UserService,
   ) {}
 
-  async sendTime(userId: string, projectId: string): Promise<void> {
+  async sendTime(userId: string, dto: SendTimeDto): Promise<void> {
     const user = await this.userService.findUserById(userId);
     if (!user.billable) {
       throw new BadRequestException(
         `User who is not billable cannot access this route`,
       );
     }
-    await this.projectService.findProjectById(projectId);
     const userProject = await this.projectService.verifyRelationUserAndProject(
       userId,
-      projectId,
+      dto.projectId,
     );
     const date = formattedCurrentDate(new Date());
 
-    const normalHour =
+    const normalHouOrNull =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
         userProject.id,
         date,
       );
 
-    if (normalHour.length > 0) {
-      throw new BadRequestException(
-        `User has already started working on this date`,
-      );
+    if (normalHouOrNull) {
+      if (normalHouOrNull.entry && !normalHouOrNull.exitToBreak) {
+        return await this.normalHourRepository.updateNormalHour(
+          normalHouOrNull.id,
+          {
+            exitToBreak: new Date(),
+          },
+        );
+      }
+
+      if (normalHouOrNull.exitToBreak && !normalHouOrNull.backFromTheBreak) {
+        return await this.normalHourRepository.updateNormalHour(
+          normalHouOrNull.id,
+          {
+            backFromTheBreak: new Date(),
+          },
+        );
+      }
+
+      if (normalHouOrNull.backFromTheBreak && !normalHouOrNull.exit) {
+        return await this.normalHourRepository.updateNormalHour(
+          normalHouOrNull.id,
+          {
+            exit: new Date(),
+          },
+        );
+      }
+
+      if (normalHouOrNull.exit) {
+        throw new BadRequestException(`Work routine completed`);
+      }
     }
+
     await this.normalHourRepository.sendTime({
       id: createUuid(),
       date,
@@ -50,7 +76,10 @@ export class NormalHourService {
     });
   }
 
-  async findWeatherStatusInTheDay(userId: string, projectId: string) {
+  async findHorsPostedInTheDay(
+    userId: string,
+    projectId: string,
+  ): Promise<FindHoursPostedInTheDayResposne> {
     const user = await this.userService.findUserById(userId);
     if (!user.billable) {
       throw new BadRequestException(
@@ -63,84 +92,22 @@ export class NormalHourService {
     );
 
     const date = formattedCurrentDate(new Date());
-    const normalHourOrEmpty =
+    const normalHourOrNull =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
         userProject.id,
         date,
       );
 
-    if (normalHourOrEmpty.length === 0) {
-      return {
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.entry,
-        ).returnStatus(),
-      };
-    }
-    const normalHour = normalHourOrEmpty[0];
-    if (normalHour.entry && !normalHour.exitToBreak) {
-      return {
-        normalHourId: normalHour.id,
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.exitToBreak,
-        ).returnStatus(),
-      };
-    }
-    if (normalHour.exitToBreak && !normalHour.backFromTheBreak) {
-      return {
-        normalHourId: normalHour.id,
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.backFromTheBreak,
-        ).returnStatus(),
-      };
-    }
-    if (normalHour.backFromTheBreak && !normalHour.exit) {
-      return {
-        normalHourId: normalHour.id,
-        status: new DayTimeStatusNormalHour(
-          DayTimeStatusEnum.exit,
-        ).returnStatus(),
-      };
-    }
-    if (normalHour.exit) {
-      throw new BadRequestException(`User has already finished work`);
-    }
-  }
-
-  async updateNormalHour(
-    userId: string,
-    normalHourId: string,
-    projectId: string,
-  ) {
-    await this.projectService.verifyRelationUserAndProject(userId, projectId);
-    const normalHour = await this.normalHourRepository.findNormalHourById(
-      normalHourId,
-    );
-    if (!normalHour) {
-      throw new BadRequestException(
-        `Noraml hour with id '${normalHourId} not found'`,
-      );
+    if (!normalHourOrNull) {
+      throw new BadRequestException(`No time was sent on the day`);
     }
 
-    if (normalHour.entry && !normalHour.exitToBreak) {
-      await this.normalHourRepository.updateNormalHour(normalHourId, {
-        exitToBreak: new Date(),
-      });
-      return;
-    }
-    if (normalHour.exitToBreak && !normalHour.backFromTheBreak) {
-      await this.normalHourRepository.updateNormalHour(normalHourId, {
-        backFromTheBreak: new Date(),
-      });
-      return;
-    }
-    if (normalHour.backFromTheBreak && !normalHour.exit) {
-      await this.normalHourRepository.updateNormalHour(normalHourId, {
-        exit: new Date(),
-      });
-      return;
-    }
-    if (normalHour.exit) {
-      throw new BadRequestException(`User has already finished work`);
-    }
+    return {
+      date: normalHourOrNull.date,
+      entry: formattedCurrentTime(normalHourOrNull.entry),
+      exitToBreak: formattedCurrentTime(normalHourOrNull.exitToBreak),
+      backFromTheBreak: formattedCurrentTime(normalHourOrNull.backFromTheBreak),
+      exit: formattedCurrentTime(normalHourOrNull.exit),
+    };
   }
 }

@@ -4,8 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
-import { IsUUID } from 'class-validator';
-import { toASCII } from 'punycode';
 import { AlternativeService } from 'src/app/alternatives/service/alternative.service';
 import { UserPayload } from 'src/app/auth/protocols/user-payload';
 import { ClientService } from 'src/app/client/service/client.service';
@@ -152,36 +150,43 @@ export class BudgetRequestService {
       dto.budgetRequestId,
     );
     const user = await this.userService.findUserById(userId);
-    if (budgetRequest.verifyByPreSaleId && user.roleName === 'pre sale') {
+    if (budgetRequest.verifyByPreSaleId && user.role.name === 'pre sale') {
       throw new BadRequestException(
         'Budget request has already been validaded by pre sale',
       );
     }
-    if (budgetRequest.verifyByFinancialId && user.roleName === 'financial') {
+    if (budgetRequest.verifyByFinancialId && user.role.name === 'financial') {
       throw new BadRequestException(
         'Budget request has already been validaded by financial',
       );
     }
-    if (!budgetRequest.verifyByPreSaleId && user.roleName === 'financial') {
+    if (!budgetRequest.verifyByPreSaleId && user.role.name === 'financial') {
       throw new BadRequestException(
         'A budget request needs to be validated first by the pre-sale',
       );
     }
 
-    if (user.roleName === 'pre sale') {
-      await this.budgetRequestRepository.aprrovedByPreSaleBudgetRequest({
-        ...dto,
-        verifyByPreSaleId: userId,
-        status: Status.review,
-      });
+    delete dto.budgetRequestId;
+    if (user.role.name === 'pre sale') {
+      await this.budgetRequestRepository.aprrovedBudgetRequest(
+        budgetRequest.id,
+        {
+          ...dto,
+          verifyByPreSaleId: userId,
+          status: Status.review,
+        },
+      );
       return;
     }
-    if (user.roleName === 'financial') {
-      await this.budgetRequestRepository.aprrovedByFinancialBudgetRequest({
-        ...dto,
-        verifyByFinancialId: userId,
-        status: Status.approved,
-      });
+    if (user.role.name === 'financial') {
+      await this.budgetRequestRepository.aprrovedBudgetRequest(
+        budgetRequest.id,
+        {
+          ...dto,
+          verifyByFinancialId: userId,
+          status: Status.approved,
+        },
+      );
       return;
     }
   }
@@ -204,7 +209,7 @@ export class BudgetRequestService {
         client: {
           id: budgetRequest.client.id,
           companyName: budgetRequest.client.companyName,
-          mainContact: budgetRequest.client.mainContact,
+          primaryContactName: budgetRequest.client.primaryContactName,
         },
       }),
     );

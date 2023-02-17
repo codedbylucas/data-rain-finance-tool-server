@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ApprovalStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
+import { DateToSendTimeEntity } from 'src/app/request-send-overtime/entities/date-to-send-time.entity';
+import { RequestSendOvertimeEntity } from 'src/app/request-send-overtime/entities/request-send-overtime.entity';
 import { serverError } from 'src/app/util/server-error';
 import { OvertimeEntity } from '../entities/overtime.entity';
 import { DbCreateOvertimeProps } from '../protocols/props/db-create-overtime.props';
@@ -59,17 +61,22 @@ export class OvertimeRepository {
     return overtimeOrNull;
   }
 
-  async findRequestSendOvertimeByUserProjectsId(userProjectId: string) {
+  async findRequestSendOvertimeByUserProjectsId(
+    userProjectId: string,
+    date: DateToSendTimeEntity,
+  ): Promise<RequestSendOvertimeEntity[]> {
     const requestSendOvertime = await this.prisma.requestSendOvertime
       .findMany({
         where: {
           userProjectId,
           AND: {
             approvalSatus: ApprovalStatus.approved,
+            dateToSendTime: {
+              day: date.day,
+              month: date.month,
+              year: date.year,
+            },
           },
-        },
-        orderBy: {
-          createdAt: 'desc',
         },
       })
       .catch(serverError);

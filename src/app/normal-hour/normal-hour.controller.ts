@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { FindHoursPostedInTheDayResposne } from './protocols/find-hours-posted-in-the-day.response';
 import { SendTimeDto } from './service/dto/send-time.dto';
 import { NormalHourService } from './service/normal-hour.service';
 
@@ -33,7 +34,7 @@ export class NormalHourController {
     payload: UserPayload,
     @Body() dto: SendTimeDto,
   ): Promise<void> {
-    return await this.normalHourService.sendTime(payload.userId, dto.projectId);
+    return await this.normalHourService.sendTime(payload.userId, dto);
   }
 
   @Get(':projectId')
@@ -46,28 +47,9 @@ export class NormalHourController {
     @RolesAccess([Role.professionalServices, Role.manager])
     payload: UserPayload,
     @Param('projectId') projectId: string,
-  ) {
-    return await this.normalHourService.findWeatherStatusInTheDay(
+  ): Promise<FindHoursPostedInTheDayResposne> {
+    return await this.normalHourService.findHorsPostedInTheDay(
       payload.userId,
-      projectId,
-    );
-  }
-
-  @Patch(':normalHourId/:projectId')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: `Update the user's regular timestamp`,
-  })
-  async updateNormalHour(
-    @RolesAccess([Role.professionalServices, Role.manager])
-    payload: UserPayload,
-    @Param('normalHourId') normalHourId: string,
-    @Param('projectId') projectId: string,
-  ) {
-    return await this.normalHourService.updateNormalHour(
-      payload.userId,
-      normalHourId,
       projectId,
     );
   }
