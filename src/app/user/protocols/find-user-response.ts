@@ -5,6 +5,10 @@ export interface FindUserResponse {
   imageUrl: string;
   billable: boolean;
   allocated: boolean;
-  position: string;
-  roleName: string;
+  role: {
+    name: string;
+  };
+  position: {
+    name: string;
+  };
 }

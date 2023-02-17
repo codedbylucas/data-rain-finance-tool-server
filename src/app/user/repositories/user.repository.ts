@@ -4,6 +4,7 @@ import { UpdateUserFirstAccesProps } from 'src/app/auth/protocols/props/update-u
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
+import { FindAllUserDataResponse } from '../protocols/db-find-all-user-data.response';
 import { DbFindManyUsersByQueryParam } from '../protocols/db-find-many-manger.response';
 import { FindUserResponse } from '../protocols/find-user-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
@@ -22,11 +23,15 @@ export class UserRepository {
       name: data.name,
       email: data.email,
       password: data.password,
-      position: data.position,
       billable: data.billable,
       role: {
         connect: {
           id: data.roleId,
+        },
+      },
+      position: {
+        connect: {
+          id: data.positionId,
         },
       },
     };
@@ -37,9 +42,23 @@ export class UserRepository {
     return createdUser;
   }
 
-  async findUserByEmail(email: string): Promise<UserEntity> {
+  async findUserByEmail(email: string): Promise<FindAllUserDataResponse> {
     const user = await this.prisma.users
-      .findUnique({ where: { email } })
+      .findUnique({
+        where: { email },
+        include: {
+          role: {
+            select: {
+              name: true,
+            },
+          },
+          position: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      })
       .catch(serverError);
     return user;
   }
@@ -66,10 +85,22 @@ export class UserRepository {
     return user;
   }
 
-  async findUserEntityById(id: string): Promise<UserEntity> {
+  async findAllUserDataById(id: string): Promise<FindAllUserDataResponse> {
     const user = await this.prisma.users
       .findUnique({
         where: { id },
+        include: {
+          role: {
+            select: {
+              name: true,
+            },
+          },
+          position: {
+            select: {
+              name: true,
+            },
+          },
+        },
       })
       .catch(serverError);
     return user;
@@ -189,7 +220,9 @@ export class UserRepository {
             mode: 'insensitive',
           },
           AND: {
-            roleName,
+            role: {
+              name: roleName,
+            },
           },
         },
 
@@ -208,8 +241,8 @@ export class UserRepository {
             startsWith: data,
             mode: 'insensitive',
           },
-          AND: {
-            roleName,
+          role: {
+            name: roleName,
           },
         },
         select: {
@@ -235,7 +268,15 @@ export class UserRepository {
     imageUrl: true,
     billable: true,
     allocated: true,
-    position: true,
-    roleName: true,
+    role: {
+      select: {
+        name: true,
+      },
+    },
+    position: {
+      select: {
+        name: true,
+      },
+    },
   };
 }

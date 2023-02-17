@@ -10,9 +10,11 @@ import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter'
 import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
 import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
+import { PositionService } from 'src/app/position/services/position.service';
 import { RoleService } from 'src/app/role/service/role.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
+import { FindAllUserDataResponse } from '../protocols/db-find-all-user-data.response';
 import { DbFindManyUsersByQueryParam } from '../protocols/db-find-many-manger.response';
 import { FindaManyUsersByQueryParamResponse } from '../protocols/find-many-users-by-query-param.response';
 import { FindUserResponse } from '../protocols/find-user-response';
@@ -32,15 +34,17 @@ export class UserService {
     private readonly mailService: MailService,
     private readonly cryptrService: CryptrService,
     private readonly roleService: RoleService,
+    private readonly positionService: PositionService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
-    const userOrNull: FindUserResponse | null =
+    const userOrNull: FindAllUserDataResponse | null =
       await this.userRepository.findUserByEmail(dto.email);
     if (userOrNull) {
       throw new BadRequestException(`User email already exists`);
     }
     await this.roleService.findRoleById(dto.roleId);
+    await this.positionService.findPositionById(dto.positionId);
 
     const passwordRandom = `DataRain@${Math.random().toString(36).slice(-10)}`;
     const hashedPassword = await this.bcryptAdapter.hash(passwordRandom, 12);
@@ -113,7 +117,7 @@ export class UserService {
   }
 
   async updateOwnUser(id: string, dto: UpdateOwnUserDto): Promise<void> {
-    const userOrNull = await this.userRepository.findUserEntityById(id);
+    const userOrNull = await this.userRepository.findAllUserDataById(id);
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
     }
@@ -153,7 +157,7 @@ export class UserService {
     if (!userOrNull) {
       throw new BadRequestException(`User with id '${id}' not found`);
     }
-    if (userOrNull.roleName === 'admin') {
+    if (userOrNull.role.name === 'admin') {
       throw new BadRequestException(`Unable to perform this action`);
     }
 

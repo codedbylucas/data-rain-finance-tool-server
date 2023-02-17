@@ -14,6 +14,7 @@ import { RoleModule } from './app/role/role.module';
 import { TeamModule } from './app/team/team.module';
 import { UserModule } from './app/user/user.module';
 import { OvertimeModule } from './app/overtime/overtime.module';
+import { PositionModule } from './app/position/position.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { OvertimeModule } from './app/overtime/overtime.module';
     NormalHourModule,
     RequestSendOvertimeModule,
     OvertimeModule,
+    PositionModule,
   ],
 })
 export class AppModule {}

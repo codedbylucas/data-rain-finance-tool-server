@@ -5,9 +5,9 @@ export class UserEntity extends BaseEntity {
   email: string;
   password: string;
   imageUrl: string;
-  position: string;
   billable: boolean;
   allocated: boolean;
   validatedEmail: boolean;
-  roleName: string;
+  roleId: string;
+  positionId: string;
 }

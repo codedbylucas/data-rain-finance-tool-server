@@ -34,27 +34,18 @@ export class NormalHourRepository {
   async findNormalHourByProjectIdAndDate(
     userProjectId: string,
     date: string,
-  ): Promise<NormalHourEntity[]> {
+  ): Promise<NormalHourEntity> {
     const normalHour = await this.prisma.normalHours
-      .findMany({
+      .findUnique({
         where: {
-          userProjectId,
-          AND: {
+          userProjectId_date: {
+            userProjectId,
             date,
           },
         },
       })
       .catch(serverError);
 
-    return normalHour;
-  }
-
-  async findNormalHourById(id: string): Promise<NormalHourEntity> {
-    const normalHour = await this.prisma.normalHours
-      .findUnique({
-        where: { id },
-      })
-      .catch(serverError);
     return normalHour;
   }
 

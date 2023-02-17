@@ -25,14 +25,12 @@ export class CreateUserDto {
   })
   email: string;
 
-  @Length(2, 200)
-  @IsString()
-  @IsNotEmpty()
+  @IsUUID()
   @ApiProperty({
-    description: 'Postion of the user',
-    example: 'Cloud DevOps Architect',
+    description: 'Id of the role that will be added to the user',
+    example: 'ac06f36e-4b61-4fe8-8fd6-6ad807ac6282',
   })
-  position: string;
+  positionId: string;
 
   @IsBoolean()
   @IsNotEmpty()

@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ApprovalStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
+import { DateToSendTimeEntity } from '../entities/date-to-send-time.entity';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
+import { AllRequestSendOvertimeUserStatusResponse } from '../protocols/all-requests-send-overtime-user-status.response';
 import { DbAskPermissionToSendOvertime } from '../protocols/db-create-request-send-overtime.props';
+import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
+import { DbFindAllRequestSendOvertimeUserStatusProps } from '../protocols/props/db-find-all-requests-send-overtime-user-status.props';
 
 @Injectable()
 export class RequestSendOvertimeRepository {
@@ -17,6 +21,13 @@ export class RequestSendOvertimeRepository {
       id: props.id,
       requestDescription: props.requestDescription,
       requestDate: props.requestDate,
+      dateToSendTime: {
+        create: {
+          day: props.dateToSendTime.day,
+          month: props.dateToSendTime.month,
+          year: props.dateToSendTime.year,
+        },
+      },
       userProject: {
         connect: {
           id: props.userProjectId,
@@ -35,13 +46,22 @@ export class RequestSendOvertimeRepository {
     return askPermissionToSendOvertimeCreated;
   }
 
-  async findRequestSendOvertime(
+  async findRequestSendOvertimeOnDate(
     userProjectId: string,
-    date: string,
+    date: DateToSendTimeEntity,
   ): Promise<RequestSendOvertimeEntity[]> {
     const requestSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
-        where: { userProjectId, AND: { requestDate: date } },
+        where: {
+          userProjectId,
+          AND: {
+            dateToSendTime: {
+              day: date.day,
+              month: date.month,
+              year: date.year,
+            },
+          },
+        },
       })
       .catch(serverError);
     return requestSendOvertimeOrEmpty;
@@ -64,74 +84,83 @@ export class RequestSendOvertimeRepository {
     return requestSendOvertimeOrNull;
   }
 
-  async findAllRequestSendOvertimeByManagerId(managerId: string) {
+  async findAllRequestSendOvertimeByManagerId(
+    managerId: string,
+  ): Promise<DbRequestSendOvertimeResponse[]> {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
-        where: { managerId, AND: { approvalSatus: ApprovalStatus.analyze } },
-        select: {
-          id: true,
-          requestDescription: true,
-          approvalSatus: true,
-          userProject: {
-            select: {
-              project: {
-                select: {
-                  name: true,
-                  description: true,
-                  client: {
-                    select: {
-                      companyName: true,
-                    },
-                  },
-                },
-              },
+        where: {
+          managerId,
+          AND: { approvalSatus: ApprovalStatus.analyze },
+          NOT: {
+            userProject: {
               user: {
-                select: {
-                  name: true,
-                  email: true,
-                },
+                id: managerId,
               },
             },
           },
         },
+        select: this.selectRequestSendOvertime,
       })
       .catch(serverError);
     return allRequestsSendOvertimeOrEmpty;
   }
 
-  async findAllRequestSendOvertimeInAnalyze() {
+  async findAllRequestSendOvertimeInAnalyze(): Promise<
+    DbRequestSendOvertimeResponse[]
+  > {
     const allRequestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
       .findMany({
         where: { approvalSatus: ApprovalStatus.analyze },
-        select: {
-          id: true,
-          requestDescription: true,
-          approvalSatus: true,
-          userProject: {
-            select: {
-              project: {
-                select: {
-                  name: true,
-                  description: true,
-                  client: {
-                    select: {
-                      companyName: true,
-                    },
-                  },
-                },
+        select: this.selectRequestSendOvertime,
+      })
+      .catch(serverError);
+    return allRequestsSendOvertimeOrEmpty;
+  }
+
+  async findAllRequestsSendOvertimeUserStatus(
+    props: DbFindAllRequestSendOvertimeUserStatusProps,
+  ) {
+    const requestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
+      .findMany({
+        where: {
+          userProjectId: props.userProjectId,
+          AND: {
+            dateToSendTime: {
+              day: {
+                gte: props.startDate.day,
               },
-              user: {
-                select: {
-                  name: true,
-                  email: true,
+              month: {
+                gte: props.startDate.month,
+              },
+              year: props.startDate.year,
+            },
+            AND: {
+              dateToSendTime: {
+                month: {
+                  lte: props.endDate.month,
+                },
+                year: {
+                  lte: props.endDate.year,
                 },
               },
             },
           },
         },
+        select: {
+          id: true,
+          dateToSendTime: true,
+          approvalSatus: true,
+        },
+        orderBy: {
+          dateToSendTime: {
+            month: 'asc',
+          },
+        },
       })
       .catch(serverError);
-    return allRequestsSendOvertimeOrEmpty;
+
+    return requestsSendOvertimeOrEmpty;
   }
 
   async changeStatusOfRequestSendOvertime(
@@ -150,4 +179,38 @@ export class RequestSendOvertimeRepository {
       })
       .catch(serverError);
   }
+
+  private selectRequestSendOvertime = {
+    id: true,
+    requestDescription: true,
+    approvalSatus: true,
+    dateToSendTime: {
+      select: {
+        day: true,
+        month: true,
+        year: true,
+      },
+    },
+    userProject: {
+      select: {
+        project: {
+          select: {
+            name: true,
+            description: true,
+            client: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    },
+  };
 }

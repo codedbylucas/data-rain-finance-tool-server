@@ -10,7 +10,11 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       email: 'admin@admin.com',
       password: 'Admin@1234',
       billable: false,
-      position: 'Admin',
+      position: {
+        connect: {
+          name: 'Estagiário',
+        },
+      },
       allocated: false,
       role: {
         connect: {
@@ -24,8 +28,12 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       email: 'presale@mail.com',
       password: 'Abcd@1234',
       billable: false,
-      position: 'Dev Ops',
       allocated: false,
+      position: {
+        connect: {
+          name: 'Project manager',
+        },
+      },
       role: {
         connect: {
           name: 'pre sale',
@@ -38,7 +46,11 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       email: 'financial@mail.com',
       password: 'Abcd@1234',
       billable: false,
-      position: 'Back-end developer',
+      position: {
+        connect: {
+          name: 'Cloud Solution Architect',
+        },
+      },
       allocated: false,
       role: {
         connect: {
@@ -52,7 +64,11 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       email: 'ps@mail.com',
       password: 'Abcd@1234',
       billable: false,
-      position: 'Front-end developer',
+      position: {
+        connect: {
+          name: 'Account Manager',
+        },
+      },
       allocated: false,
       role: {
         connect: {
@@ -66,7 +82,11 @@ export const users = async (): Promise<Prisma.UsersCreateInput[]> => {
       email: 'manager@mail.com',
       password: 'Abcd@1234',
       billable: false,
-      position: 'Front-end developer',
+      position: {
+        connect: {
+          name: 'IT Assistant',
+        },
+      },
       allocated: false,
       role: {
         connect: {
