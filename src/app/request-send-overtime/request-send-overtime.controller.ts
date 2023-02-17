@@ -27,7 +27,7 @@ export class RequestSendOvertimeController {
     private readonly requestSendOvertimeService: RequestSendOvertimeService,
   ) {}
 
-  @Post()
+  @Post('/user')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
