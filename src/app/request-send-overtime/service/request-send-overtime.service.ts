@@ -12,6 +12,7 @@ import { formatDateStringToObject } from 'src/app/util/format-date-string-to-obj
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { getDaysInMonth } from 'src/app/util/get-days-in-month';
 import { validateDateFormat } from 'src/app/util/validate-date-format';
+import { DateToSendTimeEntity } from '../entities/date-to-send-time.entity';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { AllRequestSendOvertimeUserStatusResponse } from '../protocols/all-requests-send-overtime-user-status.response';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
@@ -37,6 +38,20 @@ export class RequestSendOvertimeService {
       throw new BadRequestException(`Only billable user is authorized`);
     }
     validateDateFormat(dto.dateToSendTime);
+    const currentDate = formatDateStringToObject(
+      formattedCurrentDate(new Date()),
+    );
+    const date = formatDateStringToObject(dto.dateToSendTime);
+
+    if (
+      (date.day < currentDate.day && date.month <= currentDate.month) ||
+      date.year < currentDate.year ||
+      date.month < currentDate.month
+    ) {
+      throw new BadRequestException(
+        `Impossible to make a request for a date that has passed`,
+      );
+    }
 
     const projectOrError = await this.projectService.findProjectById(
       dto.projectId,
@@ -56,11 +71,10 @@ export class RequestSendOvertimeService {
       );
     }
 
-    const requestDate = formattedCurrentDate(new Date());
-    // await this.checkIfUserHasAlreadyPlacedAnOrder(
-    //   userProjectOrError.id,
-    //   requestDate,
-    // );
+    await this.checkIfUserHasAlreadyMadeRequestForThatDate(
+      userProjectOrError.id,
+      date,
+    );
 
     const dateObject = formatDateStringToObject(dto.dateToSendTime);
 
@@ -68,7 +82,7 @@ export class RequestSendOvertimeService {
       id: createUuid(),
       requestDescription: dto.requestDescription,
       userProjectId: userProjectOrError.id,
-      requestDate,
+      requestDate: formattedCurrentDate(new Date()),
       managerId: projectManager.user.id,
       approvalSatus: ApprovalStatus.analyze,
       dateToSendTime: {
@@ -78,18 +92,19 @@ export class RequestSendOvertimeService {
     });
   }
 
-  async checkIfUserHasAlreadyPlacedAnOrder(
+  async checkIfUserHasAlreadyMadeRequestForThatDate(
     userProjectId: string,
-    date: string,
+    date: DateToSendTimeEntity,
   ): Promise<RequestSendOvertimeEntity[]> {
     const requestSendOvertimeOrEmpty =
-      await this.requestSendOvertimeRepository.findRequestSendOvertime(
+      await this.requestSendOvertimeRepository.findRequestSendOvertimeOnDate(
         userProjectId,
         date,
       );
+    const dateString = formatDateObjectToString(date);
     if (requestSendOvertimeOrEmpty.length > 0) {
       throw new BadRequestException(
-        `This user has already placed an order on today's date`,
+        `This user has already placed an order to post overtime on the day '${dateString}'`,
       );
     }
     return requestSendOvertimeOrEmpty;
