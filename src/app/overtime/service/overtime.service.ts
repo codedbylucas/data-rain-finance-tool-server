@@ -2,12 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ProjectService } from 'src/app/project/service/project.service';
 import { RequestSendOvertimeService } from 'src/app/request-send-overtime/service/request-send-overtime.service';
 import { createUuid } from 'src/app/util/create-uuid';
+import { formatDateStringToObject } from 'src/app/util/format-date-string-to-object';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { formattedCurrentTime } from 'src/app/util/formatted-current-time';
-import {
-  DayTimeStatusOvertime,
-  DayTimeStatusOvertimeEnum,
-} from '../protocols/day-time-status-overtime';
 import { FindOvertimePostedInTheDayResponse } from '../protocols/find-overtime-posted-in-the-day.response';
 import { OvertimeRepository } from '../repositories/overtime.repository';
 import { CreateOvertimeDto } from './dto/create-overtime.dto';
@@ -72,15 +69,18 @@ export class OvertimeService {
       userId,
       projectId,
     );
-    const requestSendOvertimeOrNull =
+    const currentDate = formattedCurrentDate(new Date());
+    const date = formatDateStringToObject(currentDate);
+    const requestSendOvertimeOrEmpty =
       await this.overtimeRepository.findRequestSendOvertimeByUserProjectsId(
         userProject.id,
+        date,
       );
 
-    if (requestSendOvertimeOrNull.length === 0) {
+    if (requestSendOvertimeOrEmpty.length === 0) {
       throw new BadRequestException(`There is no request to submit overtime`);
     }
-    const requestSendOvertime = requestSendOvertimeOrNull[0];
+    const requestSendOvertime = requestSendOvertimeOrEmpty[0];
 
     if (requestSendOvertime.approvalSatus !== 'approved') {
       throw new BadRequestException(
