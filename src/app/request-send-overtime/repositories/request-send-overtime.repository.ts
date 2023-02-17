@@ -3,6 +3,7 @@ import { ApprovalStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
+import { AllRequestSendOvertimeUserStatusResponse } from '../protocols/all-requests-send-overtime-user-status.response';
 import { DbAskPermissionToSendOvertime } from '../protocols/db-create-request-send-overtime.props';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
@@ -140,6 +141,11 @@ export class RequestSendOvertimeRepository {
           id: true,
           dateToSendTime: true,
           approvalSatus: true,
+        },
+        orderBy: {
+          dateToSendTime: {
+            month: 'asc',
+          },
         },
       })
       .catch(serverError);

@@ -13,6 +13,7 @@ import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
 import { getDaysInMonth } from 'src/app/util/get-days-in-month';
 import { validateDateFormat } from 'src/app/util/validate-date-format';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
+import { AllRequestSendOvertimeUserStatusResponse } from '../protocols/all-requests-send-overtime-user-status.response';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
 import { FindRequestSendOvertimeResponse } from '../protocols/find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
@@ -137,7 +138,7 @@ export class RequestSendOvertimeService {
   async findAllRequestsSendOvertimeUserStatus(
     userId: string,
     projectId: string,
-  ) {
+  ): Promise<AllRequestSendOvertimeUserStatusResponse[]> {
     const userOrError = await this.userService.findUserById(userId);
     if (!userOrError.billable) {
       throw new BadRequestException(`Only billable user is authorized`);

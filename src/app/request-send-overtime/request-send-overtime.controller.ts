@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApprovalStatus } from '@prisma/client';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { AllRequestSendOvertimeUserStatusResponse } from './protocols/all-requests-send-overtime-user-status.response';
 import { FindRequestSendOvertimeResponse } from './protocols/find-request-send-overtime.response';
 import { AprroveAndReproveRequestSendOvertimeDto } from './service/dto/aprrove-and-reprove-request-send-overtime.dto';
 import { AskPermissionToSendOvertimeDto } from './service/dto/ask-permission-to-send-overtime.dto';
@@ -68,7 +69,7 @@ export class RequestSendOvertimeController {
     @RolesAccess([Role.manager, Role.professionalServices])
     payload: UserPayload,
     @Param('projectId', new ParseUUIDPipe()) projectId: string,
-  ) {
+  ): Promise<AllRequestSendOvertimeUserStatusResponse[]> {
     return await this.requestSendOvertimeService.findAllRequestsSendOvertimeUserStatus(
       payload.userId,
       projectId,
