@@ -22,7 +22,7 @@ import { OvertimeService } from './service/overtime.service';
 export class OvertimeController {
   constructor(private readonly overtimeService: OvertimeService) {}
 
-  @Post()
+  @Post('user')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
@@ -37,7 +37,7 @@ export class OvertimeController {
     return await this.overtimeService.createOvertime(payload.userId, dto);
   }
 
-  @Get('/status/:projectId')
+  @Get('/user/status/:projectId')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
