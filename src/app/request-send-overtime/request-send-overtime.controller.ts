@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -53,6 +55,23 @@ export class RequestSendOvertimeController {
   ): Promise<FindRequestSendOvertimeResponse[]> {
     return await this.requestSendOvertimeService.findAllRequestSendOvertime(
       payload.userId,
+    );
+  }
+
+  @Get('/user/status/:projectId')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find all requests to submit user overtime on project',
+  })
+  async findAllRequestsSendOvertimeUserStatus(
+    @RolesAccess([Role.manager, Role.professionalServices])
+    payload: UserPayload,
+    @Param('projectId', new ParseUUIDPipe()) projectId: string,
+  ) {
+    return await this.requestSendOvertimeService.findAllRequestsSendOvertimeUserStatus(
+      payload.userId,
+      projectId,
     );
   }
 

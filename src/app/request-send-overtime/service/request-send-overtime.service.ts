@@ -10,6 +10,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { formatDateObjectToString } from 'src/app/util/format-date-object-to-string';
 import { formatDateStringToObject } from 'src/app/util/format-date-string-to-object';
 import { formattedCurrentDate } from 'src/app/util/formatted-current-date';
+import { getDaysInMonth } from 'src/app/util/get-days-in-month';
 import { validateDateFormat } from 'src/app/util/validate-date-format';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
@@ -55,10 +56,10 @@ export class RequestSendOvertimeService {
     }
 
     const requestDate = formattedCurrentDate(new Date());
-    await this.checkIfUserHasAlreadyPlacedAnOrder(
-      userProjectOrError.id,
-      requestDate,
-    );
+    // await this.checkIfUserHasAlreadyPlacedAnOrder(
+    //   userProjectOrError.id,
+    //   requestDate,
+    // );
 
     const dateObject = formatDateStringToObject(dto.dateToSendTime);
 
@@ -131,6 +132,66 @@ export class RequestSendOvertimeService {
       },
     }));
     return requestSendOvertimes;
+  }
+
+  async findAllRequestsSendOvertimeUserStatus(
+    userId: string,
+    projectId: string,
+  ) {
+    const userOrError = await this.userService.findUserById(userId);
+    if (!userOrError.billable) {
+      throw new BadRequestException(`Only billable user is authorized`);
+    }
+
+    const userProjectOrError =
+      await this.projectService.verifyRelationUserAndProject(userId, projectId);
+
+    const currentDate = formattedCurrentDate(new Date());
+    let date = formatDateStringToObject(currentDate);
+
+    const daysInMonth = getDaysInMonth(date.month, date.year);
+
+    let endMonth = date.month;
+    let endYear = date.year;
+
+    if (date.day + 20 > daysInMonth && date.month < 12) {
+      endMonth = date.month + 1;
+    } else if (date.day + 20 > daysInMonth && date.month === 12) {
+      endMonth = 1;
+      endYear += 1;
+    }
+
+    const requestsSendOvertimeOrEmpty =
+      await this.requestSendOvertimeRepository.findAllRequestsSendOvertimeUserStatus(
+        {
+          userProjectId: userProjectOrError.id,
+          startDate: {
+            day: date.day,
+            month: date.month,
+            year: date.year,
+          },
+          endDate: {
+            month: endMonth,
+            year: endYear,
+          },
+        },
+      );
+
+    if (requestsSendOvertimeOrEmpty.length === 0) {
+      throw new BadRequestException(`No nearby order to send hours found`);
+    }
+
+    const allRequests = requestsSendOvertimeOrEmpty.map((request) => ({
+      id: request.id,
+      dateToSendTime: formatDateObjectToString({
+        day: request.dateToSendTime.day,
+        month: request.dateToSendTime.month,
+        year: request.dateToSendTime.year,
+      }),
+      status: request.approvalSatus,
+    }));
+
+    return allRequests;
   }
 
   async changeStatusOfRequestSendOvertime(

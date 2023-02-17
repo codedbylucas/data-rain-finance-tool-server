@@ -6,6 +6,7 @@ import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.ent
 import { DbAskPermissionToSendOvertime } from '../protocols/db-create-request-send-overtime.props';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
+import { DbFindAllRequestSendOvertimeUserStatusProps } from '../protocols/props/db-find-all-requests-send-overtime-user-status.props';
 
 @Injectable()
 export class RequestSendOvertimeRepository {
@@ -104,6 +105,46 @@ export class RequestSendOvertimeRepository {
       })
       .catch(serverError);
     return allRequestsSendOvertimeOrEmpty;
+  }
+
+  async findAllRequestsSendOvertimeUserStatus(
+    props: DbFindAllRequestSendOvertimeUserStatusProps,
+  ) {
+    const requestsSendOvertimeOrEmpty = await this.prisma.requestSendOvertime
+      .findMany({
+        where: {
+          userProjectId: props.userProjectId,
+          AND: {
+            dateToSendTime: {
+              day: {
+                gte: props.startDate.day,
+              },
+              month: {
+                gte: props.startDate.month,
+              },
+              year: props.startDate.year,
+            },
+            AND: {
+              dateToSendTime: {
+                month: {
+                  lte: props.endDate.month,
+                },
+                year: {
+                  lte: props.endDate.year,
+                },
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+          dateToSendTime: true,
+          approvalSatus: true,
+        },
+      })
+      .catch(serverError);
+
+    return requestsSendOvertimeOrEmpty;
   }
 
   async changeStatusOfRequestSendOvertime(
