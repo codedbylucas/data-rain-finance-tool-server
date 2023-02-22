@@ -12,7 +12,7 @@ interface Token {
 @Injectable()
 export class JsonWebTokenAdapter {
   private secret: string = process.env.JWT_SECRET_KEY;
-  private defaultOptions: jwt.SignOptions = { expiresIn: '30' };
+  private defaultOptions: jwt.SignOptions = { expiresIn: '1h' };
 
   generateToken(payload: Payload): Token {
     const token = jwt.sign(payload, this.secret, {
@@ -25,8 +25,13 @@ export class JsonWebTokenAdapter {
     try {
       const decoded = jwt.verify(token, this.secret) as Payload;
       return decoded;
-    } catch (error) {
-      throw new BadRequestException(`Token is invalid`);
+    } catch (error: any) {
+      console.log(error);
+      if (error.name === 'TokenExpiredError') {
+        throw new BadRequestException(`Token expired`);
+      } else {
+        throw new BadRequestException(`Token is invalid`);
+      }
     }
   }
 }
