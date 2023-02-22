@@ -80,6 +80,7 @@ export class UserController {
   }
 
   @Post('/password-recovery')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'User is created',
   })
