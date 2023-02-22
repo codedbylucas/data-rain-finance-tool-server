@@ -329,7 +329,7 @@ export const invitePasswordRecoveryTemplate = (
                         <td style="text-align: center;">
                             <div class="text-author">
                                 <p>Clique aqui para acessar a plataforma:</p>
-                                 <p><a href="https://datarain.vercel.app/novasenha/${token}" target="_blank" class="btn btn-primary">Criar nova senha</a></p>
+                                 <p><a href="https://datarain.vercel.app/recuperar-senha/${token}" target="_blank" class="btn btn-primary">Criar nova senha</a></p>
                              </div>
                         </td>
                       </tr>
