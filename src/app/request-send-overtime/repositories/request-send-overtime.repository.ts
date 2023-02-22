@@ -78,6 +78,7 @@ export class RequestSendOvertimeRepository {
               user: true,
             },
           },
+          dateToSendTime: true,
         },
       })
       .catch(serverError);
