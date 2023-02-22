@@ -16,7 +16,7 @@ export class UpdateOwnUserDto {
     description: 'The first name of the User',
     example: 'Lucas',
   })
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsEmail()
@@ -25,14 +25,14 @@ export class UpdateOwnUserDto {
     description: 'The email of the User',
     example: 'email@mail.com',
   })
-  email: string;
+  email?: string;
 
   @IsOptional()
   @ApiProperty({
     description: 'Current password of User',
     example: 'Abcd@1234',
   })
-  currentPassword: string;
+  currentPassword?: string;
 
   @IsOptional()
   @IsString()
@@ -47,7 +47,7 @@ export class UpdateOwnUserDto {
       message: 'Password too weak',
     },
   )
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsNotEmpty()
@@ -56,5 +56,5 @@ export class UpdateOwnUserDto {
     description: 'User new password confirmation',
     example: 'Abcd@1234',
   })
-  confirmPassword: string;
+  confirmPassword?: string;
 }
