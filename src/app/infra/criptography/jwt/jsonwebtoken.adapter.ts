@@ -12,12 +12,11 @@ interface Token {
 @Injectable()
 export class JsonWebTokenAdapter {
   private secret: string = process.env.JWT_SECRET_KEY;
-  private defaultOptions: jwt.SignOptions = { expiresIn: '1h' };
+  private defaultOptions: jwt.SignOptions = { expiresIn: '30' };
 
-  generateToken(payload: Payload, options: jwt.SignOptions): Token {
+  generateToken(payload: Payload): Token {
     const token = jwt.sign(payload, this.secret, {
       ...this.defaultOptions,
-      ...options,
     });
     return { token };
   }
