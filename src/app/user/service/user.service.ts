@@ -8,6 +8,8 @@ import { join } from 'path';
 import sharp from 'sharp';
 import { BcryptAdapter } from 'src/app/infra/criptography/bcrypt/bcrypt.adapter';
 import CryptrService from 'src/app/infra/criptography/cryptr/cryptr.adapter';
+import { JsonWebTokenAdapter } from 'src/app/infra/criptography/jwt/jsonwebtoken.adapter';
+import { invitePasswordRecoveryTemplate } from 'src/app/infra/mail/email-template/invite-to-password-recovery-template';
 import { inviteRegisterPasswordTemplate } from 'src/app/infra/mail/email-template/invite-to-register-password.template';
 import { MailService } from 'src/app/infra/mail/mail.service';
 import { PositionService } from 'src/app/position/services/position.service';
@@ -20,11 +22,13 @@ import { FindaManyUsersByQueryParamResponse } from '../protocols/find-many-users
 import { FindUserResponse } from '../protocols/find-user-response';
 import { ProfilePictureResponse } from '../protocols/profile-picture-response';
 import { DbCreateUserProps } from '../protocols/props/db-create-user.props';
+import { SendEmailProps } from '../protocols/props/send-email.props';
 import { UpdateUserAllocatedProps } from '../protocols/props/updte-user-allocated-props';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateOwnUserDto } from './dto/update-own-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserPasswordRecoveryDto } from './dto/user-password-recovery.dto';
 
 @Injectable()
 export class UserService {
@@ -35,6 +39,7 @@ export class UserService {
     private readonly cryptrService: CryptrService,
     private readonly roleService: RoleService,
     private readonly positionService: PositionService,
+    private readonly jsonWebTokenAdapter: JsonWebTokenAdapter,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -56,7 +61,16 @@ export class UserService {
     };
 
     const user = await this.userRepository.createUser(data);
-    await this.sendEmails([user]);
+
+    const tokenAuthentication = this.cryptrService.encrypt(user.id);
+    const emailHtml = inviteRegisterPasswordTemplate({
+      receiverName: user.name,
+      token: tokenAuthentication,
+    });
+    await this.sendEmailToCreateNewPassword({
+      email: user.email,
+      emailHtml,
+    });
   }
 
   async insertProfilePicture(
@@ -98,6 +112,27 @@ export class UserService {
       id: userUpdated.id,
       imageUrl: userUpdated.imageUrl,
     };
+  }
+
+  async passwordRecovery(dto: UserPasswordRecoveryDto): Promise<void> {
+    const userOrNull = await this.userRepository.findUserByEmail(dto.email);
+
+    if (!userOrNull) {
+      throw new BadRequestException(`User with email '${dto.email}' not found`);
+    }
+
+    const tokenAuthentication = this.jsonWebTokenAdapter.generateToken({
+      userId: userOrNull.id,
+    });
+    const emailHtml = invitePasswordRecoveryTemplate({
+      receiverName: userOrNull.name,
+      token: tokenAuthentication.token,
+    });
+
+    await this.sendEmailToCreateNewPassword({
+      email: userOrNull.email,
+      emailHtml,
+    });
   }
 
   async findUserById(id: string): Promise<FindUserResponse> {
@@ -250,20 +285,11 @@ export class UserService {
     return { users };
   }
 
-  async sendEmails(users: UserEntity[]): Promise<void> {
-    users.map(async (user) => {
-      const tokenAuthentication = this.cryptrService.encrypt(user.id);
-
-      const emailHtml = inviteRegisterPasswordTemplate({
-        receiverName: user.name,
-        token: tokenAuthentication,
-      });
-
-      await this.mailService.sendMail({
-        to: user.email,
-        subject: 'Crie uma nova senha',
-        html: emailHtml,
-      });
+  async sendEmailToCreateNewPassword(props: SendEmailProps): Promise<void> {
+    await this.mailService.sendMail({
+      to: props.email,
+      subject: 'Crie uma nova senha',
+      html: props.emailHtml,
     });
   }
 

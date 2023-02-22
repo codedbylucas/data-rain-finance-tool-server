@@ -109,7 +109,7 @@ model AlternativesTeams {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([alternativeId, teamId])
-  @@map("alternatives_team")
+  @@map("alternatives_teams")
 }
 
 model Clients {

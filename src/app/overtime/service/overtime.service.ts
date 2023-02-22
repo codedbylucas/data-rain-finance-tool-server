@@ -22,19 +22,33 @@ export class OvertimeService {
       await this.requestSendOvertimeService.verifyRequestSendOvertimeExist(
         dto.requestSendOvertimeId,
       );
-
     if (userId !== requestSendOvertime.userProject.user.id) {
       throw new BadRequestException(
         `The request to send time does not belong to the logged in user`,
       );
     }
+    if (requestSendOvertime.approvalSatus !== 'approved') {
+      throw new BadRequestException(
+        `Unable to submit hours for a request that has not yet been approved`,
+      );
+    }
 
-    const date = formattedCurrentDate(new Date());
+    const currentDate = formattedCurrentDate(new Date());
+    const currentDateObject = formatDateStringToObject(currentDate);
+    if (
+      currentDateObject.day !== requestSendOvertime.dateToSendTime.day ||
+      currentDateObject.month !== requestSendOvertime.dateToSendTime.month ||
+      currentDateObject.year !== requestSendOvertime.dateToSendTime.year
+    ) {
+      throw new BadRequestException(
+        `Request day to send overtime different from the current date`,
+      );
+    }
 
     if (!requestSendOvertime.overtime) {
       await this.overtimeRepository.createOvertime({
         id: createUuid(),
-        date,
+        date: currentDate,
         entry: new Date(),
         requestSendOvertimeId: requestSendOvertime.id,
       });

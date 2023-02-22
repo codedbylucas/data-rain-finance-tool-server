@@ -32,6 +32,7 @@ import { ProfilePictureResponse } from './protocols/profile-picture-response';
 import { CreateUserDto } from './service/dto/create-user.dto';
 import { UpdateOwnUserDto } from './service/dto/update-own-user.dto';
 import { UpdateUserDto } from './service/dto/update-user.dto';
+import { UserPasswordRecoveryDto } from './service/dto/user-password-recovery.dto';
 import { UserService } from './service/user.service';
 
 @Controller('user')
@@ -76,6 +77,17 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<ProfilePictureResponse> {
     return await this.userService.insertProfilePicture(userId, file);
+  }
+
+  @Post('/password-recovery')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'User is created',
+  })
+  async passwordRecovery(
+    @Body() dto: UserPasswordRecoveryDto,
+  ): Promise<BadRequestException | void> {
+    return await this.userService.passwordRecovery(dto);
   }
 
   @Get('/myself')

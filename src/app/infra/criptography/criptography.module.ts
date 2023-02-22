@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { BcryptAdapter } from './bcrypt/bcrypt.adapter';
 import CryptrService from './cryptr/cryptr.adapter';
+import { JsonWebTokenAdapter } from './jwt/jsonwebtoken.adapter';
 import { JwtAdapter } from './jwt/jwt.adapter';
 
 @Module({
@@ -17,7 +18,7 @@ import { JwtAdapter } from './jwt/jwt.adapter';
       signOptions: { expiresIn: '48h' },
     }),
   ],
-  providers: [BcryptAdapter, JwtAdapter, CryptrService],
-  exports: [BcryptAdapter, JwtAdapter, CryptrService],
+  providers: [BcryptAdapter, JwtAdapter, CryptrService, JsonWebTokenAdapter],
+  exports: [BcryptAdapter, JwtAdapter, CryptrService, JsonWebTokenAdapter],
 })
 export class CriptographyModule {}
