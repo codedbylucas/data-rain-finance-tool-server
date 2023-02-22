@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
-  app.useStaticAssets(join(__dirname, '..', '/dist'));
+  app.useStaticAssets(join(__dirname, '..', 'client'));
   const config = new DocumentBuilder()
     .setTitle('Finance Tool Server')
     .setDescription('Aplicação de previsão orçamentária')
