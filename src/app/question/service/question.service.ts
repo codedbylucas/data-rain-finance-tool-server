@@ -19,9 +19,13 @@ export class QuestionService {
   async createQuestion(
     dto: CreateQuestionDto,
   ): Promise<CreateQuestionResponse> {
+    const questionsOrEmpty = await this.questionRepository.findAllQuestions();
+    const position = questionsOrEmpty.length + 1;
+
     const questionOrError = await this.questionRepository.createQuestion({
       ...dto,
       id: createUuid(),
+      position,
     });
     return {
       id: questionOrError.id,
@@ -38,6 +42,7 @@ export class QuestionService {
       (question) => ({
         id: question.id,
         description: question.description,
+        position: question.position,
         alternatives: question.alternatives.map((alternative) => ({
           id: alternative.id,
           description: alternative.description,

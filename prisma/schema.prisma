@@ -71,6 +71,7 @@ model Teams {
 model Questions {
   id               String             @id @unique @default(uuid())
   description      String             @db.VarChar(500)
+  position         Int
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
   alternatives     Alternatives[]
@@ -274,8 +275,8 @@ model DateToSendTime {
   month Int
   year  Int
 
-  requestSendOvertime RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id], onDelete: Cascade)
-  requestSendOvertimeId String @unique
+  requestSendOvertime   RequestSendOvertime @relation(fields: [requestSendOvertimeId], references: [id], onDelete: Cascade)
+  requestSendOvertimeId String              @unique
 
   @@map("date_to_send_time")
 }

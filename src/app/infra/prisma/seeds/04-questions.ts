@@ -5,34 +5,32 @@ export const questions: Prisma.QuestionsCreateInput[] = [
   {
     id: uuid(),
     description: 'Qual a Região em que a aplicação pode ficar alocada?',
+    position: 1,
   },
   {
     id: uuid(),
     description: 'Quantas máquinas serão migradas?',
+    position: 2,
   },
   {
     id: uuid(),
     description: 'Qual Sistema operacional?',
+    position: 3,
   },
   {
     id: uuid(),
     description: 'Quanto de vCpu tem as maquinas?',
+    position: 4,
   },
   {
     id: uuid(),
     description: 'Quanto de memória Ram tem as maquinas?',
+    position: 5,
   },
   {
     id: uuid(),
-    description: 'Quanto de armazenamento das maquinas? SSD ou HD?',
-  },
-  {
-    id: uuid(),
-    description: 'Quais parâmetros de backup?',
-  },
-  {
-    id: uuid(),
-    description: 'Quantas horas no mês as maquinas ficam em uso?',
+    description: 'Qual o armazenamento das maquinas?',
+    position: 6,
   },
 ];
 

@@ -33,6 +33,7 @@ export class QuestionRepository {
         select: {
           id: true,
           description: true,
+          position: true,
           alternatives: {
             select: {
               id: true,
@@ -51,6 +52,9 @@ export class QuestionRepository {
               },
             },
           },
+        },
+        orderBy: {
+          position: 'asc',
         },
       })
       .catch(serverError);
