@@ -81,14 +81,14 @@ export class QuestionService {
       }
 
       const result = questionOrError.position - dto.position;
-      const questionsParaAtualizar: DbFindAllQuestionResponse[] = [];
+      const questionsToUpdate: DbFindAllQuestionResponse[] = [];
 
       //ex: (10 irá virar 8)
       if (result > 0) {
         for (let i = 0; i < result; i++) {
-          questionsParaAtualizar.push(questions[i + dto.position - 1]);
+          questionsToUpdate.push(questions[i + dto.position - 1]);
         }
-        for (const item of questionsParaAtualizar) {
+        for (const item of questionsToUpdate) {
           const position = item.position + 1;
           await this.questionRepository.updateQuestionPositionById(
             item.id,
@@ -99,9 +99,9 @@ export class QuestionService {
         //ex: (8 irá virar 10)
         const positveResult = Math.abs(result);
         for (let i = 0; i < positveResult; i++) {
-          questionsParaAtualizar.push(questions[dto.position - 1 - i]);
+          questionsToUpdate.push(questions[dto.position - 1 - i]);
         }
-        for (const item of questionsParaAtualizar) {
+        for (const item of questionsToUpdate) {
           const position = item.position - 1;
           await this.questionRepository.updateQuestionPositionById(
             item.id,
