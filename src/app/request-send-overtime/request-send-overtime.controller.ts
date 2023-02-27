@@ -38,11 +38,13 @@ export class RequestSendOvertimeController {
     @RolesAccess([Role.professionalServices, Role.manager])
     payload: UserPayload,
     @Body() dto: AskPermissionToSendOvertimeDto,
-  ) {
-    return await this.requestSendOvertimeService.askPermissionToSendOvertime(
-      payload.userId,
-      dto,
-    );
+  ): Promise<void> {
+    const requestSendOvertime =
+      await this.requestSendOvertimeService.askPermissionToSendOvertime(
+        payload.userId,
+        dto,
+      );
+    return;
   }
 
   @Get()
