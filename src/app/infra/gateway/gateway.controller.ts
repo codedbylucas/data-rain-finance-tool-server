@@ -5,6 +5,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { GatewayService } from './services/gateway.service';
 
 @WebSocketGateway(81, {
   cors: true,
@@ -16,6 +17,8 @@ import { Server, Socket } from 'socket.io';
 export class GatewayController
   implements OnGatewayConnection, OnGatewayDisconnect
 {
+  constructor(private readonly gatewayService: GatewayService) {}
+
   @WebSocketServer()
   public server: Server;
 
