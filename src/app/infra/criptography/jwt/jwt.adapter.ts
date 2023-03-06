@@ -14,16 +14,15 @@ export class JwtAdapter {
     return accessToken;
   }
 
-  async verifyToken(accessToken: string): Promise<DecodedToken> {
+  async verifyToken(accessToken: string) {
     try {
       const decoded = (await this.jwtService.decode(
         accessToken,
       )) as DecodedToken;
-
       const userId = decoded.userId;
       return { userId };
-    } catch (err) {
-      throw new BadRequestException(`Invalid Token`);
+    } catch (error) {
+      console.log(error);
     }
   }
 }
