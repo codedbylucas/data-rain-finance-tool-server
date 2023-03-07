@@ -1,9 +1,6 @@
-import { BadRequestException } from '@nestjs/common';
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -11,7 +8,10 @@ import { Server, Socket } from 'socket.io';
 import { GatewayService } from './services/gateway.service';
 
 @WebSocketGateway(81, {
-  cors: { credentials: 'http://127.0.0.1:5173/' },
+  cors: {
+    origin: 'http://localhost:3000',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  },
   serveClient: false,
   pingInterval: 10000,
   pingTimeout: 5000,
@@ -27,11 +27,42 @@ export class GatewayController
 
   handleConnection(client: Socket) {
     try {
+      if (!client.handshake.auth.token) {
+        this.handleDisconnect(client);
+        this.server.to(client.id).emit('connection', {
+          status: false,
+          message: 'Error making connection, token not informed',
+        });
+        return;
+      }
+
+      const connection = this.gatewayService.handleConnection(
+        client.id,
+        client.handshake.auth.token,
+      );
+
+      if (connection.isLeft()) {
+        this.handleDisconnect(client);
+        this.server.to(client.id).emit('connection', {
+          status: false,
+          message: 'Error making connection',
+        });
+        return;
+      }
+
+      this.server.to(client.id).emit('connection', {
+        status: true,
+        message: 'Connection made successfully',
+      });
+
       console.log(client.id, 'connect');
-      let token = `${client.handshake.query.token}`;
-      this.gatewayService.handleConnection(client.id, token);
     } catch (error) {
-      console.log('errorrrrr');
+      console.log(error);
+      this.handleDisconnect(client);
+      this.server.to(client.id).emit('connection', {
+        status: false,
+        message: 'Error making connection',
+      });
     }
   }
 

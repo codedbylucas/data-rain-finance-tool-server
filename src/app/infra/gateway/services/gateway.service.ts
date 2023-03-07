@@ -1,5 +1,10 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DecodedToken, JwtAdapter } from '../../criptography/jwt/jwt.adapter';
+import { Either, left, rigth } from '../../shared/either/either';
 import { GatewayRepository } from '../repositories/gateway.repository';
 
 @Injectable()
@@ -9,17 +14,21 @@ export class GatewayService {
     private readonly jwtAdapter: JwtAdapter,
   ) {}
 
-  async handleConnection(clientId: string, token: string) {
-    console.log(token);
-    const decodedToken = await this.decodeToken(token);
+  handleConnection(
+    clientId: string,
+    token: string,
+  ): Either<BadGatewayException | InternalServerErrorException, DecodedToken> {
+    const decodedToken = this.decodeToken(token);
+    if (decodedToken.isLeft()) {
+      return left(decodedToken.value);
+    }
+    return rigth(decodedToken.value);
   }
 
-  async decodeToken(token: string): Promise<DecodedToken> {
-    const decodedToken = await this.jwtAdapter.verifyToken(token);
-    if (!decodedToken) {
-      console.log(decodedToken, '111');
-      return null;
-    }
+  decodeToken(
+    token: string,
+  ): Either<BadGatewayException | InternalServerErrorException, DecodedToken> {
+    const decodedToken = this.jwtAdapter.verifyToken(token);
     return decodedToken;
   }
 }
