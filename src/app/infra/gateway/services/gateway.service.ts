@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { DecodedToken, JwtAdapter } from '../../criptography/jwt/jwt.adapter';
 import { Either, left, rigth } from '../../shared/either/either';
+import { UserData } from '../protocols/user-data';
 import { GatewayRepository } from '../repositories/gateway.repository';
 
 @Injectable()
@@ -22,6 +23,14 @@ export class GatewayService {
     if (decodedToken.isLeft()) {
       return left(decodedToken.value);
     }
+    const userOrNull = this.findUserById(decodedToken.value.userId);
+    if (!userOrNull) {
+      this.saveUser({
+        clientId,
+        userId: decodedToken.value.userId,
+      });
+    }
+
     return rigth(decodedToken.value);
   }
 
@@ -30,5 +39,14 @@ export class GatewayService {
   ): Either<BadGatewayException | InternalServerErrorException, DecodedToken> {
     const decodedToken = this.jwtAdapter.verifyToken(token);
     return decodedToken;
+  }
+
+  findUserById(userId: string) {
+    const userOrNull = this.gatewayRepository.findUserById(userId);
+    return userOrNull;
+  }
+
+  saveUser(userData: UserData) {
+    this.gatewayRepository.saveUser(userData);
   }
 }
