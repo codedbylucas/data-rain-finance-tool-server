@@ -35,7 +35,7 @@ export class GatewayController
         this.handleDisconnect(client);
         this.sendConnectionStatus({
           clientId: client.id,
-          status: false,
+          connected: false,
           message: 'Error making connection, token not informed',
         });
         return;
@@ -50,7 +50,7 @@ export class GatewayController
         this.handleDisconnect(client);
         this.sendConnectionStatus({
           clientId: client.id,
-          status: false,
+          connected: false,
           message: 'Error making connection',
         });
         return;
@@ -58,7 +58,7 @@ export class GatewayController
 
       this.sendConnectionStatus({
         clientId: client.id,
-        status: true,
+        connected: true,
         message: 'Connection made successfully',
       });
 
@@ -68,7 +68,7 @@ export class GatewayController
       this.handleDisconnect(client);
       this.sendConnectionStatus({
         clientId: client.id,
-        status: false,
+        connected: false,
         message: 'Error making connection',
       });
     }
@@ -80,7 +80,7 @@ export class GatewayController
 
   sendConnectionStatus(payload: SendConnectionPayload): void {
     this.server.to(payload.clientId).emit('connection', {
-      status: payload.status,
+      connected: payload.connected,
       message: payload.message,
     } as ConnectionPayload);
   }

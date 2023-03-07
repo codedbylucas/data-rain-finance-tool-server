@@ -1,10 +1,10 @@
 export interface ConnectionPayload {
-  status: boolean;
+  connected: boolean;
   message: string;
 }
 
 export interface SendConnectionPayload {
   clientId: string;
-  status: boolean;
+  connected: boolean;
   message: string;
 }
