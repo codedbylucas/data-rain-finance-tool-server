@@ -7,7 +7,6 @@ export class GatewayRepository {
 
   saveUser(userData: UserData): void {
     this.userData.push(userData);
-    console.log(userData);
   }
 
   findUserById(userId: string): UserData {
