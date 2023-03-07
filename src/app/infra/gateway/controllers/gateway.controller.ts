@@ -5,7 +5,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { GatewayService } from './services/gateway.service';
+import { GatewayService } from '../services/gateway.service';
+import { ConnectionPayload } from './protocols/connection.payload';
 
 @WebSocketGateway(81, {
   cors: {
@@ -32,7 +33,7 @@ export class GatewayController
         this.server.to(client.id).emit('connection', {
           status: false,
           message: 'Error making connection, token not informed',
-        });
+        } as ConnectionPayload);
         return;
       }
 
@@ -46,14 +47,14 @@ export class GatewayController
         this.server.to(client.id).emit('connection', {
           status: false,
           message: 'Error making connection',
-        });
+        } as ConnectionPayload);
         return;
       }
 
       this.server.to(client.id).emit('connection', {
         status: true,
         message: 'Connection made successfully',
-      });
+      } as ConnectionPayload);
 
       console.log(client.id, 'connect');
     } catch (error) {
@@ -62,7 +63,7 @@ export class GatewayController
       this.server.to(client.id).emit('connection', {
         status: false,
         message: 'Error making connection',
-      });
+      } as ConnectionPayload);
     }
   }
 
