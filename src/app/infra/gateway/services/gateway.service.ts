@@ -1,7 +1,9 @@
 import {
   BadGatewayException,
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { DecodedToken, JwtAdapter } from '../../criptography/jwt/jwt.adapter';
 import { Either, left, rigth } from '../../shared/either/either';
@@ -18,20 +20,30 @@ export class GatewayService {
   handleConnection(
     clientId: string,
     token: string,
-  ): Either<BadGatewayException | InternalServerErrorException, DecodedToken> {
+  ): Either<
+    BadGatewayException | NotFoundException | InternalServerErrorException,
+    UserData
+  > {
     const decodedToken = this.decodeToken(token);
     if (decodedToken.isLeft()) {
       return left(decodedToken.value);
     }
-    const userOrNull = this.findUserById(decodedToken.value.userId);
-    if (!userOrNull) {
-      this.saveUser({
-        clientId,
-        userId: decodedToken.value.userId,
-      });
-    }
+    const userId = decodedToken.value.userId;
+    const userOrNull = this.findUserById(userId);
 
-    return rigth(decodedToken.value);
+    let userSavedOrUpdated: UserData;
+
+    if (!userOrNull) {
+      this.saveUser({ clientId, userId });
+      userSavedOrUpdated = { clientId, userId };
+    } else {
+      const userUpdated = this.updateUserClientIdInRepository(clientId, userId);
+      if (userUpdated.isLeft()) {
+        return left(userUpdated.value);
+      }
+      userSavedOrUpdated = userUpdated.value;
+    }
+    return rigth(userSavedOrUpdated);
   }
 
   decodeToken(
@@ -48,5 +60,25 @@ export class GatewayService {
 
   saveUser(userData: UserData) {
     this.gatewayRepository.saveUser(userData);
+  }
+
+  private updateUserClientIdInRepository(
+    newClientId: string,
+    userId: string,
+  ): Either<NotFoundException, UserData> {
+    const index = this.gatewayRepository.findUserIndex(userId);
+    if (index === undefined || index === null) {
+      return left(
+        new NotFoundException(
+          `User with userId '${userId}' not found in repository`,
+        ),
+      );
+    }
+    const userUpdated = this.gatewayRepository.updateClientIdInUserData(
+      newClientId,
+      index,
+    );
+
+    return rigth(userUpdated);
   }
 }
