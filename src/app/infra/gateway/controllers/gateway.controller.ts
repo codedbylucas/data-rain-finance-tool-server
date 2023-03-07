@@ -6,7 +6,10 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GatewayService } from '../services/gateway.service';
-import { ConnectionPayload } from './protocols/connection.payload';
+import {
+  ConnectionPayload,
+  SendConnectionPayload,
+} from './protocols/connection.payload';
 
 @WebSocketGateway(81, {
   cors: {
@@ -30,10 +33,11 @@ export class GatewayController
     try {
       if (!client.handshake.auth.token) {
         this.handleDisconnect(client);
-        this.server.to(client.id).emit('connection', {
+        this.sendConnectionStatus({
+          clientId: client.id,
           status: false,
           message: 'Error making connection, token not informed',
-        } as ConnectionPayload);
+        });
         return;
       }
 
@@ -44,30 +48,40 @@ export class GatewayController
 
       if (connection.isLeft()) {
         this.handleDisconnect(client);
-        this.server.to(client.id).emit('connection', {
+        this.sendConnectionStatus({
+          clientId: client.id,
           status: false,
           message: 'Error making connection',
-        } as ConnectionPayload);
+        });
         return;
       }
 
-      this.server.to(client.id).emit('connection', {
+      this.sendConnectionStatus({
+        clientId: client.id,
         status: true,
         message: 'Connection made successfully',
-      } as ConnectionPayload);
+      });
 
       console.log(client.id, 'connect');
     } catch (error) {
       console.log(error);
       this.handleDisconnect(client);
-      this.server.to(client.id).emit('connection', {
+      this.sendConnectionStatus({
+        clientId: client.id,
         status: false,
         message: 'Error making connection',
-      } as ConnectionPayload);
+      });
     }
   }
 
   handleDisconnect(client: Socket) {
     console.log(client.id, 'disconnect');
+  }
+
+  sendConnectionStatus(payload: SendConnectionPayload): void {
+    this.server.to(payload.clientId).emit('connection', {
+      status: payload.status,
+      message: payload.message,
+    } as ConnectionPayload);
   }
 }
