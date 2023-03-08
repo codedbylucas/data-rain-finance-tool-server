@@ -75,7 +75,15 @@ export class GatewayController
   }
 
   handleDisconnect(client: Socket) {
-    console.log(client.id, 'disconnect');
+    try {
+      if (!client.handshake.auth.token) {
+        return;
+      }
+      this.gatewayService.removeUserDisconnecting(client.handshake.auth.token);
+      console.log(client.id, 'disconnect');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   sendConnectionStatus(payload: SendConnectionPayload): void {

@@ -26,4 +26,8 @@ export class GatewayRepository {
       }
     }
   }
+
+  removeUserData(index: number): void {
+    delete this.userData[index];
+  }
 }

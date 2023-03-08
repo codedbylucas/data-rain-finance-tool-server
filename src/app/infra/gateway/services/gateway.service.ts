@@ -80,4 +80,21 @@ export class GatewayService {
 
     return rigth(userUpdated);
   }
+
+  removeUserDisconnecting(
+    token: string,
+  ): Either<BadGatewayException | InternalServerErrorException, null> {
+    const decodedToken = this.decodeToken(token);
+    if (decodedToken.isLeft()) {
+      return left(decodedToken.value);
+    }
+    const userId = decodedToken.value.userId;
+    const userOrNull = this.findUserById(userId);
+    if (!userOrNull) {
+      return rigth(null);
+    }
+    const index = this.gatewayRepository.findUserIndex(userId);
+    this.gatewayRepository.removeUserData(index);
+    return rigth(null);
+  }
 }
