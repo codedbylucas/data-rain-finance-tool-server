@@ -10,7 +10,7 @@ export class GatewayRepository {
   }
 
   findUserById(userId: string): UserData {
-    const userOrNull = this.userData.find((user) => userId === user.userId);
+    const userOrNull = this.userData.find((user) => user.userId === userId);
     return userOrNull;
   }
 
@@ -28,6 +28,6 @@ export class GatewayRepository {
   }
 
   removeUserData(index: number): void {
-    delete this.userData[index];
+    this.userData.splice(index, 1);
   }
 }

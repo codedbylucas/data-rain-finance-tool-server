@@ -52,7 +52,7 @@ export class GatewayService {
     return decodedToken;
   }
 
-  findUserById(userId: string) {
+  findUserById(userId: string): UserData {
     const userOrNull = this.gatewayRepository.findUserById(userId);
     return userOrNull;
   }
