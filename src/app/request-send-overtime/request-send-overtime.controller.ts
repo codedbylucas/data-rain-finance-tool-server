@@ -47,14 +47,12 @@ export class RequestSendOvertimeController {
         dto,
       );
 
-    const notification =
-      await this.managerNotificationService.askPermissionToSendOvertime({
-        receiverId: requestSendOvertime.managerId,
-        senderId: payload.userId,
-        dateToSendTime: requestSendOvertime.dateToSendTime,
-      });
+    await this.managerNotificationService.askPermissionToSendOvertime({
+      receiverId: requestSendOvertime.managerId,
+      senderId: payload.userId,
+      dateToSendTime: requestSendOvertime.dateToSendTime,
+    });
 
-    console.log('notification', notification);
     return;
   }
 

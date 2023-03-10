@@ -38,17 +38,17 @@ export class NotificationService {
       );
     }
 
-    const id = createUuid();
+    const notificationId = createUuid();
     this.notiticationRepository.save(dto.receiverId, {
       ...dto,
-      id,
+      id: notificationId,
       visualized: false,
       createdAt: new Date(),
       sent: false,
     });
 
     const notification = this.notiticationRepository.findNotificationById(
-      id,
+      notificationId,
       dto.receiverId,
     );
 
@@ -56,8 +56,25 @@ export class NotificationService {
     if (userIsConnected) {
       const sendToAUser = this.notificationEmitter.sendToAUser(notification);
 
-      if(sendToAUser.isRigth()) {
-        
+      if (sendToAUser.isRigth()) {
+        const index = this.notiticationRepository.findNotificationIndex(
+          dto.receiverId,
+          notificationId,
+        );
+
+        this.notiticationRepository.updateNotification(index, {
+          receiverId: dto.receiverId,
+          notificationId,
+          sent: true,
+        });
+
+        const notificationSent =
+          this.notiticationRepository.findNotificationById(
+            notificationId,
+            dto.receiverId,
+          );
+
+        return rigth(notificationSent);
       }
     }
   }
