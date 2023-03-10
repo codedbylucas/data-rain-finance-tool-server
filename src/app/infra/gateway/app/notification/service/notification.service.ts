@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { isUUID } from 'class-validator';
-import { left } from 'src/app/infra/shared/either/either';
+import { Either, left, rigth } from 'src/app/infra/shared/either/either';
 import { createUuid } from 'src/app/util/create-uuid';
+import { NotificationEntity } from '../entities/notification.entity';
 import { InvalidParamError } from '../errors/invalid-param.error';
 import { NotificationRepository } from '../repositories/notification.repository';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -12,7 +13,9 @@ export class NotificationService {
     private readonly notiticationRepository: NotificationRepository,
   ) {}
 
-  createNotification(dto: CreateNotificationDto) {
+  createNotification(
+    dto: CreateNotificationDto,
+  ): Either<InvalidParamError, NotificationEntity> {
     if (!isUUID(dto.receiverId)) {
       return left(new InvalidParamError(`The receiver id must be a uuid`));
     }
@@ -31,11 +34,17 @@ export class NotificationService {
       );
     }
 
+    const id = createUuid();
     this.notiticationRepository.save(dto.receiverId, {
       ...dto,
-      id: createUuid(),
+      id,
       visualized: false,
       createdAt: new Date(),
     });
+
+    const notificationCreated =
+      this.notiticationRepository.findNotificationById(id, dto.receiverId);
+
+    return rigth(notificationCreated);
   }
 }

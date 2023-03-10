@@ -8,4 +8,14 @@ export class NotificationRepository {
   save(receiverId: string, notification: NotificationEntity) {
     this.notificationData[receiverId].push(notification);
   }
+
+  findNotificationById(
+    notificationId: string,
+    receiverId: string,
+  ): NotificationEntity {
+    const notification = this.notificationData[receiverId].find(
+      (notification) => notification.id === notificationId,
+    );
+    return notification;
+  }
 }
