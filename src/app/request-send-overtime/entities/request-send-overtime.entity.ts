@@ -4,7 +4,7 @@ import { BaseEntity } from 'src/app/util/base-entity/base-entity';
 
 export class RequestSendOvertimeEntity extends BaseEntity {
   requestDescription: string;
-  requestDate: String;
+  requestDate: string;
   approvalSatus: ApprovalStatus;
   userProjectId: string;
   managerId: string;
