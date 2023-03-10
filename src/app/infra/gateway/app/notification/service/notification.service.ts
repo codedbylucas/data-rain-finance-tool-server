@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { Either, left, rigth } from 'src/app/infra/shared/either/either';
 import { createUuid } from 'src/app/util/create-uuid';
+import { GatewayService } from '../../../services/gateway.service';
 import { NotificationEntity } from '../entities/notification.entity';
 import { InvalidParamError } from '../errors/invalid-param.error';
 import { NotificationRepository } from '../repositories/notification.repository';
@@ -11,6 +12,7 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 export class NotificationService {
   constructor(
     private readonly notiticationRepository: NotificationRepository,
+    private readonly gatewayService: GatewayService,
   ) {}
 
   createNotification(
@@ -40,11 +42,16 @@ export class NotificationService {
       id,
       visualized: false,
       createdAt: new Date(),
+      sent: false,
     });
 
     const notificationCreated =
       this.notiticationRepository.findNotificationById(id, dto.receiverId);
 
-    return rigth(notificationCreated);
+    const userIsConnected = this.gatewayService.userIsConnected(dto.receiverId);
+
+    if(userIsConnected.isRigth()) {
+
+    }
   }
 }

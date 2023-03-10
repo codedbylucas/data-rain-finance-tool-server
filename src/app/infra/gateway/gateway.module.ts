@@ -8,5 +8,6 @@ import { GatewayService } from './services/gateway.service';
 @Module({
   imports: [NotificationModule, CriptographyModule],
   providers: [GatewayController, GatewayService, GatewayRepository],
+  exports: [GatewayService],
 })
 export class GatewayModule {}

@@ -5,5 +5,6 @@ export interface NotificationEntity {
   title: string;
   message: string;
   visualized: boolean;
+  sent: boolean;
   createdAt: Date;
 }

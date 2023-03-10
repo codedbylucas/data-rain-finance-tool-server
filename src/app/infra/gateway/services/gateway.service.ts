@@ -97,4 +97,12 @@ export class GatewayService {
     this.gatewayRepository.removeUserData(index);
     return rigth(null);
   }
+
+  userIsConnected(userId: string): Either<false, true> {
+    const userConnected = this.gatewayRepository.findUserById(userId);
+    if (!userConnected) {
+      return left(false);
+    }
+    return rigth(true);
+  }
 }
