@@ -4,6 +4,7 @@ import { GatewayController } from '../../controllers/gateway.controller';
 import { GatewayService } from '../../services/gateway.service';
 import { NotificationEntity } from '../notification/entities/notification.entity';
 import { SendingNotificationError } from './errors/sending-notification.error';
+import { NewNotificationPayload } from './protocols/new-notification.payload';
 
 @Injectable()
 export class NotificationEmitter {
@@ -25,9 +26,10 @@ export class NotificationEmitter {
       );
     }
 
+    delete notification.sent;
     this.gatewayController.server
       .to(user.clientId)
-      .emit('new-notification', notification);
+      .emit('new-notification', notification as NewNotificationPayload);
 
     return rigth(notification);
   }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationEntity } from '../entities/notification.entity';
-import { UpdateNotificationProps } from '../protocols/update-notification.props';
+import { UpdateNotificationProps } from '../protocols/props/update-notification.props';
 
 @Injectable()
 export class NotificationRepository {
