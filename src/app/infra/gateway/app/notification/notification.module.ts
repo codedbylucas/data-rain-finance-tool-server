@@ -1,6 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { GatewayModule } from '../../gateway.module';
-import { GatewayService } from '../../services/gateway.service';
 import { NotificationEmitter } from './notification.emitter';
 import { NotificationRepository } from './repositories/notification.repository';
 import { NotificationService } from './service/notification.service';

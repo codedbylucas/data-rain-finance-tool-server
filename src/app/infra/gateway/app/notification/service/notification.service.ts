@@ -78,4 +78,14 @@ export class NotificationService {
       }
     }
   }
+
+  checkNotificationToSend(receiverId: string): NotificationEntity[] {
+    const unsentNotifications =
+      this.notiticationRepository.findUnsentNotifications(receiverId);
+
+    if (unsentNotifications.length === 0) {
+      return null;
+    }
+    return unsentNotifications;
+  }
 }

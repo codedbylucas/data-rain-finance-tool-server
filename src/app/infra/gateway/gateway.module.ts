@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CriptographyModule } from '../criptography/criptography.module';
-import { GatewayController } from './controllers/gateway.controller';
 import { NotificationModule } from './app/notification/notification.module';
+import { GatewayController } from './controllers/gateway.controller';
 import { GatewayRepository } from './repositories/gateway.repository';
 import { GatewayService } from './services/gateway.service';
 

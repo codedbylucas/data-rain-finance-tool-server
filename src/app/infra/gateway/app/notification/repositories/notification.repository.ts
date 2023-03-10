@@ -40,4 +40,11 @@ export class NotificationRepository {
         props.visualized;
     }
   }
+
+  findUnsentNotifications(receiverId: string): NotificationEntity[] {
+    const notifications = this.notificationData[receiverId].filter(
+      (notification) => notification.sent === false,
+    );
+    return notifications;
+  }
 }
