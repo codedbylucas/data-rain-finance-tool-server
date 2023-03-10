@@ -5,6 +5,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { GatewayService } from '../../../services/gateway.service';
 import { NotificationEntity } from '../entities/notification.entity';
 import { InvalidParamError } from '../errors/invalid-param.error';
+import { NotificationEmitter } from '../notification.emitter';
 import { NotificationRepository } from '../repositories/notification.repository';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
@@ -13,6 +14,7 @@ export class NotificationService {
   constructor(
     private readonly notiticationRepository: NotificationRepository,
     private readonly gatewayService: GatewayService,
+    private readonly notificationEmitter: NotificationEmitter,
   ) {}
 
   createNotification(
@@ -28,7 +30,7 @@ export class NotificationService {
         ),
       );
     }
-    if (dto.title.length < 3 || dto.message.length > 30) {
+    if (dto.title.length < 3 || dto.title.length > 50) {
       return left(
         new InvalidParamError(
           `Notification title must contain between 3 and 30 characters`,
@@ -45,13 +47,18 @@ export class NotificationService {
       sent: false,
     });
 
-    const notificationCreated =
-      this.notiticationRepository.findNotificationById(id, dto.receiverId);
+    const notification = this.notiticationRepository.findNotificationById(
+      id,
+      dto.receiverId,
+    );
 
     const userIsConnected = this.gatewayService.userIsConnected(dto.receiverId);
+    if (userIsConnected) {
+      const sendToAUser = this.notificationEmitter.sendToAUser(notification);
 
-    if(userIsConnected.isRigth()) {
-
+      if(sendToAUser.isRigth()) {
+        
+      }
     }
   }
 }

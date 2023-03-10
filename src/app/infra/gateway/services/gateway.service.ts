@@ -98,11 +98,11 @@ export class GatewayService {
     return rigth(null);
   }
 
-  userIsConnected(userId: string): Either<false, true> {
+  userIsConnected(userId: string): boolean {
     const userConnected = this.gatewayRepository.findUserById(userId);
     if (!userConnected) {
-      return left(false);
+      return false;
     }
-    return rigth(true);
+    return true;
   }
 }

@@ -3,9 +3,12 @@ import { NotificationEntity } from '../entities/notification.entity';
 
 @Injectable()
 export class NotificationRepository {
-  private notificationData: { [receiverId: string]: [NotificationEntity] };
+  private notificationData: { [receiverId: string]: NotificationEntity[] } = {};
 
   save(receiverId: string, notification: NotificationEntity) {
+    if (!this.notificationData[receiverId]) {
+      this.notificationData[receiverId] = [];
+    }
     this.notificationData[receiverId].push(notification);
   }
 

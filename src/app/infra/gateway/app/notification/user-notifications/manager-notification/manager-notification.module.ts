@@ -6,5 +6,6 @@ import { ManagerNotificationService } from './services/manager-notification.serv
 @Module({
   imports: [UserModule, forwardRef(() => NotificationModule)],
   providers: [ManagerNotificationService],
+  exports: [ManagerNotificationService],
 })
 export class ManagerNotificationModule {}
