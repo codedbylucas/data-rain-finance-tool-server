@@ -78,7 +78,7 @@ export class RequestSendOvertimeService {
 
     const dateObject = formatDateStringToObject(dto.dateToSendTime);
 
-    let requestSendOvertimeCreated =
+    const requestSendOvertimeCreated =
       await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
         id: createUuid(),
         requestDescription: dto.requestDescription,

@@ -16,6 +16,7 @@ import { PositionService } from 'src/app/position/services/position.service';
 import { RoleService } from 'src/app/role/service/role.service';
 import { createUuid } from 'src/app/util/create-uuid';
 import { UserEntity } from '../entities/user.entity';
+import { AdminIds } from '../protocols/admin-ids.response';
 import { FindAllUserDataResponse } from '../protocols/db-find-all-user-data.response';
 import { DbFindManyUsersByQueryParam } from '../protocols/db-find-many-manger.response';
 import { FindaManyUsersByQueryParamResponse } from '../protocols/find-many-users-by-query-param.response';
@@ -215,6 +216,14 @@ export class UserService {
 
     const roleAddedToUser = await this.userRepository.updateUserById(id, dto);
     return roleAddedToUser;
+  }
+
+  async findAllAdminIds(): Promise<AdminIds[]> {
+    const usersOrEmpty = await this.userRepository.findAllAdminIds();
+    if (usersOrEmpty.length === 0) {
+      throw new NotFoundException(`No Admin found`);
+    }
+    return usersOrEmpty;
   }
 
   async updateUserAllocated(

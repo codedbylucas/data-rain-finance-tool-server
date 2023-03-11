@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApprovalStatus } from '@prisma/client';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { AdminNotificationService } from '../infra/gateway/app/notification/user-notifications/admin-notification/services/admin-notification.service';
 import { ManagerNotificationService } from '../infra/gateway/app/notification/user-notifications/manager-notification/services/manager-notification.service';
 import { AllRequestSendOvertimeUserStatusResponse } from './protocols/all-requests-send-overtime-user-status.response';
 import { FindRequestSendOvertimeResponse } from './protocols/find-request-send-overtime.response';
@@ -27,6 +28,7 @@ export class RequestSendOvertimeController {
   constructor(
     private readonly requestSendOvertimeService: RequestSendOvertimeService,
     private readonly managerNotificationService: ManagerNotificationService,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
 
   @Post('/user')
@@ -47,12 +49,18 @@ export class RequestSendOvertimeController {
         dto,
       );
 
-    await this.managerNotificationService.askPermissionToSendOvertime({
-      receiverId: requestSendOvertime.managerId,
-      senderId: payload.userId,
-      dateToSendTime: requestSendOvertime.dateToSendTime,
-    });
-
+    if (payload.roleName === 'manager') {
+      await this.adminNotificationService.askPermissionToSendOvertime({
+        senderId: payload.userId,
+        dateToSendTime: requestSendOvertime.dateToSendTime,
+      });
+    } else {
+      await this.managerNotificationService.askPermissionToSendOvertime({
+        receiverId: requestSendOvertime.managerId,
+        senderId: payload.userId,
+        dateToSendTime: requestSendOvertime.dateToSendTime,
+      });
+    }
     return;
   }
 
