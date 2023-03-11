@@ -33,6 +33,7 @@ export class QuestionRepository {
         select: {
           id: true,
           description: true,
+          position: true,
           alternatives: {
             select: {
               id: true,
@@ -52,6 +53,9 @@ export class QuestionRepository {
             },
           },
         },
+        orderBy: {
+          position: 'asc',
+        },
       })
       .catch(serverError);
     return questions;
@@ -61,8 +65,20 @@ export class QuestionRepository {
     await this.prisma.questions
       .update({
         where: { id },
+        data,
+      })
+      .catch(serverError);
+  }
+
+  async updateQuestionPositionById(
+    id: string,
+    position: number,
+  ): Promise<void> {
+    await this.prisma.questions
+      .update({
+        where: { id },
         data: {
-          description: data.description,
+          position,
         },
       })
       .catch(serverError);

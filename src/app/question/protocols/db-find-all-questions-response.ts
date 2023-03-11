@@ -1,6 +1,7 @@
 export interface DbFindAllQuestionResponse {
   id: string;
   description: string;
+  position: number;
   alternatives: {
     id: string;
     description: string;

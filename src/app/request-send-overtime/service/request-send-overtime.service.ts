@@ -32,7 +32,7 @@ export class RequestSendOvertimeService {
   async askPermissionToSendOvertime(
     userId: string,
     dto: AskPermissionToSendOvertimeDto,
-  ): Promise<void> {
+  ): Promise<RequestSendOvertimeEntity> {
     const userOrError = await this.userService.findUserById(userId);
     if (!userOrError.billable) {
       throw new BadRequestException(`Only billable user is authorized`);
@@ -78,18 +78,21 @@ export class RequestSendOvertimeService {
 
     const dateObject = formatDateStringToObject(dto.dateToSendTime);
 
-    await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
-      id: createUuid(),
-      requestDescription: dto.requestDescription,
-      userProjectId: userProjectOrError.id,
-      requestDate: formattedCurrentDate(new Date()),
-      managerId: projectManager.user.id,
-      approvalSatus: ApprovalStatus.analyze,
-      dateToSendTime: {
+    const requestSendOvertimeCreated =
+      await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
         id: createUuid(),
-        ...dateObject,
-      },
-    });
+        requestDescription: dto.requestDescription,
+        userProjectId: userProjectOrError.id,
+        requestDate: formattedCurrentDate(new Date()),
+        managerId: projectManager.user.id,
+        approvalSatus: ApprovalStatus.analyze,
+        dateToSendTime: {
+          id: createUuid(),
+          ...dateObject,
+        },
+      });
+
+    return requestSendOvertimeCreated;
   }
 
   async checkIfUserHasAlreadyMadeRequestForThatDate(
