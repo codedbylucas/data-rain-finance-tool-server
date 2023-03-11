@@ -13,7 +13,9 @@ export class ManagerNotificationService {
     private readonly notificationService: NotificationService,
   ) {}
 
-  async askPermissionToSendOvertime(dto: AskPermissionToSendOvertimeDto) {
+  async askPermissionToSendOvertime(
+    dto: AskPermissionToSendOvertimeDto,
+  ): Promise<void> {
     const userOrError = await this.userService.findUserById(dto.senderId);
     const dateToSendTImeFormated = formatDateObjectToString(dto.dateToSendTime);
 
@@ -24,8 +26,6 @@ export class ManagerNotificationService {
       message: `${userOrError.name} fez um pedido para realizar horas extras no dia ${dateToSendTImeFormated}`,
     };
 
-    const createdNotification =
-      this.notificationService.createNotification(notification);
-    return createdNotification;
+    this.notificationService.createNotification(notification);
   }
 }
