@@ -42,6 +42,10 @@ export class NotificationRepository {
   }
 
   findUnsentNotifications(receiverId: string): NotificationEntity[] {
+    if (!this.notificationData || !this.notificationData[receiverId]) {
+      return null;
+    }
+
     const notifications = this.notificationData[receiverId].filter(
       (notification) => notification.sent === false,
     );

@@ -6,15 +6,21 @@ import {
 } from '@nestjs/common';
 import { DecodedToken, JwtAdapter } from '../../criptography/jwt/jwt.adapter';
 import { Either, left, rigth } from '../../shared/either/either';
+import { NotificationService } from '../app/notification/service/notification.service';
 import { UserData } from '../protocols/user-data';
 import { GatewayRepository } from '../repositories/gateway.repository';
 
 @Injectable()
 export class GatewayService {
+  private notificationService: NotificationService;
   constructor(
     private readonly gatewayRepository: GatewayRepository,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
+
+  setNotificationService(notificationService: NotificationService) {
+    this.notificationService = notificationService;
+  }
 
   handleConnection(
     clientId: string,
@@ -42,6 +48,7 @@ export class GatewayService {
       }
       userSavedOrUpdated = userUpdated.value;
     }
+    this.notificationService.checkNotificationToSend(userId);
     return rigth(userSavedOrUpdated);
   }
 

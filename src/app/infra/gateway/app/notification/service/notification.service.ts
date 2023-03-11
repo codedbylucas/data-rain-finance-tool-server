@@ -6,6 +6,7 @@ import { GatewayService } from '../../../services/gateway.service';
 import { NotificationEntity } from '../entities/notification.entity';
 import { InvalidParamError } from '../errors/invalid-param.error';
 import { NotificationEmitter } from '../notification.emitter';
+import { UpdateNotificationProps } from '../protocols/props/update-notification.props';
 import { NotificationRepository } from '../repositories/notification.repository';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
@@ -62,30 +63,58 @@ export class NotificationService {
           notificationId,
         );
 
-        this.notiticationRepository.updateNotification(index, {
+        const notificationSent = this.updateNotification(index, {
           receiverId: dto.receiverId,
           notificationId,
           sent: true,
+          visualized: false,
         });
-
-        const notificationSent =
-          this.notiticationRepository.findNotificationById(
-            notificationId,
-            dto.receiverId,
-          );
 
         return rigth(notificationSent);
       }
     }
   }
 
-  checkNotificationToSend(receiverId: string): NotificationEntity[] {
+  updateNotification(
+    index: number,
+    props: UpdateNotificationProps,
+  ): NotificationEntity {
+    this.notiticationRepository.updateNotification(index, {
+      receiverId: props.receiverId,
+      notificationId: props.notificationId,
+      sent: props.sent,
+      visualized: props.visualized,
+    });
+
+    const notificationSent = this.notiticationRepository.findNotificationById(
+      props.notificationId,
+      props.receiverId,
+    );
+
+    return notificationSent;
+  }
+
+  checkNotificationToSend(receiverId: string): void {
     const unsentNotifications =
       this.notiticationRepository.findUnsentNotifications(receiverId);
 
-    if (unsentNotifications.length === 0) {
+    if (!unsentNotifications || unsentNotifications.length === 0) {
       return null;
     }
-    return unsentNotifications;
+
+    for (const notification of unsentNotifications) {
+      this.notificationEmitter.sendToAUser(notification);
+      const index = this.notiticationRepository.findNotificationIndex(
+        receiverId,
+        notification.id,
+      );
+
+      this.updateNotification(index, {
+        notificationId: notification.id,
+        receiverId,
+        sent: true,
+        visualized: false,
+      });
+    }
   }
 }
