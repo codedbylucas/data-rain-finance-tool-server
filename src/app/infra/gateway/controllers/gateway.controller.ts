@@ -12,10 +12,10 @@ import {
 } from './protocols/connection.payload';
 
 @WebSocketGateway({
-//   cors: {
-//     origin: 'http://localhost:3000',
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//   },
+  cors: {
+    origin: 'http://localhost:3000',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  },
   serveClient: false,
   pingInterval: 10000,
   pingTimeout: 5000,
