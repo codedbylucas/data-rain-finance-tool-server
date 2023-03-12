@@ -30,12 +30,8 @@ export class GatewayService {
     UserData
   > {
     const decodedToken = this.decodeToken(token);
-    if (decodedToken.isLeft()) {
-      return left(decodedToken.value);
-    }
-    const userId = decodedToken.value.userId;
+    const userId = decodedToken.userId;
     const userOrNull = this.findUserById(userId);
-
     let userSavedOrUpdated: UserData;
 
     if (!userOrNull) {
@@ -52,9 +48,7 @@ export class GatewayService {
     return rigth(userSavedOrUpdated);
   }
 
-  decodeToken(
-    token: string,
-  ): Either<BadGatewayException | InternalServerErrorException, DecodedToken> {
+  decodeToken(token: string): DecodedToken {
     const decodedToken = this.jwtAdapter.verifyToken(token);
     return decodedToken;
   }
@@ -92,10 +86,7 @@ export class GatewayService {
     token: string,
   ): Either<BadGatewayException | InternalServerErrorException, null> {
     const decodedToken = this.decodeToken(token);
-    if (decodedToken.isLeft()) {
-      return left(decodedToken.value);
-    }
-    const userId = decodedToken.value.userId;
+    const userId = decodedToken.userId;
     const userOrNull = this.findUserById(userId);
     if (!userOrNull) {
       return rigth(null);

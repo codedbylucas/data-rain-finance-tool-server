@@ -2,10 +2,8 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Either, left, rigth } from '../../shared/either/either';
 
 export interface DecodedToken {
   userId: string;
@@ -20,22 +18,17 @@ export class JwtAdapter {
     return accessToken;
   }
 
-  verifyToken(
-    accessToken: string,
-  ): Either<BadRequestException | InternalServerErrorException, DecodedToken> {
+  verifyToken(accessToken: string): DecodedToken {
     try {
       const decoded = this.jwtService.decode(accessToken) as DecodedToken;
       if (!decoded) {
-        return left(new BadRequestException('Invalid token'));
+        throw new BadRequestException('Invalid token');
       }
-
       const userId = decoded.userId;
-      return rigth({ userId });
+      return { userId };
     } catch (error) {
       console.log(error);
-      return left(
-        new InternalServerErrorException('Invalid or malformed token'),
-      );
+      throw new InternalServerErrorException('Invalid or malformed token');
     }
   }
 }
