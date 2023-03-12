@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 export interface DecodedToken {
@@ -20,15 +16,18 @@ export class JwtAdapter {
 
   verifyToken(accessToken: string): DecodedToken {
     try {
-      const decoded = this.jwtService.decode(accessToken) as DecodedToken;
-      if (!decoded) {
-        throw new BadRequestException('Invalid token');
-      }
+      const decoded = this.jwtService.verify(accessToken, {
+        secret: process.env.JWT_SECRET_KEY,
+      }) as DecodedToken;
       const userId = decoded.userId;
       return { userId };
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException('Invalid or malformed token');
+      if (error.name === 'TokenExpiredError') {
+        throw new BadRequestException(`Token expired`);
+      } else {
+        throw new BadRequestException(`Token is invalid`);
+      }
     }
   }
 }
