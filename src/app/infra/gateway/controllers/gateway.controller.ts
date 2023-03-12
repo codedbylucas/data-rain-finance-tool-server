@@ -11,11 +11,11 @@ import {
   SendConnectionPayload,
 } from './protocols/connection.payload';
 
-@WebSocketGateway(81, {
-  cors: {
-    origin: 'http://localhost:3000',
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  },
+@WebSocketGateway({
+//   cors: {
+//     origin: 'http://localhost:3000',
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//   },
   serveClient: false,
   pingInterval: 10000,
   pingTimeout: 5000,
