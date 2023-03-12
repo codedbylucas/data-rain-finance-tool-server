@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DecodedToken, JwtAdapter } from '../../criptography/jwt/jwt.adapter';
-import { Either, left, rigth } from '../../shared/either/either';
+import { Either, rigth } from '../../shared/either/either';
 import { NotificationService } from '../app/notification/service/notification.service';
 import { UserData } from '../protocols/user-data';
 import { GatewayRepository } from '../repositories/gateway.repository';
@@ -31,21 +31,9 @@ export class GatewayService {
   > {
     const decodedToken = this.decodeToken(token);
     const userId = decodedToken.userId;
-    const userOrNull = this.findUserById(userId);
-    let userSavedOrUpdated: UserData;
-
-    if (!userOrNull) {
-      this.saveUser({ clientId, userId });
-      userSavedOrUpdated = { clientId, userId };
-    } else {
-      const userUpdated = this.updateUserClientIdInRepository(clientId, userId);
-      if (userUpdated.isLeft()) {
-        return left(userUpdated.value);
-      }
-      userSavedOrUpdated = userUpdated.value;
-    }
+    this.saveUser({ clientId, userId });
     this.notificationService.checkNotificationToSend(userId);
-    return rigth(userSavedOrUpdated);
+    return rigth({ clientId, userId });
   }
 
   decodeToken(token: string): DecodedToken {
@@ -60,26 +48,6 @@ export class GatewayService {
 
   saveUser(userData: UserData) {
     this.gatewayRepository.saveUser(userData);
-  }
-
-  private updateUserClientIdInRepository(
-    newClientId: string,
-    userId: string,
-  ): Either<NotFoundException, UserData> {
-    const index = this.gatewayRepository.findUserIndex(userId);
-    if (index === undefined || index === null) {
-      return left(
-        new NotFoundException(
-          `User with userId '${userId}' not found in repository`,
-        ),
-      );
-    }
-    const userUpdated = this.gatewayRepository.updateClientIdInUserData(
-      newClientId,
-      index,
-    );
-
-    return rigth(userUpdated);
   }
 
   removeUserDisconnecting(
