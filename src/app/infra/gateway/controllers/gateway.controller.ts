@@ -64,7 +64,7 @@ export class GatewayController
 
       console.log(client.id, 'connect');
     } catch (error) {
-      console.log(error);
+      console.log('Error Connecting:', error);
       this.handleDisconnect(client);
       this.sendConnectionStatus({
         clientId: client.id,
@@ -82,7 +82,7 @@ export class GatewayController
       this.gatewayService.removeUserDisconnecting(client.handshake.auth.token);
       console.log(client.id, 'disconnect');
     } catch (error) {
-      console.log(error);
+      console.log('Error Disconnect:', error);
     }
   }
 
