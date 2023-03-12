@@ -1,11 +1,5 @@
-import {
-  BadGatewayException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DecodedToken, JwtAdapter } from '../../criptography/jwt/jwt.adapter';
-import { Either, rigth } from '../../shared/either/either';
 import { NotificationService } from '../app/notification/service/notification.service';
 import { UserData } from '../protocols/user-data';
 import { GatewayRepository } from '../repositories/gateway.repository';
@@ -22,12 +16,10 @@ export class GatewayService {
     this.notificationService = notificationService;
   }
 
-  handleConnection(clientId: string, token: string): UserData {
+  handleConnection(clientId: string, token: string): void {
     const decodedToken = this.decodeToken(token);
-    const userId = decodedToken.userId;
-    this.saveUser({ clientId, userId });
-    this.notificationService.checkNotificationToSend(userId);
-    return { clientId, userId };
+    this.saveUser({ clientId, userId: decodedToken.userId });
+    this.notificationService.checkNotificationToSend(decodedToken.userId);
   }
 
   decodeToken(token: string): DecodedToken {
@@ -40,22 +32,18 @@ export class GatewayService {
     return userOrNull;
   }
 
-  saveUser(userData: UserData) {
+  saveUser(userData: UserData): void {
     this.gatewayRepository.saveUser(userData);
   }
 
-  removeUserDisconnecting(
-    token: string,
-  ): Either<BadGatewayException | InternalServerErrorException, null> {
+  removeUserDisconnecting(token: string): void {
     const decodedToken = this.decodeToken(token);
-    const userId = decodedToken.userId;
-    const userOrNull = this.findUserById(userId);
+    const userOrNull = this.findUserById(decodedToken.userId);
     if (!userOrNull) {
-      return rigth(null);
+      return null;
     }
-    const index = this.gatewayRepository.findUserIndex(userId);
+    const index = this.gatewayRepository.findUserIndex(decodedToken.userId);
     this.gatewayRepository.removeUserData(index);
-    return rigth(null);
   }
 
   userIsConnected(userId: string): boolean {
