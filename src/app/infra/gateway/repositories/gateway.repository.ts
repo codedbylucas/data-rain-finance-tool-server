@@ -14,11 +14,6 @@ export class GatewayRepository {
     return userOrNull;
   }
 
-  updateClientIdInUserData(newClientId: string, index: number): UserData {
-    this.userData[index].clientId = newClientId;
-    return this.userData[index];
-  }
-
   findUserIndex(userId: string): number {
     for (let i = 0; i < this.userData.length; i++) {
       if (this.userData[i].userId === userId) {
