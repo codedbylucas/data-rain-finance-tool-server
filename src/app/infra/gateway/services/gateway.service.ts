@@ -22,18 +22,12 @@ export class GatewayService {
     this.notificationService = notificationService;
   }
 
-  handleConnection(
-    clientId: string,
-    token: string,
-  ): Either<
-    BadGatewayException | NotFoundException | InternalServerErrorException,
-    UserData
-  > {
+  handleConnection(clientId: string, token: string): UserData {
     const decodedToken = this.decodeToken(token);
     const userId = decodedToken.userId;
     this.saveUser({ clientId, userId });
     this.notificationService.checkNotificationToSend(userId);
-    return rigth({ clientId, userId });
+    return { clientId, userId };
   }
 
   decodeToken(token: string): DecodedToken {
