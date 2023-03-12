@@ -94,7 +94,7 @@ export class NormalHourService {
     const date = formattedCurrentDate(new Date());
       console.log('date', date)
       console.log(new Date())
-      console.log('new date', newDate)
+      console.log('formatted date', formattedCurrentDate(newDate))
       
     const normalHourOrNull =
       await this.normalHourRepository.findNormalHourByProjectIdAndDate(
