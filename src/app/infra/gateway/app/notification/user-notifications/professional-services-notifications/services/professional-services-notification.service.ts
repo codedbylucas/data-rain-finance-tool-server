@@ -23,16 +23,21 @@ export class ProfessionalServicesNotificationService {
       );
 
       let notification: CreateNotificationDto = null;
-      if (dto.approved) {
-        notification = this.returnApprovalNotification({
-          senderId: dto.senderId,
-          receiverId: dto.receiverId,
-          senderName: senderOrError.name,
-          dateToSendTime: dateToSendTImeFormated,
-          imageUrl: senderOrError.imageUrl,
-          projectId: dto.projectId,
-        });
+
+      let approved = true;
+      if (!dto.approved) {
+        approved = false;
       }
+
+      notification = this.returnRequestSendOvertimeStatus({
+        senderId: dto.senderId,
+        receiverId: dto.receiverId,
+        senderName: senderOrError.name,
+        dateToSendTime: dateToSendTImeFormated,
+        imageUrl: senderOrError.imageUrl,
+        projectId: dto.projectId,
+        approved,
+      });
 
       const notificationOrError =
         this.notificationService.createNotification(notification);
@@ -48,14 +53,18 @@ export class ProfessionalServicesNotificationService {
     }
   }
 
-  private returnApprovalNotification(
+  private returnRequestSendOvertimeStatus(
     props: RequestSendOvertimeStatusProps,
   ): CreateNotificationDto {
+    let approvedMessage = 'aprovou';
+    if (!props.approved) {
+      approvedMessage = 'reprovou';
+    }
     const notification: CreateNotificationDto = {
       receiverId: props.receiverId,
       route: `/request-send-overtime/user/status/${props.projectId}`,
       title: `Pedido aprovado`,
-      message: `${props.senderName} aprovou seu pedido para realizar horas extras no dia ${props.dateToSendTime}`,
+      message: `${props.senderName} ${approvedMessage} seu pedido para realizar horas extras no dia ${props.dateToSendTime}`,
       imageUrl: props.imageUrl,
       type: 'overtime_status',
     };

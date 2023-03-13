@@ -5,4 +5,5 @@ export interface RequestSendOvertimeStatusProps {
   dateToSendTime: string;
   imageUrl: string;
   projectId: string;
+  approved: boolean;
 }

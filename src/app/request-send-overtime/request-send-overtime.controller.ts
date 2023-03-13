@@ -139,12 +139,23 @@ export class RequestSendOvertimeController {
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
     @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
   ) {
-    return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
-      dto.requestSendOvertimeId,
+    const response =
+      await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
+        dto.requestSendOvertimeId,
+        {
+          approvalSatus: ApprovalStatus.reproved,
+          validationDate: new Date(),
+          validatedByUserId: payload.userId,
+        },
+      );
+
+    this.professionalServicesNotificationService.requestStatusChangeToSubmitOvertime(
       {
-        approvalSatus: ApprovalStatus.reproved,
-        validationDate: new Date(),
-        validatedByUserId: payload.userId,
+        senderId: payload.userId,
+        receiverId: response.userId,
+        dateToSendTime: response.dateToSendTime,
+        approved: false,
+        projectId: response.projectId,
       },
     );
   }
