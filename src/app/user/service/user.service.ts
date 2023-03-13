@@ -218,12 +218,12 @@ export class UserService {
     return roleAddedToUser;
   }
 
-  async findAllAdminIds(): Promise<AdminIds[]> {
-    const usersOrEmpty = await this.userRepository.findAllAdminIds();
-    if (usersOrEmpty.length === 0) {
-      throw new NotFoundException(`No Admin found`);
+  async findTheAdminId(): Promise<string> {
+    const userOrNull = await this.userRepository.findTheAdminId();
+    if (!userOrNull) {
+      return null;
     }
-    return usersOrEmpty;
+    return userOrNull.id;
   }
 
   async updateUserAllocated(

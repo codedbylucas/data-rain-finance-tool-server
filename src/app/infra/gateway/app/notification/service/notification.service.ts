@@ -50,8 +50,8 @@ export class NotificationService {
     });
 
     const notification = this.findOneNotification(
-      notificationId,
       dto.receiverId,
+      notificationId,
     );
 
     const userIsConnected = this.gatewayService.userIsConnected(dto.receiverId);
