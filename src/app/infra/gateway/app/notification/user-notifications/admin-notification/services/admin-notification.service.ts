@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/app/user/service/user.service';
 import { formatDateObjectToString } from 'src/app/util/format-date-object-to-string';
+import { NotificationTypes } from '../../../entities/notification.entity';
 import { SendingNotificationError } from '../../../errors/sending-notification.error';
 import { NotificationEmitter } from '../../../notification.emitter';
 import { CreateNotificationDto } from '../../../service/dto/create-notification.dto';
@@ -36,6 +37,8 @@ export class AdminNotificationService {
       route: '/request-send-overtime',
       title: `Pedido para realizar horas extras`,
       message: `${userOrError.name} fez um pedido para realizar horas extras no dia ${dateToSendTImeFormated}`,
+      imageUrl: userOrError.imageUrl,
+      type: 'request_send_overtime',
     };
 
     const notificationOrError =
