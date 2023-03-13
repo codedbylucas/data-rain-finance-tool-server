@@ -5,6 +5,10 @@ export interface NotificationEntity {
   title: string;
   message: string;
   visualized: boolean;
+  imageUrl: string;
+  type: NotificationTypes;
   sent: boolean;
   createdAt: Date;
 }
+
+export type NotificationTypes = 'request_send_overtime' | 'budget_request';

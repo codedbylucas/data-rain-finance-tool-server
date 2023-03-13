@@ -116,8 +116,8 @@ export class UserRepository {
     return users;
   }
 
-  async findAllAdminIds(): Promise<AdminIds[]> {
-    const usersOrEmpty = await this.prisma.users
+  async findTheAdminId(): Promise<AdminIds> {
+    const adminIdOrEmpty = await this.prisma.users
       .findMany({
         where: {
           role: {
@@ -130,7 +130,7 @@ export class UserRepository {
       })
       .catch(serverError);
 
-    return usersOrEmpty;
+    return adminIdOrEmpty[0];
   }
 
   async updateOwnUser(id: string, data: UpdateOwnUserDto): Promise<UserEntity> {

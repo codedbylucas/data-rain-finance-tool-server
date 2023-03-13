@@ -42,26 +42,25 @@ export class RequestSendOvertimeController {
     @RolesAccess([Role.professionalServices, Role.manager])
     payload: UserPayload,
     @Body() dto: AskPermissionToSendOvertimeDto,
-  ): Promise<void> {
+  ) {
     const requestSendOvertime =
       await this.requestSendOvertimeService.askPermissionToSendOvertime(
         payload.userId,
         dto,
       );
 
-    if (payload.roleName === 'manager') {
-      await this.adminNotificationService.askPermissionToSendOvertime({
-        senderId: payload.userId,
-        dateToSendTime: requestSendOvertime.dateToSendTime,
-      });
-    } else {
+    if (payload.roleName === 'professional services') {
       await this.managerNotificationService.askPermissionToSendOvertime({
         receiverId: requestSendOvertime.managerId,
         senderId: payload.userId,
         dateToSendTime: requestSendOvertime.dateToSendTime,
       });
     }
-    return;
+
+    await this.adminNotificationService.askPermissionToSendOvertime({
+      senderId: payload.userId,
+      dateToSendTime: requestSendOvertime.dateToSendTime,
+    });
   }
 
   @Get()

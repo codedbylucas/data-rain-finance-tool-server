@@ -4,6 +4,7 @@ import { GatewayController } from '../../controllers/gateway.controller';
 import { GatewayService } from '../../services/gateway.service';
 import { NotificationEntity } from '../notification/entities/notification.entity';
 import { SendingNotificationError } from './errors/sending-notification.error';
+import { ErrorNotificationPayload } from './protocols/error-notification.payload';
 import { NewNotificationPayload } from './protocols/new-notification.payload';
 
 @Injectable()
@@ -32,5 +33,17 @@ export class NotificationEmitter {
       .emit('new-notification', notification as NewNotificationPayload);
 
     return rigth(notification);
+  }
+
+  sendError(receiverId: string, error: Error) {
+    const errorMessage = {
+      name: error.name,
+      message: error.message,
+    };
+
+    const user = this.gatewayService.findUserById(receiverId);
+    this.gatewayController.server
+      .to(user.clientId)
+      .emit('error', errorMessage as ErrorNotificationPayload);
   }
 }

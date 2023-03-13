@@ -41,35 +41,30 @@ export class GatewayController
         return;
       }
 
-      const connection = this.gatewayService.handleConnection(
+      this.gatewayService.handleConnection(
         client.id,
         client.handshake.auth.token,
       );
-
-      if (connection.isLeft()) {
-        this.handleDisconnect(client);
-        this.sendConnectionStatus({
-          clientId: client.id,
-          connected: false,
-          message: 'Error making connection',
-        });
-        return;
-      }
-
       this.sendConnectionStatus({
         clientId: client.id,
         connected: true,
-        message: 'Connection made successfully',
+        message: 'Successful connection',
       });
 
       console.log(client.id, 'connect');
     } catch (error) {
-      console.log(error);
+      console.log('Error Connecting:', error);
+      
+      let message = 'Error making connection';
+      if (error.response.message) {
+        message = error.response.message;
+      }
+
       this.handleDisconnect(client);
       this.sendConnectionStatus({
         clientId: client.id,
         connected: false,
-        message: 'Error making connection',
+        message,
       });
     }
   }
@@ -82,7 +77,7 @@ export class GatewayController
       this.gatewayService.removeUserDisconnecting(client.handshake.auth.token);
       console.log(client.id, 'disconnect');
     } catch (error) {
-      console.log(error);
+      console.log('Error Disconnect:', error);
     }
   }
 
