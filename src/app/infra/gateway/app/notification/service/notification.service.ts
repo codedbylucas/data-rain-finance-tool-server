@@ -5,6 +5,7 @@ import { createUuid } from 'src/app/util/create-uuid';
 import { GatewayService } from '../../../services/gateway.service';
 import { NotificationEntity } from '../entities/notification.entity';
 import { InvalidParamError } from '../errors/invalid-param.error';
+import { SendingNotificationError } from '../errors/sending-notification.error';
 import { NotificationEmitter } from '../notification.emitter';
 import { UpdateNotificationProps } from '../protocols/props/update-notification.props';
 import { NotificationRepository } from '../repositories/notification.repository';
@@ -18,11 +19,11 @@ export class NotificationService {
     private readonly notificationEmitter: NotificationEmitter,
   ) {}
 
-  createNotification(
+  public createNotification(
     dto: CreateNotificationDto,
-  ): Either<InvalidParamError, NotificationEntity> {
+  ): Either<InvalidParamError | SendingNotificationError, NotificationEntity> {
     if (!isUUID(dto.receiverId)) {
-      return left(new InvalidParamError(`The receiver id must be a uuid`));
+      throw new InvalidParamError(`The receiver id must be a uuid`);
     }
     if (dto.message.length < 3 || dto.message.length > 100) {
       return left(
@@ -48,58 +49,41 @@ export class NotificationService {
       sent: false,
     });
 
-    const notification = this.notiticationRepository.findNotificationById(
+    const notification = this.findOneNotification(
       notificationId,
       dto.receiverId,
     );
 
     const userIsConnected = this.gatewayService.userIsConnected(dto.receiverId);
     if (userIsConnected) {
-      const sendToAUser = this.notificationEmitter.sendToAUser(notification);
-
-      if (sendToAUser.isRigth()) {
-        const index = this.notiticationRepository.findNotificationIndex(
-          dto.receiverId,
-          notificationId,
-        );
-
-        const notificationSent = this.updateNotification(index, {
-          receiverId: dto.receiverId,
-          notificationId,
-          sent: true,
-          visualized: false,
-        });
-
-        return rigth(notificationSent);
+      const sendNotificationToUser =
+        this.notificationEmitter.sendToAUser(notification);
+      if (sendNotificationToUser.isLeft()) {
+        return left(sendNotificationToUser.value);
       }
+
+      const index = this.notiticationRepository.findNotificationIndex(
+        dto.receiverId,
+        notificationId,
+      );
+      const notificationUpdate = this.updateNotification(index, {
+        receiverId: dto.receiverId,
+        notificationId,
+        sent: true,
+        visualized: false,
+      });
+      return rigth(notificationUpdate);
     }
+
+    return rigth(notification);
   }
 
-  updateNotification(
-    index: number,
-    props: UpdateNotificationProps,
-  ): NotificationEntity {
-    this.notiticationRepository.updateNotification(index, {
-      receiverId: props.receiverId,
-      notificationId: props.notificationId,
-      sent: props.sent,
-      visualized: props.visualized,
-    });
-
-    const notificationSent = this.notiticationRepository.findNotificationById(
-      props.notificationId,
-      props.receiverId,
-    );
-
-    return notificationSent;
-  }
-
-  checkNotificationToSend(receiverId: string): void {
+  public checkNotificationToSend(receiverId: string): void {
     const unsentNotifications =
       this.notiticationRepository.findUnsentNotifications(receiverId);
 
     if (!unsentNotifications || unsentNotifications.length === 0) {
-      return null;
+      return;
     }
 
     for (const notification of unsentNotifications) {
@@ -116,5 +100,38 @@ export class NotificationService {
         visualized: false,
       });
     }
+  }
+
+  private findOneNotification(
+    receiverId: string,
+    notificationId: string,
+  ): NotificationEntity {
+    const notification = this.notiticationRepository.findNotificationById(
+      receiverId,
+      notificationId,
+    );
+    if (!notification) {
+      null;
+    }
+    return notification;
+  }
+
+  private updateNotification(
+    index: number,
+    props: UpdateNotificationProps,
+  ): NotificationEntity {
+    this.notiticationRepository.updateNotification(index, {
+      receiverId: props.receiverId,
+      notificationId: props.notificationId,
+      sent: props.sent,
+      visualized: props.visualized,
+    });
+
+    const notificationSent = this.notiticationRepository.findNotificationById(
+      props.notificationId,
+      props.receiverId,
+    );
+
+    return notificationSent;
   }
 }
