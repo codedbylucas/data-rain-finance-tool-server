@@ -51,10 +51,12 @@ export class GatewayController
         message: 'Successful connection',
       });
 
+      this.gatewayService.checkNotificationToSend(client.handshake.auth.token);
+
       console.log(client.id, 'connect');
     } catch (error) {
       console.log('Error Connecting:', error);
-      
+
       let message = 'Error making connection';
       if (error.response.message) {
         message = error.response.message;

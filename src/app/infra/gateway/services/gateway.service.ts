@@ -19,7 +19,6 @@ export class GatewayService {
   handleConnection(clientId: string, token: string): void {
     const decodedToken = this.decodeToken(token);
     this.saveUser({ clientId, userId: decodedToken.userId });
-    this.notificationService.checkNotificationToSend(decodedToken.userId);
   }
 
   decodeToken(token: string): DecodedToken {
@@ -44,6 +43,11 @@ export class GatewayService {
     }
     const index = this.gatewayRepository.findUserIndex(decodedToken.userId);
     this.gatewayRepository.removeUserData(index);
+  }
+
+  checkNotificationToSend(token: string): void {
+    const decodedToken = this.decodeToken(token);
+    this.notificationService.checkNotificationToSend(decodedToken.userId);
   }
 
   userIsConnected(userId: string): boolean {
