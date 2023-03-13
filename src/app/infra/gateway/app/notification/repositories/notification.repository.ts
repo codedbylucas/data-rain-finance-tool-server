@@ -14,9 +14,12 @@ export class NotificationRepository {
   }
 
   findNotificationById(
-    notificationId: string,
     receiverId: string,
+    notificationId: string,
   ): NotificationEntity {
+    if (!this.notificationData[receiverId]) {
+      return null;
+    }
     const notification = this.notificationData[receiverId].find(
       (notification) => notification.id === notificationId,
     );
@@ -24,6 +27,9 @@ export class NotificationRepository {
   }
 
   findNotificationIndex(receiverId: string, notificationId: string): number {
+    if (!this.notificationData[receiverId]) {
+      return null;
+    }
     for (let i = 0; i < this.notificationData[receiverId].length; i++) {
       if (this.notificationData[receiverId][i].id === notificationId) {
         return i;
@@ -31,7 +37,7 @@ export class NotificationRepository {
     }
   }
 
-  updateNotification(index: number, props: UpdateNotificationProps) {
+  updateNotification(index: number, props: UpdateNotificationProps): void {
     if (props.sent) {
       this.notificationData[props.receiverId][index].sent = props.sent;
     }
