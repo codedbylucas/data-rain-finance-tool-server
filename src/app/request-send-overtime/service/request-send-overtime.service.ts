@@ -202,6 +202,7 @@ export class RequestSendOvertimeService {
 
     const allRequests = requestsSendOvertimeOrEmpty.map((request) => ({
       id: request.id,
+      requestDescription: request.requestDescription,
       dateToSendTime: formatDateObjectToString({
         day: request.dateToSendTime.day,
         month: request.dateToSendTime.month,
