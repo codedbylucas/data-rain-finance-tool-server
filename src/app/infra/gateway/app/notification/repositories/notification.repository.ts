@@ -31,10 +31,12 @@ export class NotificationRepository {
       return null;
     }
     for (let i = 0; i < this.notificationData[receiverId].length; i++) {
+      console.log(i, this.notificationData[receiverId][i]);
       if (this.notificationData[receiverId][i].id === notificationId) {
         return i;
       }
     }
+    return null;
   }
 
   findAllUserNotifications(receiverId: string) {

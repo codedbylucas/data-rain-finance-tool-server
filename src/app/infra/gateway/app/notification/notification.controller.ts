@@ -3,6 +3,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,6 +18,20 @@ import { NotificationService } from './service/notification.service';
 @ApiTags('notification')
 export class NotificationControlelr {
   constructor(private readonly notificationService: NotificationService) {}
+
+  @Patch('visualized/:id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Make notification visualized',
+  })
+  viewNotification(
+    @Param('id', new ParseUUIDPipe()) notificationId: string,
+    @LoggedUser() userId: string,
+  ) {
+    return this.notificationService.viewNotification(userId, notificationId);
+  }
 
   @Get()
   @UseGuards(AuthGuard())
