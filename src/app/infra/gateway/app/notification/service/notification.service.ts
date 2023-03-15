@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { Either, left, rigth } from 'src/app/infra/shared/either/either';
 import { createUuid } from 'src/app/util/create-uuid';
@@ -100,6 +100,21 @@ export class NotificationService {
         visualized: false,
       });
     }
+  }
+
+  findAllUserNotifications(userId: string) {
+    const notificationsOrEmpty =
+      this.notiticationRepository.findAllUserNotifications(userId);
+
+    if (!notificationsOrEmpty || notificationsOrEmpty.length === 0) {
+      throw new NotFoundException(`Notifications not found`);
+    }
+
+    notificationsOrEmpty.sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    );
+
+    return notificationsOrEmpty;
   }
 
   private findOneNotification(

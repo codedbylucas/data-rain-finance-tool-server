@@ -37,6 +37,14 @@ export class NotificationRepository {
     }
   }
 
+  findAllUserNotifications(receiverId: string) {
+    if (!this.notificationData[receiverId]) {
+      return null;
+    }
+    const notificationsOrEmpty = this.notificationData[receiverId];
+    return notificationsOrEmpty;
+  }
+
   updateNotification(index: number, props: UpdateNotificationProps): void {
     if (props.sent) {
       this.notificationData[props.receiverId][index].sent = props.sent;
