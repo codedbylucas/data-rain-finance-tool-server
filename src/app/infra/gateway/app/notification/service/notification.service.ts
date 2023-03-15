@@ -111,7 +111,7 @@ export class NotificationService {
     }
 
     notificationsOrEmpty.sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
 
     return notificationsOrEmpty;
