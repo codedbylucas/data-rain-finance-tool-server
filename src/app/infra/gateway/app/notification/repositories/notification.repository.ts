@@ -35,6 +35,7 @@ export class NotificationRepository {
         return i;
       }
     }
+    return null;
   }
 
   findAllUserNotifications(receiverId: string) {

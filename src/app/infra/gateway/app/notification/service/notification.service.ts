@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { Either, left, rigth } from 'src/app/infra/shared/either/either';
 import { createUuid } from 'src/app/util/create-uuid';
@@ -102,7 +106,7 @@ export class NotificationService {
     }
   }
 
-  findAllUserNotifications(userId: string) {
+  public findAllUserNotifications(userId: string) {
     const notificationsOrEmpty =
       this.notiticationRepository.findAllUserNotifications(userId);
 
@@ -115,6 +119,28 @@ export class NotificationService {
     );
 
     return notificationsOrEmpty;
+  }
+
+  public viewNotification(receiverId: string, notificationId: string) {
+    const notification = this.findOneNotification(receiverId, notificationId);
+    if (!notification) {
+      throw new BadRequestException(`Notification not found`);
+    }
+
+    if (notification.visualized) {
+      throw new BadRequestException(`Notification has already been viewed`);
+    }
+
+    const index = this.notiticationRepository.findNotificationIndex(
+      receiverId,
+      notificationId,
+    );
+
+    this.updateNotification(index, {
+      notificationId,
+      receiverId,
+      visualized: true,
+    });
   }
 
   private findOneNotification(
