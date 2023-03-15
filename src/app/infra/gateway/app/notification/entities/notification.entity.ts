@@ -11,4 +11,7 @@ export interface NotificationEntity {
   createdAt: Date;
 }
 
-export type NotificationTypes = 'request_send_overtime' | 'budget_request';
+export type NotificationTypes =
+  | 'request_send_overtime'
+  | 'budget_request'
+  | 'overtime_status';

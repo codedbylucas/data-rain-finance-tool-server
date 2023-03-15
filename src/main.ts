@@ -30,6 +30,7 @@ async function bootstrap() {
     .addTag('normal-hour')
     .addTag('request-send-overtime')
     .addTag('overtime')
+    .addTag('notification')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

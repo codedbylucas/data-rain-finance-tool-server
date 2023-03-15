@@ -88,6 +88,11 @@ export class RequestSendOvertimeRepository {
           overtime: true,
           userProject: {
             select: {
+              project: {
+                select: {
+                  id: true,
+                },
+              },
               user: true,
             },
           },
