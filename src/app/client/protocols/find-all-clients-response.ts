@@ -3,4 +3,9 @@ export interface FindAllClientsResponse {
   companyName: string;
   email: string;
   phone: string;
+  technicalContact?: {
+    name: string;
+    email: string;
+    phone: string;
+  };
 }

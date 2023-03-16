@@ -65,6 +65,13 @@ export class ClientRepository {
           companyName: true,
           email: true,
           phone: true,
+          technicalContact: {
+            select: {
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
       })
       .catch(serverError);
