@@ -15,6 +15,7 @@ import { validateDateFormat } from 'src/app/util/validate-date-format';
 import { DateToSendTimeEntity } from '../entities/date-to-send-time.entity';
 import { RequestSendOvertimeEntity } from '../entities/request-send-overtime.entity';
 import { AllRequestSendOvertimeUserStatusResponse } from '../protocols/all-requests-send-overtime-user-status.response';
+import { ChangeStatusOfRequestSendOvertimeResponse } from '../protocols/change-status-of-request-send-overtime.response';
 import { DbRequestSendOvertimeResponse } from '../protocols/db-find-request-send-overtime.response';
 import { FindRequestSendOvertimeResponse } from '../protocols/find-request-send-overtime.response';
 import { ChangeStatusOfRequestSendOvertimeProps } from '../protocols/props/change-stauts-of-request-send-overtime.props';
@@ -32,7 +33,7 @@ export class RequestSendOvertimeService {
   async askPermissionToSendOvertime(
     userId: string,
     dto: AskPermissionToSendOvertimeDto,
-  ): Promise<void> {
+  ): Promise<RequestSendOvertimeEntity> {
     const userOrError = await this.userService.findUserById(userId);
     if (!userOrError.billable) {
       throw new BadRequestException(`Only billable user is authorized`);
@@ -78,18 +79,21 @@ export class RequestSendOvertimeService {
 
     const dateObject = formatDateStringToObject(dto.dateToSendTime);
 
-    await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
-      id: createUuid(),
-      requestDescription: dto.requestDescription,
-      userProjectId: userProjectOrError.id,
-      requestDate: formattedCurrentDate(new Date()),
-      managerId: projectManager.user.id,
-      approvalSatus: ApprovalStatus.analyze,
-      dateToSendTime: {
+    const requestSendOvertimeCreated =
+      await this.requestSendOvertimeRepository.askPermissionToSendOvertime({
         id: createUuid(),
-        ...dateObject,
-      },
-    });
+        requestDescription: dto.requestDescription,
+        userProjectId: userProjectOrError.id,
+        requestDate: formattedCurrentDate(new Date()),
+        managerId: projectManager.user.id,
+        approvalSatus: ApprovalStatus.analyze,
+        dateToSendTime: {
+          id: createUuid(),
+          ...dateObject,
+        },
+      });
+
+    return requestSendOvertimeCreated;
   }
 
   async checkIfUserHasAlreadyMadeRequestForThatDate(
@@ -199,6 +203,7 @@ export class RequestSendOvertimeService {
 
     const allRequests = requestsSendOvertimeOrEmpty.map((request) => ({
       id: request.id,
+      requestDescription: request.requestDescription,
       dateToSendTime: formatDateObjectToString({
         day: request.dateToSendTime.day,
         month: request.dateToSendTime.month,
@@ -213,7 +218,7 @@ export class RequestSendOvertimeService {
   async changeStatusOfRequestSendOvertime(
     id: string,
     props: ChangeStatusOfRequestSendOvertimeProps,
-  ) {
+  ): Promise<ChangeStatusOfRequestSendOvertimeResponse> {
     const requestSendOvertimeOrNull = await this.verifyRequestSendOvertimeExist(
       id,
     );
@@ -234,6 +239,12 @@ export class RequestSendOvertimeService {
       id,
       props,
     );
+
+    return {
+      projectId: requestSendOvertimeOrNull.userProject.project.id,
+      userId: requestSendOvertimeOrNull.userProject.user.id,
+      dateToSendTime: requestSendOvertimeOrNull.dateToSendTime,
+    };
   }
 
   async verifyRequestSendOvertimeExist(id: string) {

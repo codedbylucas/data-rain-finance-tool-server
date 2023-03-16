@@ -14,6 +14,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApprovalStatus } from '@prisma/client';
 import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
 import { UserPayload } from '../auth/protocols/user-payload';
+import { AdminNotificationService } from '../infra/gateway/app/notification/user-notifications/admin-notification/services/admin-notification.service';
+import { ManagerNotificationService } from '../infra/gateway/app/notification/user-notifications/manager-notification/services/manager-notification.service';
+import { ProfessionalServicesNotificationService } from '../infra/gateway/app/notification/user-notifications/professional-services-notifications/services/professional-services-notification.service';
 import { AllRequestSendOvertimeUserStatusResponse } from './protocols/all-requests-send-overtime-user-status.response';
 import { FindRequestSendOvertimeResponse } from './protocols/find-request-send-overtime.response';
 import { AprroveAndReproveRequestSendOvertimeDto } from './service/dto/aprrove-and-reprove-request-send-overtime.dto';
@@ -25,6 +28,9 @@ import { RequestSendOvertimeService } from './service/request-send-overtime.serv
 export class RequestSendOvertimeController {
   constructor(
     private readonly requestSendOvertimeService: RequestSendOvertimeService,
+    private readonly managerNotificationService: ManagerNotificationService,
+    private readonly adminNotificationService: AdminNotificationService,
+    private readonly professionalServicesNotificationService: ProfessionalServicesNotificationService,
   ) {}
 
   @Post('/user')
@@ -39,10 +45,24 @@ export class RequestSendOvertimeController {
     payload: UserPayload,
     @Body() dto: AskPermissionToSendOvertimeDto,
   ) {
-    return await this.requestSendOvertimeService.askPermissionToSendOvertime(
-      payload.userId,
-      dto,
-    );
+    const requestSendOvertime =
+      await this.requestSendOvertimeService.askPermissionToSendOvertime(
+        payload.userId,
+        dto,
+      );
+
+    if (payload.roleName === 'professional services') {
+      await this.managerNotificationService.askPermissionToSendOvertime({
+        receiverId: requestSendOvertime.managerId,
+        senderId: payload.userId,
+        dateToSendTime: requestSendOvertime.dateToSendTime,
+      });
+    }
+
+    await this.adminNotificationService.askPermissionToSendOvertime({
+      senderId: payload.userId,
+      dateToSendTime: requestSendOvertime.dateToSendTime,
+    });
   }
 
   @Get()
@@ -87,12 +107,23 @@ export class RequestSendOvertimeController {
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
     @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
   ) {
-    return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
-      dto.requestSendOvertimeId,
+    const response =
+      await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
+        dto.requestSendOvertimeId,
+        {
+          approvalSatus: ApprovalStatus.approved,
+          validationDate: new Date(),
+          validatedByUserId: payload.userId,
+        },
+      );
+
+    this.professionalServicesNotificationService.requestStatusChangeToSubmitOvertime(
       {
-        approvalSatus: ApprovalStatus.approved,
-        validationDate: new Date(),
-        validatedByUserId: payload.userId,
+        senderId: payload.userId,
+        receiverId: response.userId,
+        dateToSendTime: response.dateToSendTime,
+        approved: true,
+        projectId: response.projectId,
       },
     );
   }
@@ -108,12 +139,23 @@ export class RequestSendOvertimeController {
     @RolesAccess([Role.manager, Role.admin]) payload: UserPayload,
     @Body() dto: AprroveAndReproveRequestSendOvertimeDto,
   ) {
-    return await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
-      dto.requestSendOvertimeId,
+    const response =
+      await this.requestSendOvertimeService.changeStatusOfRequestSendOvertime(
+        dto.requestSendOvertimeId,
+        {
+          approvalSatus: ApprovalStatus.reproved,
+          validationDate: new Date(),
+          validatedByUserId: payload.userId,
+        },
+      );
+
+    this.professionalServicesNotificationService.requestStatusChangeToSubmitOvertime(
       {
-        approvalSatus: ApprovalStatus.reproved,
-        validationDate: new Date(),
-        validatedByUserId: payload.userId,
+        senderId: payload.userId,
+        receiverId: response.userId,
+        dateToSendTime: response.dateToSendTime,
+        approved: false,
+        projectId: response.projectId,
       },
     );
   }

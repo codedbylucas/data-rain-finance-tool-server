@@ -60,6 +60,8 @@
     "@types/sharp": "^0.31.0",
     "@types/supertest": "^2.0.11",
     "@types/uuid": "^9.0.0",
+    "@nestjs/platform-socket.io": "9.1.6",
+    "@nestjs/websockets": "9.1.6",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",

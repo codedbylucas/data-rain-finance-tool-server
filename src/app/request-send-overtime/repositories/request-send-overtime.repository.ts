@@ -41,7 +41,20 @@ export class RequestSendOvertimeRepository {
     };
 
     const askPermissionToSendOvertimeCreated =
-      await this.prisma.requestSendOvertime.create({ data }).catch(serverError);
+      await this.prisma.requestSendOvertime
+        .create({
+          data,
+          include: {
+            dateToSendTime: {
+              select: {
+                day: true,
+                month: true,
+                year: true,
+              },
+            },
+          },
+        })
+        .catch(serverError);
 
     return askPermissionToSendOvertimeCreated;
   }
@@ -75,6 +88,11 @@ export class RequestSendOvertimeRepository {
           overtime: true,
           userProject: {
             select: {
+              project: {
+                select: {
+                  id: true,
+                },
+              },
               user: true,
             },
           },
@@ -150,6 +168,7 @@ export class RequestSendOvertimeRepository {
         },
         select: {
           id: true,
+          requestDescription: true,
           dateToSendTime: true,
           approvalSatus: true,
         },

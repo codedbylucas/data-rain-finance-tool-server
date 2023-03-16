@@ -4,6 +4,7 @@ import { UpdateUserFirstAccesProps } from 'src/app/auth/protocols/props/update-u
 import { PrismaService } from 'src/app/infra/prisma/prisma.service';
 import { serverError } from 'src/app/util/server-error';
 import { UserEntity } from '../entities/user.entity';
+import { AdminIds } from '../protocols/admin-ids.response';
 import { FindAllUserDataResponse } from '../protocols/db-find-all-user-data.response';
 import { DbFindManyUsersByQueryParam } from '../protocols/db-find-many-manger.response';
 import { FindUserResponse } from '../protocols/find-user-response';
@@ -113,6 +114,23 @@ export class UserRepository {
       })
       .catch(serverError);
     return users;
+  }
+
+  async findTheAdminId(): Promise<AdminIds> {
+    const adminIdOrEmpty = await this.prisma.users
+      .findMany({
+        where: {
+          role: {
+            name: 'admin',
+          },
+        },
+        select: {
+          id: true,
+        },
+      })
+      .catch(serverError);
+
+    return adminIdOrEmpty[0];
   }
 
   async updateOwnUser(id: string, data: UpdateOwnUserDto): Promise<UserEntity> {
