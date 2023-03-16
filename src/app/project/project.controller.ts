@@ -60,13 +60,30 @@ export class ProjectController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Find user projects by token',
+    summary: 'Find user projects',
   })
   async findUserProjects(
     @RolesAccess([Role.professionalServices, Role.manager])
     payload: UserPayload,
   ) {
     return await this.projectService.findUserProjects(payload.userId);
+  }
+
+  @Get('/:id/user')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Find a user project',
+  })
+  async findAUserProject(
+    @Param('id', new ParseUUIDPipe()) projectId: string,
+    @RolesAccess([Role.professionalServices, Role.manager])
+    payload: UserPayload,
+  ) {
+    return await this.projectService.findAUserProject(
+      payload.userId,
+      projectId,
+    );
   }
 
   @Get()

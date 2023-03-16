@@ -217,6 +217,14 @@ export class ProjectService {
     return userProjects;
   }
 
+  async findAUserProject(userId: string, projectId: string) {
+    await this.verifyRelationUserAndProject(userId, projectId);
+    const projectOrNull = await this.projectRepository.findAUserProject(
+      projectId,
+    );
+    return projectOrNull;
+  }
+
   async verifyRelationUserAndProject(userId: string, projectId: string) {
     const userProjectOrNull = await this.projectRepository.findUserProjectById(
       userId,

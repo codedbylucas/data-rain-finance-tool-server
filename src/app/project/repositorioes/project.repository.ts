@@ -271,6 +271,45 @@ export class ProjectRepository {
     return userProjectsOrEmpty;
   }
 
+  async findAUserProject(id: string) {
+    const projectOrNull = await this.prisma.projects
+      .findUnique({
+        where: { id },
+        select: {
+          name: true,
+          description: true,
+          client: {
+            select: {
+              companyName: true,
+            },
+          },
+          users: {
+            select: {
+              user: {
+                select: {
+                  name: true,
+                  imageUrl: true,
+                  position: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                  role: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(serverError);
+
+    return projectOrNull;
+  }
+
   async findUserProjectById(userId: string, projectId: string) {
     const userProjectOrNull = await this.prisma.usersProjects
       .findUnique({
