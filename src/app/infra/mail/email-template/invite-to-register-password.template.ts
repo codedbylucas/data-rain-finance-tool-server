@@ -1,9 +1,10 @@
-import { InviteRegisterPasswordTemplateProps } from "../props/invite-register-password-template.props";
+import { InviteRegisterPasswordTemplateProps } from '../props/invite-register-password-template.props';
 
 export const inviteRegisterPasswordTemplate = (
   props: InviteRegisterPasswordTemplateProps,
 ) => {
   const { token, receiverName } = props;
+  const url = 'https://data-rain.vercel.app/novasenha/';
   return `<!DOCTYPE html>
   <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
@@ -326,7 +327,7 @@ export const inviteRegisterPasswordTemplate = (
                         <td style="text-align: center;">
                             <div class="text-author">
                                 <p>Clique aqui para acessar a plataforma:</p>
-                                 <p><a href="https://datarain.vercel.app/novasenha/${token}" target="_blank" class="btn btn-primary">Criar nova senha</a></p>
+                                 <p><a href="${url}${token}" target="_blank" class="btn btn-primary">Criar nova senha</a></p>
                              </div>
                         </td>
                       </tr>

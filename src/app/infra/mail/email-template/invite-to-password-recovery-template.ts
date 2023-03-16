@@ -4,6 +4,7 @@ export const invitePasswordRecoveryTemplate = (
   props: InvitePasswordRecoveryTemplate,
 ) => {
   const { token, receiverName } = props;
+  const url = 'https://data-rain.vercel.app/recuperar-senha/'
   return `
   <!DOCTYPE html>
   <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -329,7 +330,7 @@ export const invitePasswordRecoveryTemplate = (
                         <td style="text-align: center;">
                             <div class="text-author">
                                 <p>Clique aqui para acessar a plataforma:</p>
-                                 <p><a href="https://datarain.vercel.app/recuperar-senha/${token}" target="_blank" class="btn btn-primary">Criar nova senha</a></p>
+                                 <p><a href="${url}${token}" target="_blank" class="btn btn-primary">Criar nova senha</a></p>
                              </div>
                         </td>
                       </tr>
