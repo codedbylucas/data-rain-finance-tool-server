@@ -239,29 +239,6 @@ export class ProjectRepository {
               id: true,
               name: true,
               description: true,
-              client: {
-                select: {
-                  companyName: true,
-                },
-              },
-              users: {
-                where: {
-                  user: {
-                    role: {
-                      name: 'manager',
-                    },
-                  },
-                },
-                select: {
-                  user: {
-                    select: {
-                      id: true,
-                      name: true,
-                      email: true,
-                    },
-                  },
-                },
-              },
             },
           },
         },

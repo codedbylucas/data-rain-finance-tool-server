@@ -200,18 +200,9 @@ export class ProjectService {
     }
 
     const userProjects = userProjectsOrEmpty.map((userProject) => ({
-      project: {
-        id: userProject.project.id,
-        name: userProject.project.name,
-        description: userProject.project.description,
-      },
-      client: {
-        companyName: userProject.project.client?.companyName,
-      },
-      manager: {
-        name: userProject.project.users[0]?.user?.name,
-        email: userProject.project.users[0]?.user?.email,
-      },
+      id: userProject.project.id,
+      name: userProject.project.name,
+      description: userProject.project.description,
     }));
 
     return userProjects;
