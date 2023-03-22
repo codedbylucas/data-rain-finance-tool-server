@@ -1,19 +1,15 @@
-FROM 19.0.0-bullseye-slim as builder
+FROM node:19.0.0-alpine3.16 as builder
 
 WORKDIR /app
-
 COPY package*.json .
-
 COPY prisma ./prisma/
-
 RUN npm install
-
-COPY . .
-
 RUN npm run build
 
-FROM node:19.0.0-alpine3.16 as runner
 ENV NODE_ENV=production
+
+FROM gcr.io/distroless/nodejs18-debian11
+
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
