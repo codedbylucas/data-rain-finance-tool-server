@@ -9,8 +9,12 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Role, RolesAccess } from '../auth/decorators/roles.decorator';
+import { UserPayload } from '../auth/protocols/user-payload';
 import { CreateClienteResponse } from './protocols/create-client-response';
 import { FindAllClientsResponse } from './protocols/find-all-clients-response';
 import { FindClientByIdResponse } from './protocols/find-client-by-id-response';
@@ -23,14 +27,28 @@ import { UpdateClientDto } from './service/dto/update-client.dto';
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  @Post()
+  @Post('/register')
+  @ApiOperation({
+    summary: 'Client register',
+  })
+  async registerClient(
+    @Body() dto: CreateClientDto,
+  ): Promise<CreateClienteResponse> {
+    return await this.clientService.createClient(dto);
+  }
+
+  @Post('/create')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create a client',
   })
   async createClient(
-    @Body() dto: CreateClientDto,
+    @RolesAccess([Role.admin]) payload: UserPayload,
+    @Body()
+    dto: CreateClientDto,
   ): Promise<CreateClienteResponse> {
-    return await this.clientService.createClient(dto);
+    return await this.clientService.createClient(dto, payload.userId);
   }
 
   @Get()

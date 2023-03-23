@@ -16,7 +16,10 @@ import { UpdateClientDto } from './dto/update-client.dto';
 export class ClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
-  async createClient(dto: CreateClientDto): Promise<CreateClienteResponse> {
+  async createClient(
+    dto: CreateClientDto,
+    userId?: string,
+  ): Promise<CreateClienteResponse> {
     if (!dto.technicalContact) {
       delete dto.technicalContact;
     }
@@ -25,12 +28,16 @@ export class ClientService {
     const clientOrNull = await this.clientRepository.findClientByEmail(
       dto.email,
     );
-    if (clientOrNull) {
+    if (clientOrNull && !userId) {
       return {
         id: clientOrNull.id,
         companyName: clientOrNull.companyName,
       };
     }
+    if (clientOrNull && userId) {
+      throw new BadRequestException(`Existing customer`);
+    }
+
     const clientCreated = await this.clientRepository.createClient({
       id: createUuid(),
       companyName: dto.companyName,
