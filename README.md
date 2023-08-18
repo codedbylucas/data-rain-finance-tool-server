@@ -62,7 +62,7 @@ Variaveis como:
   * MAIL_USER=
   * MAIL_PORT=
 
-São necessárias caso queira testar o envio de email, porém só podem ser obtida criando um email como host, aconselho que use o gmail.
+São necessárias caso queira testar o envio de email, porém só podem ser obtidas criando um email como host, aconselho que use o gmail.
 
 ## Execução
 
@@ -90,7 +90,7 @@ Após ter configurado o projeto e ter aguardado a instalação das dependências
   npm run start:dev
 ```
 
- A aplicação estará disponível para visualização em seu navegador, caso isso não aconteça automaticamente abre o navegador no seguinte endereço: _localhost:3333/api_
+ A aplicação estará disponível para visualização em seu navegador, caso isso não aconteça automaticamente, abra o navegador no seguinte endereço: _localhost:3333/api_
 
 
 ## Stacks Utilizadas
