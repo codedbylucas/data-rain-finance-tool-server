@@ -1,73 +1,108 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Data Rain Finance Tool Server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Bem-vindo ao Projeto de Integração Back-end da dataRain Consulting
+Este repositório abriga o resultado de um projeto desenvolvido como freelancer para a dataRain Consulting. O principal propósito deste projeto é aprimorar a comunicação e a eficiência entre as diversas equipes internas da empresa, ao mesmo tempo em que otimiza o processo de elaboração de orçamentos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Principais Objetivos:
 
-## Description
+**Facilitação da Comunicação Interdepartamental**: O foco central deste projeto é promover uma comunicação mais fluida e colaborativa entre as equipes da dataRain Consulting. Isso é alcançado através de uma API robusta que permite o compartilhamento de informações e dados essenciais entre diferentes áreas, contribuindo para uma visão unificada dos projetos em andamento.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Agilização do Processo de Orçamentação**: O projeto visa simplificar e acelerar a geração de orçamentos para projetos em nuvem. Ao fornecer uma estimativa preliminar dos custos envolvidos, permite aos clientes da dataRain ter uma visão antecipada dos investimentos necessários para a implementação de suas soluções em nuvem. Além disso, a plataforma oferece a flexibilidade de ajustar os valores conforme as necessidades e requisitos específicos de cada projeto.
 
-## Installation
+**Gestão Eficiente de Horas Trabalhadas**: A API oferece aos profissionais da dataRain uma maneira conveniente de registrar suas horas de trabalho. Além disso, possibilita a solicitação de autorização para horas extras junto aos gestores. Ao incluir detalhes como motivo e data planejada para as horas extras, o sistema garante um controle rigoroso e transparente das horas trabalhadas, promovendo uma gestão mais precisa e efetiva.
 
-```bash
-$ npm install
+
+
+## Pré-requisitos
+
+É imprescindível que você tenha instalado em seu computador o NodeJs e o PostgreSQL para que possa executar e testar este projeto.
+
+- **Node** - [https://nodejs.org/en/download/](https://nodejs.org/pt-br/download/)
+- **PostgreSQL** - [https://www.postgresql.org/download/](https://www.npmjs.com/package/download)
+
+## Instalação
+
+ Exemplo:
+
+ Clone esse projeto em seu computador com o comando:
+
+ ```
+ 	git clone [https://github.com/codedbylucas/data-rain-finance-tool-server.git]
+ ```
+
+ Acesse a pasta do projeto seu terminal:
+
+ ```
+ 	cd [data-rain-finance-tool-server]
+ ```
+
+ Já pasta da aplicação em seu terminal, digite o seguinte comando:
+
+ ```
+ 	npm install
+ ```
+
+ Crie um arquivo '.env' e preencha com as variáveis do arquivo '.env.example'
+
+ ```
+ DATABASE_URL="postgresql://[nome do usuário no postgres]:[senha do usuário]@localhost:[porta em que seu banco de dados está rodando, ex: '5432']/finance-tool"
+ ```
+
+ ```
+ JWT_SECRET="klsA92n9LWS9bfjs128$%"
+ ```
+
+ ```
+ CRYPTR_SECRET_KEY="38Lns82hDmA3rac$"
+ ```
+
+Variaveis como:
+  * MAIL_PASS=
+  * MAIL_HOST=
+  * MAIL_USER=
+  * MAIL_PORT=
+
+São necessárias caso queira testar o envio de email, porém só podem ser obtida criando um email como host, aconselho que use o gmail.
+
+## Execução
+
+Para instalar as dependências, execute o comando:
+
+```
+  npm install
 ```
 
-## Running the app
+Para criar as tabelas no banco de dados execute o comando:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+  npx prisma db push
 ```
 
-## Test
+Após ter configurado o projeto e ter aguardado a instalação das dependências de desenvolvimento, execute o comando:
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+  npm run start
 ```
 
-## Support
+ Caso queira que o projeto rode automaticamente após fazer alguma alteração no código execute o comando:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+  npm run start:dev
+```
 
-## Stay in touch
+ A aplicação estará disponível para visualização em seu navegador, caso isso não aconteça automaticamente abre o navegador no seguinte endereço: _localhost:3333/api_
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
+## Stacks Utilizadas
 
-Nest is [MIT licensed](LICENSE).
+- NestJs, TypeScript, JavaScript, Express, Swagger, Bcrypt, JWT, Nodemailer, Socket.io, cryptr, Prisma e PostgreSQL
+
+
+
+## Autor
+
+- **Lucas Marques** - Desenvolvedor - [Github](https://github.com/codedbylucas) | [Linkedin](https://www.linkedin.com/in/codedbylucas/)
+
+## Licença
+
+General Public License [GNU](https://www.gnu.org/licenses/gpl-3.0.html).
